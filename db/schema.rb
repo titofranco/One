@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100201205922) do
+ActiveRecord::Schema.define(:version => 20100202161644) do
 
   create_table "maproads", :force => true do |t|
     t.string  "way_type",     :limit => 10
@@ -38,5 +38,18 @@ ActiveRecord::Schema.define(:version => 20100201205922) do
   add_index "maproads", ["long_center"], :name => "index_maproads_on_long_center"
   add_index "maproads", ["long_end"], :name => "index_maproads_on_long_end"
   add_index "maproads", ["long_start"], :name => "index_maproads_on_long_start"
+
+  create_table "streetrelations", :id => false, :force => true do |t|
+    t.integer "maproad_id",                                         :null => false
+    t.integer "maproad_related_id",                                 :null => false
+    t.decimal "lat_start",          :precision => 15, :scale => 10
+    t.decimal "long_start",         :precision => 15, :scale => 10
+    t.decimal "lat_end",            :precision => 15, :scale => 10
+    t.decimal "long_end",           :precision => 15, :scale => 10
+    t.decimal "distance_meters",    :precision => 15, :scale => 10
+  end
+
+  add_index "streetrelations", ["maproad_id", "maproad_related_id"], :name => "index_streetrelations_on_maproad_id_and_maproad_related_id", :unique => true
+  add_index "streetrelations", ["maproad_related_id"], :name => "index_streetrelations_on_maproad_related_id"
 
 end
