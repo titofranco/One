@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(:version => 20100202161644) do
   add_index "maproads", ["long_end"], :name => "index_maproads_on_long_end"
   add_index "maproads", ["long_start"], :name => "index_maproads_on_long_start"
 
-  create_table "streetrelations", :id => false, :force => true do |t|
+  create_table "streetrelations", :force => true do |t|
     t.integer "maproad_id",                                         :null => false
     t.integer "maproad_related_id",                                 :null => false
     t.decimal "lat_start",          :precision => 15, :scale => 10
