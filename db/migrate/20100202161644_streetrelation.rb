@@ -1,7 +1,7 @@
 class Streetrelation < ActiveRecord::Migration
 
   def self.up
-    create_table :streetrelations, :id =>false do |t|
+    create_table :streetrelations do |t|
       t.column :maproad_id, :integer, :null => false
       t.column :maproad_related_id , :integer, :null=>false
       t.column :lat_start, :decimal, :precision =>15, :scale =>10
