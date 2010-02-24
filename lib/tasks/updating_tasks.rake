@@ -1,13 +1,18 @@
-
+require 'Harvesine'
 
 task :calculate_distance => :environment do
 
-street = Streetrelation.new
+h = Harvesine.new
+i=0
 
 (Streetrelation.find :all).each do |record|
 
-  distance = street.distanceHarvesine(record.lat_start,record.long_start,record.lat_end,record.long_end)
+  distance = h.distanceHarvesine(record.lat_start,record.long_start,record.lat_end,record.long_end)
   record.update_attribute(:distance_meters,distance)
+  if i % 1000 == 0
+  puts "#{i} records updated "
+  end
+  i=i+1
  # puts "start: #{record.lat_start},#{record.long_start}  end: #{record.lat_end},#{record.long_end} distance: #{distance}"
 
 end
