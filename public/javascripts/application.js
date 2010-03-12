@@ -3,7 +3,7 @@
 
 // Place your application-specific JavaScript functions and classes here
 // This file is automatically included by javascript_include_tag :defaults
-
+// 6.2645966700,-75.5877166080;
 var map;
 var centerLatitude = 6.2645966700;
 var centerLongitude = -75.5877166080;

@@ -1,4 +1,3 @@
-
 class Mda
 
 def initialize(rows,columns)
@@ -6,16 +5,17 @@ def initialize(rows,columns)
   @max_column = columns
   @a = Array.new(rows)
   @a.map! { Array.new(columns) }
+  @first_node = true
 end
 
+=begin
 def fill_array(row,column,value)
     @a[row-1][column-1]=value
 end
 
-
 def create_file
 
-  file = File.new("archivo.txt","w+")
+  file = File.new("archivo_salida.txt","w+")
   begin
     for i in 0 ... @max_row
       for j in 0 ... @max_column
@@ -28,6 +28,38 @@ def create_file
     end
 
     rescue StandardError => e
+    puts e
+  ensure
+    file.close if file.nil?
+  end
+
+end
+=end
+
+def fill_array(i,row,column,value)
+    @a[i][0]=row
+    @a[i][1]=column
+    @a[i][2]=value
+end
+
+def create_file
+
+  file = File.new("listas.txt","w+")
+  begin
+    for i in 0 ... @max_row-1
+      if @first_node
+      file.printf @a[i][0].to_s + ":"
+      end
+      if @a[i+1][0] == @a[i][0]
+        file.printf @a[i][1].to_s + "," + @a[i][2].to_s + ";"
+        @first_node = false
+      elsif @a[i+1][0] != @a[i][0]
+        file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "\n"
+        @first_node = true
+      end
+    end
+    file.printf("\n")
+  rescue StandardError => e
     puts e
   ensure
     file.close if file.nil?
