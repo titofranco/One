@@ -9,7 +9,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100316024240) do
+ActiveRecord::Schema.define(:version => 20100316034056) do
+
+  create_table "buses", :force => true do |t|
+    t.string   "company"
+    t.string   "vehicle_type"
+    t.string   "bus_stop_downtown"
+    t.decimal  "route_length_km",   :precision => 5, :scale => 5
+    t.string   "routes_taken"
+    t.datetime "created_at",                                      :default => '2010-03-15 22:56:58'
+    t.datetime "updated_at",                                      :default => '2010-03-15 22:56:58'
+  end
 
   create_table "roadmaps", :force => true do |t|
     t.string   "way_type",     :limit => 13
