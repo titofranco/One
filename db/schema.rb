@@ -9,6 +9,31 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 0) do
+ActiveRecord::Schema.define(:version => 20100312193650) do
+
+  create_table "roadmaps", :force => true do |t|
+    t.string   "way_type",     :limit => 13
+    t.string   "street_name",  :limit => 50
+    t.string   "common_name",  :limit => 50
+    t.string   "municipality", :limit => 20
+    t.string   "prefix",       :limit => 2
+    t.string   "label",        :limit => 20
+    t.decimal  "shape_length",               :precision => 15, :scale => 10
+    t.decimal  "lat_start",                  :precision => 15, :scale => 10, :null => false
+    t.decimal  "lat_center",                 :precision => 15, :scale => 10
+    t.decimal  "lat_end",                    :precision => 15, :scale => 10, :null => false
+    t.decimal  "long_start",                 :precision => 15, :scale => 10, :null => false
+    t.decimal  "long_center",                :precision => 15, :scale => 10
+    t.decimal  "long_end",                   :precision => 15, :scale => 10, :null => false
+    t.integer  "stretch_type",                                               :null => false
+    t.decimal  "speed_km_h",                 :precision => 15, :scale => 10
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "roadmaps", ["lat_end"], :name => "index_roadmaps_on_lat_end"
+  add_index "roadmaps", ["lat_start"], :name => "index_roadmaps_on_lat_start"
+  add_index "roadmaps", ["long_end"], :name => "index_roadmaps_on_long_end"
+  add_index "roadmaps", ["long_start"], :name => "index_roadmaps_on_long_start"
 
 end
