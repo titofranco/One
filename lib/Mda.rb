@@ -36,25 +36,26 @@ def create_file
 end
 =end
 
-def fill_array(i,row,column,value)
+def fill_array(i,row,column,value,stretch_type)
     @a[i][0]=row
     @a[i][1]=column
     @a[i][2]=value
+    @a[i][3]=stretch_type
 end
 
 def create_file
 
-  file = File.new("listas.txt","w+")
+  file = File.new("#{RAILS_ROOT}/lib/Text_Files/listas.txt","w+")
   begin
     for i in 0 ... @max_row-1
       if @first_node
       file.printf @a[i][0].to_s + ":"
       end
       if @a[i+1][0] == @a[i][0]
-        file.printf @a[i][1].to_s + "," + @a[i][2].to_s + ";"
+        file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," + @a[i][3].to_s + ";"
         @first_node = false
       elsif @a[i+1][0] != @a[i][0]
-        file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "\n"
+        file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," + @a[i][3].to_s + "\n"
         @first_node = true
       end
     end
@@ -73,8 +74,8 @@ def test_file
   puts "#The initial Time: #{iniTime} "
   m = Mda.new(10000,10000)
   puts  "#{Time.now - iniTime} seconds for creating the matrix}"
-  m.fill_array(1,1,"wahahhahah")
-  m.fill_array(1,10,"pos 1 10")
+  m.fill_array(1,1,"wahahhahah",1)
+  m.fill_array(1,10,"pos 1 10",2)
   puts  "#{Time.now - iniTime} seconds for FILLING the matrix}"
   m.create_file
   puts  "#{Time.now - iniTime} seconds for creating the file}"

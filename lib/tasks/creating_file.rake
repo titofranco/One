@@ -6,8 +6,8 @@ require 'csv'
 task :creating_file => :environment  do
 
   include ActionView::Helpers::NumberHelper
-  row = Streetrelation.maximum(:id)
-  column = 3
+  row = StreetRelation.maximum(:id)
+  column = 4
   puts "max row #{row}"
   #puts "max column #{column}"
   matrix_size = row*column
@@ -19,10 +19,10 @@ task :creating_file => :environment  do
   puts  "#{Time.now - iniTime} seconds for creating the matrix}"
 
   begin
-    csv = CSV.open("#{RAILS_ROOT}/lib/initial_matrix.csv","r")
+    csv = CSV.open("#{RAILS_ROOT}/lib/Text_Files/initial_matrix.csv","r")
     csv.each_with_index do |row,i|
-      row,column,distance_meters = row
-      mda.fill_array(i,row,column,distance_meters)
+      row,column,distance_meters,stretch_type = row
+      mda.fill_array(i,row,column,distance_meters,stretch_type)
       puts "#{i} records in matrix " if i % 10000 == 0
    end
   ensure
