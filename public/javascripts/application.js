@@ -9,14 +9,14 @@ var centerLatitude = 6.2645966700;
 var centerLongitude = -75.5877166080;
 var startZoom = 17;
 
-      var map = new google.maps.Map2(document.getElementById("map"));
+      var map = new GMap2(document.getElementById("content"));
 
         map.addControl(new GMapTypeControl());
         map.addControl(new GSmallMapControl());
         var location = new GLatLng(centerLatitude,centerLongitude);
         map.setCenter(location,startZoom);
 
-    $('#map').contextMenu('myMenu', {
+    $('#content').contextMenu('myMenu', {
 
       bindings: {
         'Punto_Inicial': function(t) {
