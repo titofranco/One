@@ -1,3 +1,13 @@
+.context {
+ font-family:Arial, sans-serif;
+ text-decoration:none;
+ color:#4444ff;
+ font-size:small;
+}
+a:hover div {
+ background:#eee;
+}
+
 
 #container
 {
