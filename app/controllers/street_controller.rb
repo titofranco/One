@@ -1,3 +1,4 @@
+require 'Dijkstra'
 class StreetController < ApplicationController
   def index
     @streets = StreetRelation.getMatrix

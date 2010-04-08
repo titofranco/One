@@ -1,13 +1,2 @@
 <h1>Streets</h1>
-<table>
-<% for street in @tapo -%>
-<tr>
-<td> <%= street.roadmap_id %> </td>
-<td> <%= street.roadmap_related_id %> </td>
-<td> <%= street.distance_meters %> </td>
-<td> <%= street.stretch_type %> </td>
-<td> <%= street.lat_start %> </td>
-<td> <%= street.long_start %> </td>
-</tr>
-<% end %>
-</table>
+<%= @msj %>
