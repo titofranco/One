@@ -64,10 +64,10 @@ g = p.crearGrafo "grafoMedellin.txt"
 ends = Time.now
 puts "se cargo el grafo en #{ends-start}"
 d = Dijkstra.new
-puts "Buscando camino desde 4 a 29029"
 start = Time.now
+puts "Buscando camino desde 4 a 29029. Empezamos #{start}"
 c = d.encontrarCamino g,4,29029
 ends = Time.now
 puts "El camino es"
 puts c.inspect
-
+puts "se demoro #{start-ends}"
