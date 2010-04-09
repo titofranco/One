@@ -1,9 +1,15 @@
 class Dijkstra
-  def findRoad arrayCalles,inicio,destino
-    puts "hola"
+
+  def self.mensaje #(arrayCalles,inicio,destino)
+    puts "resisas"
+    #m = arrayCalles.max{ |a,b| a.roadmap_id <=> b.roadmap_id}
+    #puts "chanfle #{m.inspect}"
   end
 
-  def msj
-    "hola"
-  end
+  # def self.mensaje texto
+  #   puts "resisas"
+  #   #m = arrayCalles.max{ |a,b| a.roadmap_id <=> b.roadmap_id}
+  #   #puts "chanfle #{m.inspect}"
+  # end
+
 end
