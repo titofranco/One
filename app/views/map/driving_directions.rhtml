@@ -22,19 +22,7 @@
 
 <div id="container">
 <div id="header">
-<fieldset>
 
-  <%form_remote_tag :url => {:action => :calcular} do %>
-  <label for="Initial_Point" >Punto Inicial</label>
-    <%=text_field_tag :initial_point, params[:initial_point], :size=>40%>
-
-  <label for="End Point">Punto Final</label>
-    <%=text_field_tag :end_point, params[:end_point], :size=>40%>
-    <p>
-    <%=submit_tag "Get Directions!"%>
-    </p>
-  <%end%>
-</fieldset>
 </div>
 
 <div id="left">
