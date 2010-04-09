@@ -8,6 +8,6 @@ class MapController < ApplicationController
   
   def calcularRuta
     @streets = StreetRelation.getMatrix
-    Dijkstra.encontrarCamino
+    Dijkstra.encontrarCamino @streets,4,5
   end
 end
