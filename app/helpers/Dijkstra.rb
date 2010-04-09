@@ -1,6 +1,6 @@
 class Dijkstra
 
-  def self.mensaje #(arrayCalles,inicio,destino)
+  def self.encontrarCamino #(arrayCalles,inicio,destino)
     puts "resisas"
     #m = arrayCalles.max{ |a,b| a.roadmap_id <=> b.roadmap_id}
     #puts "chanfle #{m.inspect}"
