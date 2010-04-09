@@ -13,10 +13,28 @@
 //function init(){
 $(document).ready(function(){
 
+if(GBrowserIsCompatible){
+
+var divheader=document.getElementById("header");
+var inputForm = document.createElement("form");
+inputForm.setAttribute("action","");
+inputForm.id='input_points';
+inputForm.onsubmit = function() {findRoute(); return false;};
+
+inputForm.innerHTML='<fieldset style="width:1000px;">'
+        + '<legend>Puntos</legend>'
+        + '<label for="initial_point">Punto Inicial</label>'
+        + '<input type="text" id="initial_point" name="initial_point" style="width:280px;"/>'
+        + '<label for="end_point">Punto Final</label>'
+        + '<input type="text" id="end_point" name="end_point" style="width:280px;"/>'
+        + '<p><input type="submit" value="Get Directions!"/></p>'
+        + '</fieldset>';
+divheader.appendChild(inputForm);
+console.debug("el input " + inputForm );
+
+//document.getElementById("header").innerHTML = inputForm;
 document.getElementById("initial_point").value='';
 document.getElementById("end_point").value='';
-
-if(GBrowserIsCompatible){
 
     var centerLatitude = 6.2645966700;
     var centerLongitude = -75.5877166080;
@@ -73,7 +91,8 @@ if(GBrowserIsCompatible){
     document.getElementById('zoomout_func').onclick=function(){zoomOut();return false;};
     document.getElementById('centerMap_func').onclick=function(){setCenter();return false;};
     document.getElementById('clearMarkers_func').onclick=function(){clearMarkers();return false;};
-
+//    document.getElementById('hola').onclick=function(){findRoute();return false;};
+//,
       function getInitialPoint() {
       var marker;
         if(countInitial==0){
@@ -82,11 +101,13 @@ if(GBrowserIsCompatible){
             document.getElementById("initial_point").value=lat+','+lng;
             contextmenu.style.visibility="hidden";
             countInitial=1;
+
+          GEvent.addListener(marker, "dragend", function() {
+            document.getElementById("initial_point").value=marker.getPoint().lat()+","+marker.getPoint().lng();
+          });
         }
 
-        GEvent.addListener(marker, "dragend", function() {
-         document.getElementById("initial_point").value=marker.getPoint().lat()+","+marker.getPoint().lng();
-        });
+
       }
 
       function getFinalPoint() {
@@ -97,11 +118,11 @@ if(GBrowserIsCompatible){
             document.getElementById("end_point").value=lat+','+lng;
             contextmenu.style.visibility="hidden";
             countFinal=1;
-         }
 
-        GEvent.addListener(marker, "dragend", function() {
-         document.getElementById("end_point").value=marker.getPoint().lat()+","+marker.getPoint().lng();
-        });
+            GEvent.addListener(marker, "dragend", function() {
+             document.getElementById("end_point").value=marker.getPoint().lat()+","+marker.getPoint().lng();
+            });
+         }
       }
 
 
@@ -142,6 +163,39 @@ if(GBrowserIsCompatible){
 }else{alert("Your Browser Is Not Compatible")}
 
 });
+
+function findRoute(){
+
+  var init_lat_lng = document.getElementById("initial_point").value;
+  var end_lat_lng = document.getElementById("end_point").value;
+  var getVars = "?initial_point="+init_lat_lng+"&end_point="+end_lat_lng;
+ // console.debug("las vars " + getVars);
+
+  var request = GXmlHttp.create();
+  request.open('GET', 'calcular'+getVars,true);
+  request.onreadystatechange = function() {
+    if(request.readyState == 4){
+
+       var success=false;
+       var content="Error contacting web service";
+       try{
+           res=eval("(" + request.responseText + ")" );
+           content=res.content;
+           success=res.success;
+       }catch (e){
+        success=false;
+       }
+       if(!success) {alert(content);}
+       else{
+           //aca el codigo
+           alert(content);
+       }
+
+    }
+}
+request.send(null);
+return false;
+}
 
 
 //}window.onload=init;
