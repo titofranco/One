@@ -9,20 +9,23 @@
 // Community Church Javascript Team
 // http://www.bisphamchurch.org.uk/
 // http://econym.org.uk/gmap/
-
+  var latlng_street=[];
+  var latlng_bus=[];
+var map;
 //function init(){
 $(document).ready(function(){
 
  if(GBrowserIsCompatible){
 
-  var centerLatitude = 6.2645966700;
-  var centerLongitude = -75.5877166080;
+  var centerLatitude = 6.158056953;
+  var centerLongitude = -75.595050354;
   var startZoom = 17;
   var lat;
   var lng;
   var point;
   var countInitial=0;
   var countFinal=0;
+
 
   var divheader=document.getElementById("header");
   var inputForm = document.createElement("form");
@@ -45,7 +48,7 @@ $(document).ready(function(){
   document.getElementById("initial_point").setAttribute("readonly","readonly");
   document.getElementById("end_point").setAttribute("readonly","readonly");
 
-  var map = new GMap2(document.getElementById("content"));
+  map = new GMap2(document.getElementById("content"));
   map.addControl(new GMapTypeControl());
   map.addControl(new GSmallMapControl());
   map.setMapType(G_SATELLITE_MAP);
@@ -189,10 +192,37 @@ function findRoute(){
        }
        if(!success) {alert(content);}
        else{
-           //aca el codigo
-           alert(content);
-       }
+          //aca el codigo
+//id    | roadmap_id | roadmap_related_id | lat_start    | long_start     | lat_end      | long_end       | distance_meters | stretch_type
 
+        console.debug("el length " + content.length)
+         for(var i=0;i<content.length;i++){
+          var roadmap_id=content[i].roadmap_id;
+          var maproad_related_id=content[i].roadmap_related_id;
+          var lat_start=content[i].lat_start;
+          var long_start=content[i].long_start;
+          var lat_end=content[i].lat_end;
+          var long_end=content[i].long_end;
+          var stretch_type=content[i].stretch_type;
+
+        /*  console.debug("el roadmap id " + roadmap_id);
+          console.debug("el related " + maproad_related_id);
+          console.debug("el lat_start " + lat_start);
+          console.debug("el long_start " + long_start);
+          console.debug("el lat_end " + lat_end);
+          console.debug("el long_end " + long_end);
+          console.debug("el stretch_type " + stretch_type);
+          //Se adiciona solo el inicial, porque la lat/long final del nodo i es igual*/
+          //a la lat/long inicial del nodo i+1
+
+          latlng_street.push(new GLatLng(lat_start,long_start));
+
+          }
+          //Se adiciona el ulitmo trayecto
+          latlng_street.push(new GLatLng(lat_end,long_end));
+          var polyline = new GPolyline(latlng_street,'#FF6633',4,0.8);
+          map.addOverlay(polyline);
+        }
     }
   }
   request.send(null);
