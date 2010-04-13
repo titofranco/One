@@ -1,8 +1,9 @@
 require 'Nodo'
 class Parser
   def crearGrafo nombreArchivo 
+    s = StreetRelation.new 
     grafo = Array.new
-    f = File.open(nombreArchivo,"r")
+    f = File.new("#{RAILS_ROOT}/lib/Text_Files/listas.txt","r")
     f.each do |line|
       temp = line.split(":")
       nodoI = temp.first
