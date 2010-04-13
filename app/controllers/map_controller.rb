@@ -8,6 +8,7 @@ class MapController < ApplicationController
   
   def calcularRuta
     @streets = StreetRelation.getMatrix
-    Dijkstra.encontrarCamino @streets,4,5
+    @camino = Dijkstra.encontrarCamino @streets,4,29029
+    puts "controlador #{@camino.inspect}"
   end
 end

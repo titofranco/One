@@ -44,6 +44,11 @@ class Mda
     @a[i][4]=lat
     @a[i][5]=lon
   end
+
+  # Metodo create_file
+  # crea un formato para leer desde disco sin tener que ir a la base de datos
+  # el formato que crea es
+  # nodo:nodoSiguiente,distancia,tipo;nodoSiguiente,distancia,tipo;...;&latitud,longitud\n
   
   def create_file
     file = File.new("#{RAILS_ROOT}/lib/Text_Files/listas.txt","w+")
@@ -56,7 +61,7 @@ class Mda
           file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," + @a[i][3].to_s + ";"
           @first_node = false
         elsif @a[i+1][0] != @a[i][0]
-          file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," + @a[i][3].to_s + "&" + @a[i][4].to_s + "-" + @a[i][5].to_s + "\n"
+          file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," + @a[i][3].to_s + "&" + @a[i][4].to_s + "," + @a[i][5].to_s + "\n"
           @first_node = true
         end
       end

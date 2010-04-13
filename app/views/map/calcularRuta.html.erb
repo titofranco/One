@@ -1,17 +1,2 @@
-<table board = 3>
-  <tr>
-  <td>id</td><td>conecta</td><td>distancia</td><td>tipo</td>
-  <td>lat start</td><td>long start</td>
-  </tr>
-<% for street in @streets -%>
-<tr>
-<td><%= street.roadmap_id %></td>
-  <td><%= street.roadmap_related_id %></td>
-  <td><%= street.distance_meters %></td>
-  <td><%= street.stretch_type %></td>
-  <td><%= street.lat_start %></td>
-  <td><%= street.long_start %></td>
-  </tr>
-  <% end %>
-   </table>  
+<%= @camino.inspect -%>
   
