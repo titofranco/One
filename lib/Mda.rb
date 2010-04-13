@@ -49,6 +49,18 @@ class Mda
     file = File.new("#{RAILS_ROOT}/lib/Text_Files/listas.txt","w+")
     begin
       for i in 0 ... @max_row-1
+
+        # if @first_node
+        #   file.printf @a[i][0].to_s + ":"
+        # end
+        # if @a[i+1][0] == @a[i][0]
+        #   file.printf @a[i][1].to_s + "," + @a[i][2].to_s + ";"
+        #   @first_node = false
+        # elsif @a[i+1][0] != @a[i][0]
+        #   file.printf @a[i][1].to_s + "," + @a[i][2].to_s + ";" + "\n"
+        #   @first_node = true
+        # end
+        
         if @first_node
           file.printf @a[i][0].to_s + ":"
         end
@@ -56,7 +68,8 @@ class Mda
           file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," + @a[i][3].to_s + ";"
           @first_node = false
         elsif @a[i+1][0] != @a[i][0]
-          file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," + @a[i][3].to_s + "&" + @a[i][4].to_s + "-" + @a[i][5].to_s + "\n"
+          file.printf @a[i][1].to_s + "," + @a[i][2].to_s + "," +
+            @a[i][3].to_s + "&" + @a[i][4].to_s + "," + @a[i][5].to_s + "\n"
           @first_node = true
         end
       end
