@@ -235,8 +235,10 @@ $(document).ready(function(){
     var brng = Math.atan2(x,y)%(2*Math.PI);
     brng  = brng*(180/Math.PI);
     if(brng < 0 ){brng = brng + 360;} //Convertir grados positivos a negativos
+    direction=getDirection(brng);
     console.debug("Los grados para los puntos: inicial-> " + lat_start + " " + long_start +
     " final-> " + lat_end + " " + long_end + " son: " +  brng);
+    console.debug("La direcion es: " + direction);
   }
 
   function drawpolyline(){
@@ -246,7 +248,21 @@ $(document).ready(function(){
     map.addOverlay(polyline_metro);
   }
 
+  function explainRoute(){}
+
   function getDirection(bearing){
+    var direction;
+    if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
+    {direction="Norte"}
+    else if (bearing > 22.5 && bearing <= 66.5 ){direction="Noreste"}
+    else if (bearing > 66.5 && bearing <= 115 ){direction="Este"}
+    else if (bearing > 115 && bearing <= 157.5 ){direction="Sureste"}
+    else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
+    else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroeste"}
+    else if (bearing > 247.5 && bearing <= 292.5 ){direction="Oeste"}
+    else if (bearing > 292.5 && bearing <=337.5  ){direction="Noroeste"}
+
+    return direction;
 
   }
 
