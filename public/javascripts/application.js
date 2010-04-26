@@ -9,15 +9,20 @@
 // Community Church Javascript Team
 // http://www.bisphamchurch.org.uk/
 // http://econym.org.uk/gmap/
-
+/*+-------+------------+--------------------+--------------+----------------+--------------+----------------+-----------------+--------------+
+| 46216 |      13779 |              17245 | 6.2462726380 | -75.5758657540 | 6.2549021110 | -75.6123003770 | 4139.9967796865 |            1 |
+| 46217 |      13779 |              17246 | 6.2462726380 | -75.5758657540 | 6.2549021110 | -75.6123003770 | 4139.9967796865 |            1 |
+| 58593 |      17245 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
+| 58599 |      17246 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
+*/
 //function init(){
 $(document).ready(function(){
 
  if(GBrowserIsCompatible){
 
-  var centerLatitude = 6.336830973;
-  var centerLongitude = -75.559142337;
-  var startZoom = 15;
+  var centerLatitude = 6.144775644;
+  var centerLongitude = -75.576174995;
+  var startZoom = 17;
   var lat;
   var lng;
   var countInitial=0;
@@ -239,23 +244,30 @@ $(document).ready(function(){
       direction:direction
       };
 
-      /*  console.debug("el roadmap id " + roadmap_id);
-      console.debug("el related " + maproad_related_id);*/
-       console.debug("el lat_start " + lat_start);
+//" prefix_a " + prefix_a
+
+console.debug("\n el ID: " + id + " INIT: " + lat_start+"," + long_start + " END: " + lat_end + "," + long_end +
+ " BEARING: " + bearing + " DIRECTION: " + direction  + " STREET_NAME_A: " + way_type_a + street_name_a +
+" STREET_NAME_B: "+ way_type_b + street_name_b + " STRETCH_TYPE: " + stretch_type);
+
+      // console.debug("el roadmap id " + roadmap_id);
+      // console.debug("el related " + maproad_related_id);
+      // console.debug("el lat_start " + lat_start);
       // console.debug("el long_start " + long_start);
-      //console.debug("el lat_end " + lat_end);
+      // console.debug("el lat_end " + lat_end);
       // console.debug("el long_end " + long_end);
-      //console.debug("el stretch_type " + stretch_type);
-      //Se adiciona solo el inicial, porque la lat/long final del nodo i es igual*/
-      //a la lat/long inicial del nodo i+1
+      // console.debug("el stretch_type " + stretch_type);
+      // Se adiciona solo el inicial, porque la lat/long final del nodo i es igual*/
+      // a la lat/long inicial del nodo i+1
       latlng_street.push(new GLatLng(lat_start,long_start));
+      //latlng_street.push(new GLatLng(lat_end,long_end));
       if(stretch_type > 2){latlng_metro.push(new GLatLng(lat_start,long_start));}
 
       }
     //Se adiciona el ulitmo trayecto
     latlng_street.push(new GLatLng(lat_end,long_end));
     drawpolyline(latlng_bus,latlng_street,latlng_metro);
-  //  explainRoute(infoRoute);
+    explainRoute(infoRoute);
   }
 
   //Got from http://stackoverflow.com/questions/5223/length-of-javascript-associative-array
@@ -311,21 +323,41 @@ $(document).ready(function(){
     var continueStraight=false;
     var size = Object.size(infoRoute);
     var explain;
+    var turn;
+    var first_node=true;
+
     console.debug("El tamaño del hash: " + size);
+
+
+  //console.debug("primer explain " + explain);
     for(var i=0;i<size-1;i++){
 
-      if(infoRoute.direction[i]==infoRoute.direction[i+1] && explain==false){
-         explain = "Siga derecho en direccion " + infoRoute.direction + " pasando por las siguientes vias ";
+      if(first_node){
+        explain = "Usted está en: " + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a +
+        " dirigete en direccion " + infoRoute[i].direction + " hacia la " + infoRoute[i+1].way_type_a +
+        " " + infoRoute[i+1].street_name_a ;
+        first_node=false;
+      }
+      else if(infoRoute[i].direction==infoRoute[i+1].direction && continueStraight==false){
+
+         explain += "\n Siga derecho en direccion " + infoRoute[i].direction + " pasando por las siguientes vias: " ;
          continueStraight=true;
+         i--;
       }
-      else if(continueStraight==true){
-        explain =  explain.way_type_a + " con " + infoRoute.street_name_a + " ";
+      else if(continueStraight==true && infoRoute[i].direction==infoRoute[i+1].direction){
+        explain +=  infoRoute[i].way_type_b + " con " + infoRoute[i].street_name_b + " .";
+//console.debug(":D:D");
       }
-      else if (infoRoute.direction[i] != infoRoute.direction[i+1]){
+      else if (infoRoute[i].direction != infoRoute[i+1].direction){
         //Poner voltear a tal direccion
-        explain = "voltear a la ";
+       // console.debug("hay que evaluar esto " + infoRoute[i].direction + " " + infoRoute[i+1].direction);
+        turn = eval_direction(infoRoute[i].direction,infoRoute[i+1].direction)
+        //console.debug(infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a);
+        explain += "\n voltear " + turn + " por " + infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a;
+        continueStraight = false;
       }
     }
+    console.debug("La respuesta de direccion \n: " + explain);
   /*  var divleftpanel = document.getElementById("left");
     var list = document.createElement("lu");
 
@@ -366,53 +398,10 @@ var tell;
   return tell;
 }
 
-  //OESTE
-  function where_to_turn_w(goes_to){
-    var turn;
-    // OESTE
-    if(goes_to=="Norte"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Noroeste" || goes_to=="Noreste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Sur"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Suroeste" || goes_to=="Sureste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Este"){
-      turn = "ALGO RARO PASA EN DIRECCION OESTE ESTE";
-    }
-  }
-
-  //ESTE
-  function where_to_turn_e(goes_to){
-    var turn;
-
-    //ESTE
-    if(goes_to=="Norte"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Noroeste" || goes_to == "Noreste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Sur"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Suroeste" || goes_to=="Sureste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Oeste"){
-      turn = "ALGO RARO PASA EN DIRECCION ESTE OESTE";
-    }
-    return turn;
-  }
-
+//NORTE
   function where_to_turn_n(goes_to){
     var turn;
-    //NORTE
+
     if(goes_to=="Este"){
       turn = "a la derecha";
     }
@@ -431,9 +420,54 @@ var tell;
     return turn;
   }
 
+  //OESTE
+  function where_to_turn_w(goes_to){
+    var turn;
+
+    if(goes_to=="Norte"){
+      turn = "a la derecha";
+    }
+    else if(goes_to=="Noroeste" || goes_to=="Noreste"){
+      turn = "ligeramente a la derecha en direccion " + goes_to;
+    }
+    else if(goes_to=="Sur"){
+      turn = "a la izquierda";
+    }
+    else if(goes_to=="Suroeste" || goes_to=="Sureste"){
+      turn = "ligeramente a la izquierda en direccion " + goes_to;
+    }
+    else if(goes_to=="Este"){
+      turn = "ALGO RARO PASA EN DIRECCION OESTE ESTE";
+    }
+  return turn;
+  }
+
+  //ESTE
+  function where_to_turn_e(goes_to){
+    var turn;
+
+    if(goes_to=="Norte"){
+      turn = "a la izquierda";
+    }
+    else if(goes_to=="Noroeste" || goes_to == "Noreste"){
+      turn = "ligeramente a la izquierda en direccion " + goes_to;
+    }
+    else if(goes_to=="Sur"){
+      turn = "a la derecha";
+    }
+    else if(goes_to=="Suroeste" || goes_to=="Sureste"){
+      turn = "ligeramente a la derecha en direccion " + goes_to;
+    }
+    else if(goes_to=="Oeste"){
+      turn = "ALGO RARO PASA EN DIRECCION ESTE OESTE";
+    }
+    return turn;
+  }
+
+    //SUR
   function where_to_turn_s(goes_to){
     var turn;
-    //SUR
+
     if(goes_to=="Este"){
       turn = "a la izquierda";
     }
@@ -452,14 +486,14 @@ var tell;
     return turn;
   }
 
-
+//SUROESTE
   function where_to_turn_sw(goes_to){
     var turn;
-    //SUROESTE
+
     if(goes_to=="Norte"){
       turn = "a la derecha";
     }
-    else if(goes_to===="Noroeste" || goes_to=="Oeste"){
+    else if(goes_to=="Noroeste" || goes_to=="Oeste"){
       turn = "ligeramente a la derecha en direccion " + goes_to;
     }
     else if(goes_to=="Sur" || goes_to=="Sureste"){
@@ -474,13 +508,13 @@ var tell;
     return turn;
   }
 
-//SUROESTE
+//SURESTE
   function where_to_turn_se(goes_to){
     var turn;
     if(goes_to=="Norte"){
       turn = "a la izquierda";
     }
-    else if(goes_to===="Noreste" || goes_to=="Este"){
+    else if(goes_to=="Noreste" || goes_to=="Este"){
       turn = "ligeramente a la izquierda en direccion " + goes_to;
     }
     else if(goes_to=="Sur" || goes_to=="Suroeste"){
@@ -502,7 +536,7 @@ var tell;
     if(goes_to=="Este"){
       turn = "a la derecha";
     }
-    else if(goes_to===="Oeste" || goes_to=="Suroeste"){
+    else if(goes_to=="Oeste" || goes_to=="Suroeste"){
       turn = "ligeramente a la izquierda en direccion " + goes_to;
     }
     else if(goes_to=="Norte" || goes_to=="Noreste"){
@@ -517,6 +551,27 @@ var tell;
     return turn;
   }
 
+  //NORESTE
+  function where_to_turn_ne(goes_to){
+    var turn;
+
+    if(goes_to=="Sur"){
+      turn = "a la derecha";
+    }
+    else if(goes_to=="Norte" || goes_to=="Noroeste"){
+      turn = "ligeramente a la izquierda en direccion " + goes_to;
+    }
+    else if(goes_to=="Este" || goes_to=="Sureste"){
+      turn = "ligeramente a la derecha en direccion " + goes_to;
+    }
+    else if(goes_to=="Oeste"){
+      turn = "a la izquierda";
+    }
+    else if(goes_to=="Suroeste"){
+      turn = "ALGO RARO PASA EN DIRECCION NORESTE SURESTE ";
+    }
+    return turn;
+  }
 
 
 
@@ -524,16 +579,6 @@ var tell;
 
 
 });
-
-    else if (bearing > 22.5 && bearing <= 66.5 ){direction="Noreste"}
-    else if (bearing > 66.5 && bearing <= 115 ){direction="Este"}
-    else if (bearing > 115 && bearing <= 157.5 ){direction="Sureste"}
-    else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
-    else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroeste"}
-    else if (bearing > 247.5 && bearing <= 292.5 ){direction="Oeste"}
-    else if (bearing > 292.5 && bearing <=337.5  ){direction="Noroeste"}
-
-
 //}window.onload=init;
 //Pagina 9 capitulo 3 para retornar la latitud longitud del marker
 //overlay y latlng son variables ya definidas por google
