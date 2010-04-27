@@ -17,6 +17,11 @@
 */
 //function init(){
 //function init(){
+var infoRoute=new Object();
+var map;
+var latlng_street=[];
+var latlng_bus=[];
+var latlng_metro=[];
 
 function windowHeight(){
   //Standard browsers (Mozilla,Safari,etc.)
@@ -33,14 +38,32 @@ function windowHeight(){
 }
 
 function handleResize(){
-  var height = windowHeight();
-  height -= document.getElementById('toolbar').offsetHeight-30;
+  var height = windowHeight()- document.getElementById('toolbar').offsetHeight-30;
   document.getElementById('map').style.height = height + 'px';
   document.getElementById('sidebar').style.height = height + 'px';
 }
 
-$(document).ready(function(){
+//Esta funcion debe estar afuera del init porque sino aparece el error
+//focusPoint is not defined
+function focusPoint(id){
+   drawpolyline(latlng_bus,latlng_street,latlng_metro);
+   var polyline = new GPolyline(
+                   [new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),
+                   new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end)]
+                   ,'#1068f0',4,0.8);
+   map.addOverlay(polyline);
+}
 
+  function drawpolyline(latlng_bus,latlng_street,latlng_metro){
+    var polyline = new GPolyline(latlng_street,'#FF6633',6,1);
+    map.addOverlay(polyline);
+    var polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,0.5);
+    map.addOverlay(polyline_metro);
+  }
+
+
+//$(document).ready(function(){
+function init(){
  if(GBrowserIsCompatible){
   handleResize();
   var centerLatitude = 6.144775644;
@@ -50,7 +73,6 @@ $(document).ready(function(){
   var lng;
   var countInitial=0;
   var countFinal=0;
-  var map;
   var point;
 
   var divheader=document.getElementById("toolbar");
@@ -226,10 +248,7 @@ $(document).ready(function(){
 
   function parseContent(content){
 
-    var latlng_street=[];
-    var latlng_bus=[];
-    var latlng_metro=[];
-    var infoRoute=new Object();
+
 
     for(var i=0;i<content.length;i++){
       var id = content[i].id;
@@ -335,12 +354,8 @@ console.debug("\n el ID: " + id + " INIT: " + lat_start+"," + long_start + " END
 
   }
 
-  function drawpolyline(latlng_bus,latlng_street,latlng_metro){
-    var polyline = new GPolyline(latlng_street,'#FF6633',4,0.8);
-    map.addOverlay(polyline);
-    var polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,0.5);
-    map.addOverlay(polyline_metro);
-  }
+
+
 
   function explainRoute(infoRoute){
     var continueStraight=false;
@@ -348,56 +363,57 @@ console.debug("\n el ID: " + id + " INIT: " + lat_start+"," + long_start + " END
     var explain;
     var turn;
     var first_node=true;
-
     console.debug("El tamaño del hash: " + size);
 
 
+
   //console.debug("primer explain " + explain);
-    for(var i=0;i<size-1;i++){
-
+//  document.getElementById('initial_point_func').onclick=function(){getInitialPoint();return false;};
+    for(var i=0;i<size;i++){
+ //a.innerHTML = '<a href="" onclick="alert(\'onclick\'); return false;">succeed</a>';
       if(first_node){
-        explain = "<li><a href=#> Usted está en: " + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a +
-        " dirigete en direccion " + infoRoute[i].direction + " hacia la " + infoRoute[i+1].way_type_a +
-        " " + infoRoute[i+1].street_name_a + "</a></li>";
-        first_node=false;
+        explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+ "Usted está en: " +
+        "<b>" + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a + "</b>" +
+        " dirigete en dirección " + infoRoute[i].direction + " hacia la "
+        +"<b>"+ infoRoute[i].way_type_b +  " " +
+         infoRoute[i].street_name_b + "</b></a></li>";
+         first_node=false;
       }
-      else if(infoRoute[i].direction==infoRoute[i+1].direction && continueStraight==false){
+      else if(infoRoute[i-1].direction==infoRoute[i].direction && continueStraight==false){
 
-         explain += "\n <li id='sidebar-item-"+infoRoute[i].id+"'><a href=#>Siga derecho en direccion " + infoRoute[i].direction + " pasando por las siguientes vias: " ;
+         explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+         "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
+         "<b>"+ infoRoute[i].way_type_b +  " " +
+         infoRoute[i].street_name_b + "</b></a></li>" ;
+
+         if(infoRoute[i].direction==infoRoute[i+1].direction)
          continueStraight=true;
-         i--;
+         //i--;
       }
-      else if(continueStraight==true && infoRoute[i].direction==infoRoute[i+1].direction){
-        explain +=  infoRoute[i].way_type_b + " con " + infoRoute[i].street_name_b + " .";
-        if(infoRoute[i+1].direction!=infoRoute[i+2].direction){
-          explain += "</li></a>";
-        }
-//console.debug(":D:D");
+      else if(continueStraight==true && infoRoute[i-1].direction==infoRoute[i].direction){
+        explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
+         "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
+         infoRoute[i].street_name_b + "</b></a></li>" ;
       }
-      else if (infoRoute[i].direction != infoRoute[i+1].direction){
-        //Poner voltear a tal direccion
-       // console.debug("hay que evaluar esto " + infoRoute[i].direction + " " + infoRoute[i+1].direction);
-
-        turn = eval_direction(infoRoute[i].direction,infoRoute[i+1].direction)
+      else if (infoRoute[i-1].direction != infoRoute[i].direction){
+        turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
         //console.debug(infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a);
-        explain += "\n<li><a href=#>  voltear " + turn + " por " + infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a + "</li></a>";
+        explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
+         "voltear " + "<b>"+ turn+"</b>" + " por " +
+         "<b>"+ infoRoute[i].way_type_b +  " " +
+         infoRoute[i].street_name_b + "</b></a></li>";
         continueStraight = false;
       }
     }
     console.debug("La respuesta de direccion \n: " + explain);
    // var divsidebar = document.getElementById("sidebar");
-    var newdiv = document.getElementById("sidebar-list");
-    newdiv.innerHTML=explain;
-   // divleft.appendChild(newdiv);
-
-  /*  var divleftpanel = document.getElementById("left");
-    var list = document.createElement("lu");
-
-    for(var i=0;i<10;i++){
-      list.innerHTML =
-    } */
+    var div_sidebar_list = document.getElementById("sidebar-list");
+    div_sidebar_list.innerHTML=explain;
 
   }
+
+
+
 
 function eval_direction(comes_from, goes_to){
 
@@ -616,9 +632,8 @@ pixels—the dimensions of their element, including any padding.
  }else{alert("Your Browser Is Not Compatible")}
 
 
-});
-//}window.onload=init;
-window.onresize = handleResize;
+//});
+}window.onload=init;
 window.onresize = handleResize;
 //Pagina 9 capitulo 3 para retornar la latitud longitud del marker
 //overlay y latlng son variables ya definidas por google
