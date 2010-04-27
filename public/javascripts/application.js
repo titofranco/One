@@ -16,10 +16,33 @@
 | 58599 |      17246 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
 */
 //function init(){
+//function init(){
+
+function windowHeight(){
+  //Standard browsers (Mozilla,Safari,etc.)
+  if(self.innerHeight)
+     return self.innerHeight;
+  // IE 6
+  if(document.documentElement && document.documentElement.clientHeight)
+     return y = document.documentElement.clientHeight;
+  //IE 5
+  if(document.body)
+     return document.body.clientHeight;
+  //Just in case
+  return 0;
+}
+
+function handleResize(){
+  var height = windowHeight();
+  height -= document.getElementById('toolbar').offsetHeight-30;
+  document.getElementById('map').style.height = height + 'px';
+  document.getElementById('sidebar').style.height = height + 'px';
+}
+
 $(document).ready(function(){
 
  if(GBrowserIsCompatible){
-
+  handleResize();
   var centerLatitude = 6.144775644;
   var centerLongitude = -75.576174995;
   var startZoom = 17;
@@ -30,15 +53,14 @@ $(document).ready(function(){
   var map;
   var point;
 
-  var divheader=document.getElementById("header");
+  var divheader=document.getElementById("toolbar");
   var inputForm = document.createElement("form");
   inputForm.setAttribute("action","");
   inputForm.id='input_points';
   inputForm.onsubmit = function() {findRoute(); return false;};
 
   inputForm.innerHTML=
-    '<fieldset style="width:1000px;">'
-    + '<legend>Puntos</legend>'
+    '<fieldset">'
     + '<label for="initial_point">Punto Inicial</label>'
     + '<input type="text" id="initial_point" name="initial_point" style="width:280px;"/>'
     + '<label for="end_point">Punto Final</label>'
@@ -46,12 +68,13 @@ $(document).ready(function(){
     + '<p><input type="submit" value="Get Directions!"/></p>'
     + '</fieldset>';
   divheader.appendChild(inputForm);
+
   document.getElementById("initial_point").value='';
   document.getElementById("end_point").value='';
   document.getElementById("initial_point").setAttribute("readonly","readonly");
   document.getElementById("end_point").setAttribute("readonly","readonly");
 
-  map = new GMap2(document.getElementById("content"));
+  map = new GMap2(document.getElementById("map"));
   map.addControl(new GMapTypeControl());
   map.addControl(new GSmallMapControl());
   map.setMapType(G_SATELLITE_MAP);
@@ -333,31 +356,40 @@ console.debug("\n el ID: " + id + " INIT: " + lat_start+"," + long_start + " END
     for(var i=0;i<size-1;i++){
 
       if(first_node){
-        explain = "Usted está en: " + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a +
+        explain = "<li><a href=#> Usted está en: " + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a +
         " dirigete en direccion " + infoRoute[i].direction + " hacia la " + infoRoute[i+1].way_type_a +
-        " " + infoRoute[i+1].street_name_a ;
+        " " + infoRoute[i+1].street_name_a + "</a></li>";
         first_node=false;
       }
       else if(infoRoute[i].direction==infoRoute[i+1].direction && continueStraight==false){
 
-         explain += "\n Siga derecho en direccion " + infoRoute[i].direction + " pasando por las siguientes vias: " ;
+         explain += "\n <li id='sidebar-item-"+infoRoute[i].id+"'><a href=#>Siga derecho en direccion " + infoRoute[i].direction + " pasando por las siguientes vias: " ;
          continueStraight=true;
          i--;
       }
       else if(continueStraight==true && infoRoute[i].direction==infoRoute[i+1].direction){
         explain +=  infoRoute[i].way_type_b + " con " + infoRoute[i].street_name_b + " .";
+        if(infoRoute[i+1].direction!=infoRoute[i+2].direction){
+          explain += "</li></a>";
+        }
 //console.debug(":D:D");
       }
       else if (infoRoute[i].direction != infoRoute[i+1].direction){
         //Poner voltear a tal direccion
        // console.debug("hay que evaluar esto " + infoRoute[i].direction + " " + infoRoute[i+1].direction);
+
         turn = eval_direction(infoRoute[i].direction,infoRoute[i+1].direction)
         //console.debug(infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a);
-        explain += "\n voltear " + turn + " por " + infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a;
+        explain += "\n<li><a href=#>  voltear " + turn + " por " + infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a + "</li></a>";
         continueStraight = false;
       }
     }
     console.debug("La respuesta de direccion \n: " + explain);
+   // var divsidebar = document.getElementById("sidebar");
+    var newdiv = document.getElementById("sidebar-list");
+    newdiv.innerHTML=explain;
+   // divleft.appendChild(newdiv);
+
   /*  var divleftpanel = document.getElementById("left");
     var list = document.createElement("lu");
 
@@ -575,10 +607,23 @@ var tell;
 
 
 
+/* The offsetHeight and offsetWidth properties are provided by the browser, and return—in
+pixels—the dimensions of their element, including any padding.
+*/
+
+
+
  }else{alert("Your Browser Is Not Compatible")}
 
 
 });
+//}window.onload=init;
+window.onresize = handleResize;
+window.onresize = handleResize;
+//Pagina 9 capitulo 3 para retornar la latitud longitud del marker
+//overlay y latlng son variables ya definidas por google
+//allow the user to click the map to create a marker
+
 //}window.onload=init;
 //Pagina 9 capitulo 3 para retornar la latitud longitud del marker
 //overlay y latlng son variables ya definidas por google
