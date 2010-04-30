@@ -39,3 +39,7 @@ Rails::Initializer.run do |config|
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
 end
+<<<<<<< HEAD:config/environment.rb
+=======
+
+>>>>>>> 9d7d307d3fda72994dfb74f5e2dbe97d072a9e07:config/environment.rb

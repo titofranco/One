@@ -16,7 +16,6 @@ class CreateRoadmaps < ActiveRecord::Migration
       t.column :long_end,:decimal, :precision =>15, :scale =>10, :null => false
       t.column :stretch_type, :integer, :null => false
       t.column :speed_km_h, :decimal, :precision =>15, :scale =>10
-      t.timestamps
     end
 
     add_index :roadmaps, :lat_start

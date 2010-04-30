@@ -1,3 +1,123 @@
+
+/*CSS DEL EJEMPLO DEL LIBRO*/
+/*CSS DEL PROYECTO DE GRADO!!*/
+/*It Works for IE, for not showing scroll sidebar*/
+html{
+  overflow:hidden;
+}
+html,body {
+  margin:0;
+  padding:0;
+  height:100%;
+}
+
+#content {
+     margin-top: 1px;
+     position: relative;
+}
+
+/*MAP*/
+#map-wrapper{
+  position:relative;
+  height:100%;
+}
+#map-wrapper { margin-right: 300px; } /*Este es el tamaño donde va a ir el toolbar*/
+
+#map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+/*END OF MAP*/
+
+/*TOOLBAR*/
+/*
+#toolbar-wrapper{
+  margin-right:310px;
+  position:relative;
+}*/
+/*Poner position:absolute hace que no se muestre en el toolbar-wrapper*/
+/*#toolbar {
+  position: absolute;
+  position:relative;
+  top: 20px;
+  left: 60px;
+  width: 100%;
+  height: 150px;
+  padding: 5px;
+  background: white;
+  border: 1px solid black;
+}*/
+/*END OF TOOLBAR*/
+
+#toolbar {
+     background: white;
+     padding: 4px;
+     width: 100%;
+     border: 1px solid black;
+     position: relative;
+}
+
+#sidebar {
+     position: absolute;
+     top: 0;
+     width: 300px;
+     height: 100%;
+     overflow: auto;/*THIS IS FOR SCROLL*/
+}
+#sidebar {
+  right:0px;
+  display:block; /*The element will generate a block box (a line break before and after the element)*/
+}
+/*
+body.sidebar-off #sidebar { display: none; }
+body.sidebar-off #map-wrapper { margin-right: 0px; }*/
+
+#sidebar p {
+     margin: 10px;
+}
+
+#sidebar ul#sidebar-list li a {
+     display: block;
+     border: 1px solid #ddd;
+     background: #c4effe;
+     margin: 5px;
+     padding: 4px;
+     font: 14px Helvetica, sans-serif;
+     text-decoration: none;
+     color: #444;
+}
+
+#sidebar ul#sidebar-list li.current a {
+     border: 1px solid #444;
+     border-left-width: 3px;
+     padding-left: 2px;
+}
+
+#sidebar ul#sidebar-list li a:hover {
+     background: white;
+     color: #555;
+}
+
+#sidebar ul#sidebar-list li a strong {
+     display: block;
+}
+#sidebar ul#sidebar-list li a span {
+     font-style: italic;
+     font-size: 11px;
+}
+
+
+
+
+#sidebar ul#sidebar-list {
+     list-style: none;
+     padding: 0;
+     margin: 0;
+}
+
 .context {
  font-family:Arial, sans-serif;
  text-decoration:none;
@@ -6,49 +126,5 @@
 }
 a:hover div {
  background:#eee;
-}
-
-
-#container
-{
-width:100%;
-margin:0px;
-border:1px solid blue;
-line-height:100%;
-
-}
-#header,#footer
-{
-padding:5px;
-color:blue;
-width:100%;
-background-color:white;
-clear:left;
-}
-li{display:inline;}
-h1.header
-{
-padding:0;
-margin:0;
-}
-
-#left
-{
-float:left;
-width:250px;
-height:458px;
-margin:0;
-border-style:solid;
-padding:1em;
-
-}
-
-#content
-{
-margin-left:280px;
-border-style:solid;
-height:330px;
-padding:5em;
-width:800px;
 }
 
