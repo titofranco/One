@@ -17,8 +17,8 @@ ActiveRecord::Schema.define(:version => 20100316040019) do
     t.string   "bus_stop_downtown"
     t.decimal  "route_length_km",   :precision => 5, :scale => 5
     t.string   "routes_taken"
-    t.datetime "created_at",                                      :default => '2010-03-15 22:56:58'
-    t.datetime "updated_at",                                      :default => '2010-03-15 22:56:58'
+    t.datetime "created_at",                                      :default => '2010-04-13 17:51:30'
+    t.datetime "updated_at",                                      :default => '2010-04-13 17:51:30'
   end
 
   create_table "buses_routes", :force => true do |t|

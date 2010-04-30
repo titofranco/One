@@ -1,9 +1,8 @@
 class Dijkstra
-  def self.encontrarCamino arrayCalles,inicio,destino
-    m = arrayCalles.max{ |a,b| a.roadmap_id <=> b.roadmap_id}.roadmap_id
-    # puts "maximo #{m}"
-    nodos = []
-    for i in 0... m
+  def self.encontrarCamino arrayCalles,inicio,destino       
+    m = arrayCalles.length
+    nodos = Array.new
+    for i in 0... arrayCalles.length
       nodos[i]=i
     end
     dist = Array.new(m,Float::MAX)
@@ -15,16 +14,18 @@ class Dijkstra
     # puts "inicio"
     cont = 0
     while act != destino
+      # puts "nodo: #{act}"
       nodos.delete act
       u = nil
-      enlaces = arrayCalles.find_all{ |n| n.roadmap_id == act}
+      enlaces = arrayCalles[act]
+      # puts "enlaces #{enlaces.inspect}"
       min = Float::MAX
       enlaces.each{ |e|
-        # puts "conecta con #{e.roadmap_related_id} con distancia #{e.distance_meters}"
-        alt = dist[act]+e.distance_meters
-        if alt < dist[e.roadmap_related_id]
-          dist[e.roadmap_related_id] = alt
-          prev[e.roadmap_related_id] = act
+        # puts "conecta con #{e.idSiguiente} con distancia #{e.distancia}"
+        alt = dist[act]+e.distancia
+        if alt < dist[e.idSiguiente]
+          dist[e.idSiguiente] = alt
+          prev[e.idSiguiente] = act
         end
       }
       
@@ -48,10 +49,10 @@ class Dijkstra
       # puts "act despues del ciclo #{act}"
       cont = cont.next
       # puts "contador #{cont}"
-      if cont == 1000
-        # puts "break por cont"
-        break
-      end
+      # if cont == 1000
+      #   # puts "break por cont"
+      #   break
+      # end
       break if min==Float::MAX     
     end
 
@@ -59,11 +60,11 @@ class Dijkstra
     
     camino = Array.new
     while prev[destino] 
-      camino << destino
+      camino.unshift destino   # unshift es agregar al principio: libro ruby 447
       destino = prev[destino]
     end
-    camino << inicio
-    camino.reverse!
+    camino.unshift inicio
+    # camino.reverse!
     # puts "fin"
     camino
   end
