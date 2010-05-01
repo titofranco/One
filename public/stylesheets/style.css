@@ -163,3 +163,22 @@ a:hover div {
  background:#eee;
 }
 
+#inputArea
+{
+    font-family: Arial, Sans-Serif;
+    font-size: 13px;
+    background-color: #d6e5f4;
+    padding: 1px;
+}
+
+#inputArea input[type="text"], #inputArea textarea
+{
+    font-family: Arial, Sans-Serif;
+    font-size: 13px;
+    margin-bottom: 5px;
+    display: inline;
+    padding: 4px;
+    border: solid 1px #85b1de;
+    width: 300px;
+}
+
