@@ -97,9 +97,32 @@ function drawpolyline(latlng_bus,latlng_street,latlng_metro){
   midArrows(arrowIcon);
 }
 
+function checkform(form){
+
+  if(form.initial_point.value=="" &&form.end_point.value==""){
+    alert("Debe elegir punto inicial y punto final");
+  return false;
+  }
+  else if(form.initial_point.value==null || form.initial_point.value==""){
+    form.initial_point.focus();
+    alert("Debe elegir un punto inicial");
+  return false;
+  }
+  else if(form.end_point.value==null || form.end_point.value==""){
+    form.end_point.focus();
+    alert("Debe elegir un punto final");
+  return false;
+  }
+  return true;
+}
+
+function validar(form){
+  var validate = checkform(form);
+  if (validate) findRoute();
+}
 
 $(document).ready(function(){
-  handleResize();
+ handleResize();
  if(GBrowserIsCompatible){
   var centerLatitude = 6.144775644;
   var centerLongitude = -75.576174995;
@@ -112,11 +135,10 @@ $(document).ready(function(){
   var divheader=document.getElementById("toolbar");
   var inputForm = document.createElement("form");
 
-
   inputForm.setAttribute("action","");
   inputForm.id='input_points';
-  inputForm.onsubmit = function() {findRoute(); return false;};
-
+  inputForm.onsubmit = function(){validar(this);return false;};
+ // inputForm.onsubmit = function(){return checkform(this);};
   inputForm.innerHTML=
     '<div id=inputArea><fieldset>'
     + '<label for="initial_point">Punto Inicial</label>'
@@ -288,6 +310,12 @@ function findRoute(){
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama la funcion para pintar la ruta
 function parseContent(content){
 
+  infoRoute={};
+  polyline=null;
+  latlng_bus=[];
+  latlng_street=[];
+  latlng_metro=[];
+
   for(var i=0;i<content.length;i++){
     var id = content[i].id;
     var lat_start=content[i].lat_start;
@@ -425,7 +453,7 @@ function explainRoute(infoRoute){
        "voltear " + "<b>"+ turn+"</b>" + " por " +
        "<b>"+ infoRoute[i].way_type_b +  " " +
        infoRoute[i].street_name_b + "</b></a></li>";
-      continueStraight = false;
+       continueStraight = false;
     }
   }
  // console.debug("La respuesta de direccion \n: " + explain);
