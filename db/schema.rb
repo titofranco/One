@@ -17,13 +17,12 @@ ActiveRecord::Schema.define(:version => 20100316040019) do
     t.string   "bus_stop_downtown"
     t.decimal  "route_length_km",   :precision => 5, :scale => 5
     t.string   "routes_taken"
-<<<<<<< HEAD:db/schema.rb
     t.datetime "created_at",                                      :default => '2010-04-13 17:51:30'
     t.datetime "updated_at",                                      :default => '2010-04-13 17:51:30'
-=======
     t.datetime "created_at",                                      :default => '2010-04-13 19:50:49'
     t.datetime "updated_at",                                      :default => '2010-04-13 19:50:49'
->>>>>>> 9d7d307d3fda72994dfb74f5e2dbe97d072a9e07:db/schema.rb
+    t.datetime "created_at",                                      :default => '2010-04-13 19:50:49'
+    t.datetime "updated_at",                                      :default => '2010-04-13 19:50:49'
   end
 
   create_table "buses_routes", :force => true do |t|
