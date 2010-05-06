@@ -15,9 +15,14 @@
 | 58593 |      17245 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
 | 58599 |      17246 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
 */
-//function init(){
-//function init(){
+var infoRoute=new Object();
+var map;
+var polyline;
+var latlng_street=[];
+var latlng_bus=[];
+var latlng_metro=[];
 
+/*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
   //Standard browsers (Mozilla,Safari,etc.)
   if(self.innerHeight)
@@ -32,17 +37,93 @@ function windowHeight(){
   return 0;
 }
 
+
+/* The offsetHeight and offsetWidth properties are provided by the browser, and return—in
+pixels—the dimensions of their element, including any padding.
+*/
+/*Redimensiona el tamño del mapa y de la barra lateral*/
 function handleResize(){
-  var height = windowHeight();
-  height -= document.getElementById('toolbar').offsetHeight-30;
+  var height = windowHeight()- document.getElementById('toolbar').offsetHeight-30;
   document.getElementById('map').style.height = height + 'px';
   document.getElementById('sidebar').style.height = height + 'px';
 }
 
-$(document).ready(function(){
+//Got from http://econym.org.uk/gmap/example_arrows.htm
+//Funcion que dibuja triangulos hacia la dirección que se va.
+function midArrows(arrowIcon) {
 
+  var size = Object.size(infoRoute);
+
+  for (var i=1; i < size; i++) {
+    var p1=infoRoute[i-1];
+    var p2=infoRoute[i];
+    // == round it to a multiple of 3 and cast out 120s
+    var dir = Math.round(infoRoute[i].bearing/3) * 3;
+    while (dir >= 120) {dir -= 120;}
+    // == use the corresponding triangle marker
+    arrowIcon.image = "http://www.google.com/intl/en_ALL/mapfiles/dir_"+dir+".png";
+    map.addOverlay(new GMarker(
+    new GLatLng(infoRoute[i].lat_start,infoRoute[i].long_start),
+    arrowIcon));
+  }
+ }
+
+
+//Esta funcion debe estar afuera del init porque sino aparece el error
+//focusPoint is not defined
+function focusPoint(id){
+   //Pinta de nuevo toda la ruta
+  map.addOverlay(polyline);
+  var selected_polyline = new GPolyline(
+                   [new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),
+                   new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end)]
+                   ,'#1068f0',4,0.8);
+  map.addOverlay(selected_polyline);
+}
+
+//Función que pinta la ruta de buses, la de vias y la del metro
+function drawpolyline(latlng_bus,latlng_street,latlng_metro){
+
+  var arrowIcon = new GIcon();
+  arrowIcon.iconSize = new GSize(24,24);
+  arrowIcon.shadowSize = new GSize(1,1);
+  arrowIcon.iconAnchor = new GPoint(12,12);
+  arrowIcon.infoWindowAnchor = new GPoint(0,0);
+
+  polyline = new GPolyline(latlng_street,'#FF6633',6,1);
+  map.addOverlay(polyline);
+  var polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,0.5);
+  map.addOverlay(polyline_metro);
+  midArrows(arrowIcon);
+}
+
+function checkform(form){
+
+  if(form.initial_point.value=="" &&form.end_point.value==""){
+    alert("Debe elegir punto inicial y punto final");
+  return false;
+  }
+  else if(form.initial_point.value==null || form.initial_point.value==""){
+    form.initial_point.focus();
+    alert("Debe elegir un punto inicial");
+  return false;
+  }
+  else if(form.end_point.value==null || form.end_point.value==""){
+    form.end_point.focus();
+    alert("Debe elegir un punto final");
+  return false;
+  }
+  return true;
+}
+
+function validar(form){
+  var validate = checkform(form);
+  if (validate) findRoute();
+}
+
+$(document).ready(function(){
+ handleResize();
  if(GBrowserIsCompatible){
-  handleResize();
   var centerLatitude = 6.144775644;
   var centerLongitude = -75.576174995;
   var startZoom = 17;
@@ -50,23 +131,22 @@ $(document).ready(function(){
   var lng;
   var countInitial=0;
   var countFinal=0;
-  var map;
   var point;
-
   var divheader=document.getElementById("toolbar");
   var inputForm = document.createElement("form");
+
   inputForm.setAttribute("action","");
   inputForm.id='input_points';
-  inputForm.onsubmit = function() {findRoute(); return false;};
-
+  inputForm.onsubmit = function(){validar(this);return false;};
+ // inputForm.onsubmit = function(){return checkform(this);};
   inputForm.innerHTML=
-    '<fieldset">'
+    '<div id=inputArea><fieldset>'
     + '<label for="initial_point">Punto Inicial</label>'
     + '<input type="text" id="initial_point" name="initial_point" style="width:280px;"/>'
     + '<label for="end_point">Punto Final</label>'
     + '<input type="text" id="end_point" name="end_point" style="width:280px;"/>'
     + '<p><input type="submit" value="Get Directions!"/></p>'
-    + '</fieldset>';
+    + '</fieldset></div>';
   divheader.appendChild(inputForm);
 
   document.getElementById("initial_point").value='';
@@ -102,7 +182,6 @@ $(document).ready(function(){
     var clickedPixel = pixel;
     var x=pixel.x;
     var y=pixel.y;
-
 
     if (x > map.getSize().width - 120) { x = map.getSize().width - 120 }
     if (y > map.getSize().height - 100) { y = map.getSize().height - 100 }
@@ -191,213 +270,200 @@ $(document).ready(function(){
     contextmenu.style.visibility="hidden";
   });
 
+ }else{alert("Your Browser Is Not Compatible")}
 
-  function findRoute(){
-    var init_lat_lng = document.getElementById("initial_point").value;
-    var end_lat_lng = document.getElementById("end_point").value;
-    var getVars = "?initial_point="+init_lat_lng+"&end_point="+end_lat_lng;
 
-    var request = GXmlHttp.create();
-    request.open('GET', 'calcular'+getVars,true);
-    request.onreadystatechange = function() {
-      if(request.readyState == 4){
+});
 
-         var success=false;
-         var content="Error contacting web service";
-         try{
-             res=eval("(" + request.responseText + ")" );
-             content=res.content;
-             success=res.success;
-         }catch (e){
-          success=false;
-         }
-         if(!success) {alert(content);}
-         else{
-          //console.debug("el length " + content.length)
-           //bearing(6.2645966700,-75.5877166080,6.2628485150,-75.5888434600);
-           parseContent(content);
-        //  console.debug("que mierda");
-          }
-      }
+
+//Metodo que hace la llamada asincrona al controlador, pasando los parametros
+//correspondientes y evaluando la respuesta dada por este
+function findRoute(){
+  var init_lat_lng = document.getElementById("initial_point").value;
+  var end_lat_lng = document.getElementById("end_point").value;
+  var getVars = "?initial_point="+init_lat_lng+"&end_point="+end_lat_lng;
+
+  var request = GXmlHttp.create();
+  request.open('GET', 'calcular'+getVars,true);
+  request.onreadystatechange = function() {
+    if(request.readyState == 4){
+
+       var success=false;
+       var content="Error contacting web service";
+       try{
+           res=eval("(" + request.responseText + ")" );
+           content=res.content;
+           success=res.success;
+       }catch (e){
+        success=false;
+       }
+       if(!success) {alert(content);}
+       else{
+         parseContent(content);
+       }
     }
-    request.send(null);
-    return false;
   }
+  request.send(null);
+  return false;
+}
 
-  function parseContent(content){
+//Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama la funcion para pintar la ruta
+function parseContent(content){
 
-    var latlng_street=[];
-    var latlng_bus=[];
-    var latlng_metro=[];
-    var infoRoute=new Object();
+  infoRoute={};
+  polyline=null;
+  latlng_bus=[];
+  latlng_street=[];
+  latlng_metro=[];
 
-    for(var i=0;i<content.length;i++){
-      var id = content[i].id;
-      var lat_start=content[i].lat_start;
-      var long_start=content[i].long_start;
-      var lat_end=content[i].lat_end;
-      var long_end=content[i].long_end;
-      var stretch_type=content[i].stretch_type;
-      var way_type_a=content[i].way_type_a;
-      var street_name_a=content[i].street_name_a;
-      var prefix_a=content[i].prefix_a;
-      var label_a=content[i].label_a;
-      var way_type_b=content[i].way_type_b;
-      var street_name_b=content[i].street_name_b;
-      var prefix_b=content[i].prefix_b;
-      var label_b=content[i].label_b;
-      var bearing=getBearing(lat_start,long_start,lat_end,long_end);
-      var direction = getDirection(bearing);
+  for(var i=0;i<content.length;i++){
+    var id = content[i].id;
+    var lat_start=content[i].lat_start;
+    var long_start=content[i].long_start;
+    var lat_end=content[i].lat_end;
+    var long_end=content[i].long_end;
+    var stretch_type=content[i].stretch_type;
+    var way_type_a=content[i].way_type_a;
+    var street_name_a=content[i].street_name_a;
+    var prefix_a=content[i].prefix_a;
+    var label_a=content[i].label_a;
+    var way_type_b=content[i].way_type_b;
+    var street_name_b=content[i].street_name_b;
+    var prefix_b=content[i].prefix_b;
+    var label_b=content[i].label_b;
+    var bearing=getBearing(lat_start,long_start,lat_end,long_end);
+    var direction = getDirection(bearing);
 
-      infoRoute[i]={id:id,
-      lat_start:lat_start,
-      long_start:long_start,
-      lat_end:lat_end,
-      long_end:long_end,
-      stretch_type:stretch_type,
-      way_type_a:way_type_a,
-      street_name_a:street_name_a,
-      prefix_a:prefix_a,
-      label_a:label_a,
-      way_type_b:way_type_b,
-      street_name_b:street_name_b,
-      prefix_b:prefix_b,
-      label_b:label_b,
-      bearing:bearing,
-      direction:direction
-      };
+    infoRoute[i]={id:id,
+    lat_start:lat_start,
+    long_start:long_start,
+    lat_end:lat_end,
+    long_end:long_end,
+    stretch_type:stretch_type,
+    way_type_a:way_type_a,
+    street_name_a:street_name_a,
+    prefix_a:prefix_a,
+    label_a:label_a,
+    way_type_b:way_type_b,
+    street_name_b:street_name_b,
+    prefix_b:prefix_b,
+    label_b:label_b,
+    bearing:bearing,
+    direction:direction
+    };
 
-//" prefix_a " + prefix_a
+    console.debug("\n el ID: " + id + " INIT: " + lat_start+"," + long_start + " END: " + lat_end + "," + long_end +
+    " BEARING: " + bearing + " DIRECTION: " + direction  + " STREET_NAME_A: " + way_type_a + street_name_a +
+    " STREET_NAME_B: "+ way_type_b + street_name_b + " STRETCH_TYPE: " + stretch_type);
 
-console.debug("\n el ID: " + id + " INIT: " + lat_start+"," + long_start + " END: " + lat_end + "," + long_end +
- " BEARING: " + bearing + " DIRECTION: " + direction  + " STREET_NAME_A: " + way_type_a + street_name_a +
-" STREET_NAME_B: "+ way_type_b + street_name_b + " STRETCH_TYPE: " + stretch_type);
+    latlng_street.push(new GLatLng(lat_start,long_start));
+    //latlng_street.push(new GLatLng(lat_end,long_end));
+    if(stretch_type > 2){latlng_metro.push(new GLatLng(lat_start,long_start));}
 
-      // console.debug("el roadmap id " + roadmap_id);
-      // console.debug("el related " + maproad_related_id);
-      // console.debug("el lat_start " + lat_start);
-      // console.debug("el long_start " + long_start);
-      // console.debug("el lat_end " + lat_end);
-      // console.debug("el long_end " + long_end);
-      // console.debug("el stretch_type " + stretch_type);
-      // Se adiciona solo el inicial, porque la lat/long final del nodo i es igual*/
-      // a la lat/long inicial del nodo i+1
-      latlng_street.push(new GLatLng(lat_start,long_start));
-      //latlng_street.push(new GLatLng(lat_end,long_end));
-      if(stretch_type > 2){latlng_metro.push(new GLatLng(lat_start,long_start));}
-
-      }
-    //Se adiciona el ulitmo trayecto
-    latlng_street.push(new GLatLng(lat_end,long_end));
-    drawpolyline(latlng_bus,latlng_street,latlng_metro);
-    explainRoute(infoRoute);
-  }
-
-  //Got from http://stackoverflow.com/questions/5223/length-of-javascript-associative-array
-  Object.size = function(obj) {
-      var size = 0, key;
-      for (key in obj) {
-          if (obj.hasOwnProperty(key)) size++;
-      }
-      return size;
-  };
-
-  function getBearing(lat_start,long_start,lat_end,long_end){
-
-    var toRad=Math.PI/180;
-    var lat1 = lat_start*toRad;
-    var long1 = long_start*toRad;
-    var lat2 = lat_end*toRad;
-    var long2 = long_end*toRad;
-
-    var y = (Math.cos(lat1)*Math.sin(lat2))-( Math.sin(lat1)*Math.cos(lat2)*Math.cos(long2-long1))
-    var x = Math.sin(long2-long1)*Math.cos(lat2);
-    var brng = Math.atan2(x,y)%(2*Math.PI);
-    brng  = brng*(180/Math.PI);
-    if(brng < 0 ){brng = brng + 360;} //Convertir grados positivos a negativos
-    return brng;
-  }
-
-  function getDirection(bearing){
-
-    var direction;
-    if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
-    {direction="Norte"}
-    else if (bearing > 22.5 && bearing <= 66.5 ){direction="Noreste"}
-    else if (bearing > 66.5 && bearing <= 115 ){direction="Este"}
-    else if (bearing > 115 && bearing <= 157.5 ){direction="Sureste"}
-    else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
-    else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroeste"}
-    else if (bearing > 247.5 && bearing <= 292.5 ){direction="Oeste"}
-    else if (bearing > 292.5 && bearing <=337.5  ){direction="Noroeste"}
-
-    return direction;
-
-  }
-
-  function drawpolyline(latlng_bus,latlng_street,latlng_metro){
-    var polyline = new GPolyline(latlng_street,'#FF6633',4,0.8);
-    map.addOverlay(polyline);
-    var polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,0.5);
-    map.addOverlay(polyline_metro);
-  }
-
-  function explainRoute(infoRoute){
-    var continueStraight=false;
-    var size = Object.size(infoRoute);
-    var explain;
-    var turn;
-    var first_node=true;
-
-    console.debug("El tamaño del hash: " + size);
-
-
-  //console.debug("primer explain " + explain);
-    for(var i=0;i<size-1;i++){
-
-      if(first_node){
-        explain = "<li><a href=#> Usted está en: " + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a +
-        " dirigete en direccion " + infoRoute[i].direction + " hacia la " + infoRoute[i+1].way_type_a +
-        " " + infoRoute[i+1].street_name_a + "</a></li>";
-        first_node=false;
-      }
-      else if(infoRoute[i].direction==infoRoute[i+1].direction && continueStraight==false){
-
-         explain += "\n <li id='sidebar-item-"+infoRoute[i].id+"'><a href=#>Siga derecho en direccion " + infoRoute[i].direction + " pasando por las siguientes vias: " ;
-         continueStraight=true;
-         i--;
-      }
-      else if(continueStraight==true && infoRoute[i].direction==infoRoute[i+1].direction){
-        explain +=  infoRoute[i].way_type_b + " con " + infoRoute[i].street_name_b + " .";
-        if(infoRoute[i+1].direction!=infoRoute[i+2].direction){
-          explain += "</li></a>";
-        }
-//console.debug(":D:D");
-      }
-      else if (infoRoute[i].direction != infoRoute[i+1].direction){
-        //Poner voltear a tal direccion
-       // console.debug("hay que evaluar esto " + infoRoute[i].direction + " " + infoRoute[i+1].direction);
-
-        turn = eval_direction(infoRoute[i].direction,infoRoute[i+1].direction)
-        //console.debug(infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a);
-        explain += "\n<li><a href=#>  voltear " + turn + " por " + infoRoute[i+1].way_type_a + " " + infoRoute[i+1].street_name_a + "</li></a>";
-        continueStraight = false;
-      }
     }
-    console.debug("La respuesta de direccion \n: " + explain);
-   // var divsidebar = document.getElementById("sidebar");
-    var newdiv = document.getElementById("sidebar-list");
-    newdiv.innerHTML=explain;
-   // divleft.appendChild(newdiv);
+  //Se adiciona el ulitmo trayecto
+  latlng_street.push(new GLatLng(lat_end,long_end));
+  drawpolyline(latlng_bus,latlng_street,latlng_metro);
+  explainRoute(infoRoute);
+}
 
-  /*  var divleftpanel = document.getElementById("left");
-    var list = document.createElement("lu");
+//Got from http://stackoverflow.com/questions/5223/length-of-javascript-associative-array
+//Método para obtener el tamaño de un hash
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
 
-    for(var i=0;i<10;i++){
-      list.innerHTML =
-    } */
+//Obtiene los grados que hay entre 2 pares lat-long
+function getBearing(lat_start,long_start,lat_end,long_end){
 
+  var toRad=Math.PI/180;
+  var lat1 = lat_start*toRad;
+  var long1 = long_start*toRad;
+  var lat2 = lat_end*toRad;
+  var long2 = long_end*toRad;
+
+  var y = (Math.cos(lat1)*Math.sin(lat2))-( Math.sin(lat1)*Math.cos(lat2)*Math.cos(long2-long1))
+  var x = Math.sin(long2-long1)*Math.cos(lat2);
+  var brng = Math.atan2(x,y)%(2*Math.PI);
+  brng  = brng*(180/Math.PI);
+  if(brng < 0 ){brng = brng + 360;} //Convertir grados positivos a negativos
+  return brng;
+}
+
+//Obtiene la cardinalidad dado los grados
+function getDirection(bearing){
+
+  var direction;
+  if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
+  {direction="Norte"}
+  else if (bearing > 22.5 && bearing <= 66.5 ){direction="Noreste"}
+  else if (bearing > 66.5 && bearing <= 115 ){direction="Este"}
+  else if (bearing > 115 && bearing <= 157.5 ){direction="Sureste"}
+  else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
+  else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroeste"}
+  else if (bearing > 247.5 && bearing <= 292.5 ){direction="Oeste"}
+  else if (bearing > 292.5 && bearing <=337.5  ){direction="Noroeste"}
+
+  return direction;
+
+}
+
+//Explica la ruta a tomar y la pone en el panel derecho
+function explainRoute(infoRoute){
+  var continueStraight=false;
+  var size = Object.size(infoRoute);
+  var explain;
+  var turn;
+  var first_node=true;
+//  console.debug("El tamaño del hash: " + size);
+
+  for(var i=0;i<size;i++){
+    if(first_node){
+      explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+ "Usted está en: " +
+      "<b>" + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a + "</b>" +
+      " dirigete en dirección " + infoRoute[i].direction + " hacia la "
+      +"<b>"+ infoRoute[i].way_type_b +  " " +
+       infoRoute[i].street_name_b + "</b></a></li>";
+       first_node=false;
+    }
+    else if(infoRoute[i-1].direction==infoRoute[i].direction && continueStraight==false){
+
+       explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+       "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
+       "<b>"+ infoRoute[i].way_type_b +  " " +
+       infoRoute[i].street_name_b + "</b></a></li>" ;
+
+       if(infoRoute[i].direction==infoRoute[i+1].direction)
+       continueStraight=true;
+
+    }
+    else if(continueStraight==true && infoRoute[i-1].direction==infoRoute[i].direction){
+      explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
+       "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
+       infoRoute[i].street_name_b + "</b></a></li>" ;
+    }
+    else if (infoRoute[i-1].direction != infoRoute[i].direction){
+      turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
+
+      explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
+       "voltear " + "<b>"+ turn+"</b>" + " por " +
+       "<b>"+ infoRoute[i].way_type_b +  " " +
+       infoRoute[i].street_name_b + "</b></a></li>";
+       continueStraight = false;
+    }
   }
+ // console.debug("La respuesta de direccion \n: " + explain);
+  var div_sidebar_list = document.getElementById("sidebar-list");
+  div_sidebar_list.innerHTML=explain;
+
+}
+
+
+/*FUNCIONES PARA SABER QUE DIRECCION DEBO TOMAR DADO 2 PUNTOS CARDINALES*/
 
 function eval_direction(comes_from, goes_to){
 
@@ -431,195 +497,183 @@ var tell;
 }
 
 //NORTE
-  function where_to_turn_n(goes_to){
-    var turn;
+function where_to_turn_n(goes_to){
+  var turn;
 
-    if(goes_to=="Este"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Noroeste" || goes_to=="Suroeste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Noreste" || goes_to=="Sureste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Oeste"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Sur"){
-      turn = "ALGO RARO PASA EN DIRECCION NORTE SUR";
-    }
-    return turn;
+  if(goes_to=="Este"){
+    turn = "a la derecha";
   }
-
-  //OESTE
-  function where_to_turn_w(goes_to){
-    var turn;
-
-    if(goes_to=="Norte"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Noroeste" || goes_to=="Noreste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Sur"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Suroeste" || goes_to=="Sureste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Este"){
-      turn = "ALGO RARO PASA EN DIRECCION OESTE ESTE";
-    }
+  else if(goes_to=="Noroeste" || goes_to=="Suroeste"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  }
+  else if(goes_to=="Noreste" || goes_to=="Sureste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
+  }
+  else if(goes_to=="Oeste"){
+    turn = "a la izquierda";
+  }
+  else if(goes_to=="Sur"){
+    turn = "ALGO RARO PASA EN DIRECCION NORTE SUR";
+  }
   return turn;
+}
+
+//OESTE
+function where_to_turn_w(goes_to){
+  var turn;
+
+  if(goes_to=="Norte"){
+    turn = "a la derecha";
   }
-
-  //ESTE
-  function where_to_turn_e(goes_to){
-    var turn;
-
-    if(goes_to=="Norte"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Noroeste" || goes_to == "Noreste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Sur"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Suroeste" || goes_to=="Sureste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Oeste"){
-      turn = "ALGO RARO PASA EN DIRECCION ESTE OESTE";
-    }
-    return turn;
+  else if(goes_to=="Noroeste" || goes_to=="Noreste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
   }
-
-    //SUR
-  function where_to_turn_s(goes_to){
-    var turn;
-
-    if(goes_to=="Este"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Noroeste" || goes_to=="Suroeste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Noreste" || goes_to=="Sureste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Oeste"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Norte"){
-      turn = "ALGO RARO PASA EN DIRECCION SUR NORTE";
-    }
-    return turn;
+  else if(goes_to=="Sur"){
+    turn = "a la izquierda";
   }
+  else if(goes_to=="Suroeste" || goes_to=="Sureste"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  }
+  else if(goes_to=="Este"){
+    turn = "ALGO RARO PASA EN DIRECCION OESTE ESTE";
+  }
+return turn;
+}
+
+//ESTE
+function where_to_turn_e(goes_to){
+  var turn;
+
+  if(goes_to=="Norte"){
+    turn = "a la izquierda";
+  }
+  else if(goes_to=="Noroeste" || goes_to == "Noreste"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  }
+  else if(goes_to=="Sur"){
+    turn = "a la derecha";
+  }
+  else if(goes_to=="Suroeste" || goes_to=="Sureste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
+  }
+  else if(goes_to=="Oeste"){
+    turn = "ALGO RARO PASA EN DIRECCION ESTE OESTE";
+  }
+  return turn;
+}
+
+  //SUR
+function where_to_turn_s(goes_to){
+  var turn;
+
+  if(goes_to=="Este"){
+    turn = "a la izquierda";
+  }
+  else if(goes_to=="Noroeste" || goes_to=="Suroeste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
+  }
+  else if(goes_to=="Noreste" || goes_to=="Sureste"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  }
+  else if(goes_to=="Oeste"){
+    turn = "a la derecha";
+  }
+  else if(goes_to=="Norte"){
+    turn = "ALGO RARO PASA EN DIRECCION SUR NORTE";
+  }
+  return turn;
+}
 
 //SUROESTE
-  function where_to_turn_sw(goes_to){
-    var turn;
+function where_to_turn_sw(goes_to){
+  var turn;
 
-    if(goes_to=="Norte"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Noroeste" || goes_to=="Oeste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Sur" || goes_to=="Sureste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Este"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Noreste"){
-      turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
-    }
-    return turn;
+  if(goes_to=="Norte"){
+    turn = "a la derecha";
   }
+  else if(goes_to=="Noroeste" || goes_to=="Oeste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
+  }
+  else if(goes_to=="Sur" || goes_to=="Sureste"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  }
+  else if(goes_to=="Este"){
+    turn = "a la izquierda";
+  }
+  else if(goes_to=="Noreste"){
+    turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
+  }
+  return turn;
+}
 
 //SURESTE
-  function where_to_turn_se(goes_to){
-    var turn;
-    if(goes_to=="Norte"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Noreste" || goes_to=="Este"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Sur" || goes_to=="Suroeste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Oeste"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Noroeste"){
-      turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
-    }
-    return turn;
+function where_to_turn_se(goes_to){
+  var turn;
+  if(goes_to=="Norte"){
+    turn = "a la izquierda";
   }
-
-  //NOROESTE
-  function where_to_turn_nw(goes_to){
-    var turn;
-
-    if(goes_to=="Este"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Oeste" || goes_to=="Suroeste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Norte" || goes_to=="Noreste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Sur"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Sureste"){
-      turn = "ALGO RARO PASA EN DIRECCION NOROESTE SURESTE ";
-    }
-    return turn;
+  else if(goes_to=="Noreste" || goes_to=="Este"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
   }
-
-  //NORESTE
-  function where_to_turn_ne(goes_to){
-    var turn;
-
-    if(goes_to=="Sur"){
-      turn = "a la derecha";
-    }
-    else if(goes_to=="Norte" || goes_to=="Noroeste"){
-      turn = "ligeramente a la izquierda en direccion " + goes_to;
-    }
-    else if(goes_to=="Este" || goes_to=="Sureste"){
-      turn = "ligeramente a la derecha en direccion " + goes_to;
-    }
-    else if(goes_to=="Oeste"){
-      turn = "a la izquierda";
-    }
-    else if(goes_to=="Suroeste"){
-      turn = "ALGO RARO PASA EN DIRECCION NORESTE SURESTE ";
-    }
-    return turn;
+  else if(goes_to=="Sur" || goes_to=="Suroeste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
   }
+  else if(goes_to=="Oeste"){
+    turn = "a la derecha";
+  }
+  else if(goes_to=="Noroeste"){
+    turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
+  }
+  return turn;
+}
 
+//NOROESTE
+function where_to_turn_nw(goes_to){
+  var turn;
 
+  if(goes_to=="Este"){
+    turn = "a la derecha";
+  }
+  else if(goes_to=="Oeste" || goes_to=="Suroeste"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  }
+  else if(goes_to=="Norte" || goes_to=="Noreste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
+  }
+  else if(goes_to=="Sur"){
+    turn = "a la izquierda";
+  }
+  else if(goes_to=="Sureste"){
+    turn = "ALGO RARO PASA EN DIRECCION NOROESTE SURESTE ";
+  }
+  return turn;
+}
 
-/* The offsetHeight and offsetWidth properties are provided by the browser, and return—in
-pixels—the dimensions of their element, including any padding.
-*/
+//NORESTE
+function where_to_turn_ne(goes_to){
+  var turn;
 
+  if(goes_to=="Sur"){
+    turn = "a la derecha";
+  }
+  else if(goes_to=="Norte" || goes_to=="Noroeste"){
+    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  }
+  else if(goes_to=="Este" || goes_to=="Sureste"){
+    turn = "ligeramente a la derecha en direccion " + goes_to;
+  }
+  else if(goes_to=="Oeste"){
+    turn = "a la izquierda";
+  }
+  else if(goes_to=="Suroeste"){
+    turn = "ALGO RARO PASA EN DIRECCION NORESTE SURESTE ";
+  }
+  return turn;
+}
 
-
- }else{alert("Your Browser Is Not Compatible")}
-
-
-});
 //}window.onload=init;
 window.onresize = handleResize;
-window.onresize = handleResize;
+window.onload=handleResize;
 //Pagina 9 capitulo 3 para retornar la latitud longitud del marker
 //overlay y latlng son variables ya definidas por google
 //allow the user to click the map to create a marker
