@@ -15,12 +15,13 @@
 | 58593 |      17245 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
 | 58599 |      17246 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
 */
-var infoRoute=new Object();
+var infoRoute;
 var map;
 var polyline;
-var latlng_street=[];
-var latlng_bus=[];
-var latlng_metro=[];
+var polyline_metro;
+var latlng_street;
+var latlng_bus;
+var latlng_metro;
 
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
@@ -84,6 +85,7 @@ function focusPoint(id){
 //Función que pinta la ruta de buses, la de vias y la del metro
 function drawpolyline(latlng_bus,latlng_street,latlng_metro){
 
+  console.debug("el tamaño del array " + latlng_street.length);
   var arrowIcon = new GIcon();
   arrowIcon.iconSize = new GSize(24,24);
   arrowIcon.shadowSize = new GSize(1,1);
@@ -92,11 +94,12 @@ function drawpolyline(latlng_bus,latlng_street,latlng_metro){
 
   polyline = new GPolyline(latlng_street,'#FF6633',6,1);
   map.addOverlay(polyline);
-  var polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,0.5);
+  polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,1);
   map.addOverlay(polyline_metro);
-  midArrows(arrowIcon);
+  //midArrows(arrowIcon);
 }
 
+//Valida que los campos no estén vacios
 function checkform(form){
 
   if(form.initial_point.value=="" &&form.end_point.value==""){
@@ -116,6 +119,7 @@ function checkform(form){
   return true;
 }
 
+//Valida y si todo está correcto, procede a hacer la llama asincrona al server
 function validar(form){
   var validate = checkform(form);
   if (validate) findRoute();
@@ -124,9 +128,9 @@ function validar(form){
 $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
-  var centerLatitude = 6.144775644;
-  var centerLongitude = -75.576174995;
-  var startZoom = 17;
+  var centerLatitude =  6.257221;
+  var centerLongitude = -75.614154;
+  var startZoom = 15;
   var lat;
   var lng;
   var countInitial=0;
@@ -201,7 +205,7 @@ $(document).ready(function(){
   document.getElementById('centerMap_func').onclick=function(){setCenter();return false;};
   document.getElementById('clearMarkers_func').onclick=function(){clearMarkers();return false;};
 
-
+  //Obtiene el punto inicial del field, crea el marker y lo habilita para que se pueda arrastrar
   function getInitialPoint() {
     if(countInitial==0){
         var marker = new GMarker(point,{draggable:true});
@@ -212,12 +216,11 @@ $(document).ready(function(){
 
       GEvent.addListener(marker, "dragend", function() {
         document.getElementById("initial_point").value=marker.getPoint().lat()+","+marker.getPoint().lng();
-
       });
     }
   }
 
-
+  //Obtiene el punto final del field, crea el marker y lo habilita para que se pueda arrastrar
   function getFinalPoint() {
     if(countFinal==0){
         var marker = new GMarker(point,{draggable:true});
@@ -251,7 +254,7 @@ $(document).ready(function(){
       map.setCenter(point);
   }
 
-
+  //Borra todos los overlays del mapa, es decir, la ruta,los markers, las flechas.
   function clearMarkers(){
     map.clearOverlays();
     document.getElementById("initial_point").value='';
@@ -261,7 +264,7 @@ $(document).ready(function(){
     contextmenu.style.visibility="hidden";
   }
 
-
+  //Funcion para que se no muestre el menu desplegable si se hace click en otra parte del mapa
   GEvent.addListener(map,'click',function(overlay,latlng) {
    // Remove one single marker
    /* if(overlay) {
@@ -311,10 +314,10 @@ function findRoute(){
 function parseContent(content){
 
   infoRoute={};
-  polyline=null;
   latlng_bus=[];
   latlng_street=[];
-  latlng_metro=[];
+  latlng_metro=[]
+
 
   for(var i=0;i<content.length;i++){
     var id = content[i].id;
@@ -326,11 +329,13 @@ function parseContent(content){
     var way_type_a=content[i].way_type_a;
     var street_name_a=content[i].street_name_a;
     var prefix_a=content[i].prefix_a;
+    var common_name_a=content[i].common_name_a;
     var label_a=content[i].label_a;
     var way_type_b=content[i].way_type_b;
     var street_name_b=content[i].street_name_b;
     var prefix_b=content[i].prefix_b;
     var label_b=content[i].label_b;
+    var common_name_b=content[i].common_name_b;
     var bearing=getBearing(lat_start,long_start,lat_end,long_end);
     var direction = getDirection(bearing);
 
@@ -343,26 +348,48 @@ function parseContent(content){
     way_type_a:way_type_a,
     street_name_a:street_name_a,
     prefix_a:prefix_a,
+    common_name_a:common_name_a,
     label_a:label_a,
     way_type_b:way_type_b,
     street_name_b:street_name_b,
     prefix_b:prefix_b,
     label_b:label_b,
+    common_name_b:common_name_b,
     bearing:bearing,
-    direction:direction
+    direction:direction,
+    related_id:'0'
     };
 
-    console.debug("\n el ID: " + id + " INIT: " + lat_start+"," + long_start + " END: " + lat_end + "," + long_end +
+    if(stretch_type=='3'){
+      id_metro_related=id;
+      infoRoute[i].related_id=id_metro_related;
+    }
+    if(stretch_type=='2'){
+      infoRoute[i].related_id=id_metro_related;
+    }
+
+    console.debug("\ni: "+i+ " el ID: " + id + " INIT: " + lat_start+"," + long_start + " END: " + lat_end + "," + long_end +
     " BEARING: " + bearing + " DIRECTION: " + direction  + " STREET_NAME_A: " + way_type_a + street_name_a +
-    " STREET_NAME_B: "+ way_type_b + street_name_b + " STRETCH_TYPE: " + stretch_type);
+    " COMMON_A: " +common_name_a+ " STREET_NAME_B: "+ way_type_b + street_name_b + " STRETCH_TYPE: " + stretch_type+
+    " COMMON_B: " +common_name_b + " RELATED " +infoRoute[i].related_id );
 
     latlng_street.push(new GLatLng(lat_start,long_start));
     //latlng_street.push(new GLatLng(lat_end,long_end));
-    if(stretch_type > 2){latlng_metro.push(new GLatLng(lat_start,long_start));}
+    if(parseInt(stretch_type) >= 2){latlng_metro.push(new GLatLng(lat_start,long_start));}
 
     }
   //Se adiciona el ulitmo trayecto
   latlng_street.push(new GLatLng(lat_end,long_end));
+
+  //Si se intenta eliminar un overlay que no está en el mapa se genera error
+  if(polyline_metro != null){
+    map.removeOverlay(polyline_metro);
+  }
+  if(polyline !=null){
+    map.removeOverlay(polyline);
+  }
+
+
   drawpolyline(latlng_bus,latlng_street,latlng_metro);
   explainRoute(infoRoute);
 }
@@ -419,10 +446,12 @@ function explainRoute(infoRoute){
   var explain;
   var turn;
   var first_node=true;
+  var estacion_metro=false;
 //  console.debug("El tamaño del hash: " + size);
 
   for(var i=0;i<size;i++){
-    if(first_node){
+
+    if(first_node && infoRoute[i].stretch_type=='1'){
       explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+ "Usted está en: " +
       "<b>" + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a + "</b>" +
       " dirigete en dirección " + infoRoute[i].direction + " hacia la "
@@ -430,7 +459,7 @@ function explainRoute(infoRoute){
        infoRoute[i].street_name_b + "</b></a></li>";
        first_node=false;
     }
-    else if(infoRoute[i-1].direction==infoRoute[i].direction && continueStraight==false){
+    else if((infoRoute[i-1].direction==infoRoute[i].direction) && continueStraight==false && infoRoute[i].stretch_type=='1'){
 
        explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
        "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
@@ -441,12 +470,12 @@ function explainRoute(infoRoute){
        continueStraight=true;
 
     }
-    else if(continueStraight==true && infoRoute[i-1].direction==infoRoute[i].direction){
+    else if(continueStraight==true && (infoRoute[i-1].direction==infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
        "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
        infoRoute[i].street_name_b + "</b></a></li>" ;
     }
-    else if (infoRoute[i-1].direction != infoRoute[i].direction){
+    else if ( (infoRoute[i-1].direction != infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
       turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
 
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
@@ -455,6 +484,27 @@ function explainRoute(infoRoute){
        infoRoute[i].street_name_b + "</b></a></li>";
        continueStraight = false;
     }
+
+    else if(infoRoute[i-1].stretch_type=='1' && infoRoute[i].stretch_type=='3'){
+      //alert("metro true");
+      estacion_metro=true;
+    }
+    else if((infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='2') && estacion_metro==true){
+      explain += '<li><a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">Ve de la estación <b> ' +
+      infoRoute[i-1].common_name_a+ '</b>';
+      //console.debug("hola 1 " + explain );
+
+    }
+    else if(estacion_metro==true && (infoRoute[i-1].stretch_type=='2' && infoRoute[i].stretch_type=='3')) {
+      explain += ' hasta la estación <b>'+infoRoute[i].common_name_a+'</b></a></li>';
+      //console.debug("hola 2 " + explain);
+      estacion_metro=false;
+    }
+    else if(infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='1'){
+      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">Baja de la estación ' +
+      infoRoute[i].common_name_a + " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " + infoRoute[i].street_name_a + "</b></a></li>";
+    }
+
   }
  // console.debug("La respuesta de direccion \n: " + explain);
   var div_sidebar_list = document.getElementById("sidebar-list");
@@ -462,7 +512,23 @@ function explainRoute(infoRoute){
 
 }
 
+function focusMetro(id_metro_related){
+  var size = Object.size(infoRoute);
+  var selected_station=[];
+  map.addOverlay(polyline);
 
+  for(var i=0;i<size;i++){
+    if(infoRoute[i].related_id==id_metro_related){
+       selected_station.push(new GLatLng(infoRoute[i].lat_start,infoRoute[i].long_start));
+       selected_station.push(new GLatLng(infoRoute[i].lat_end,infoRoute[i].long_end));
+      // console.debug("el id " + id_metro_related + " INIT: " + infoRoute[i].lat_start+","+infoRoute[i].long_start+
+      // " END: " + infoRoute[i].lat_end+","+infoRoute[i].long_end);
+    }
+  }
+
+  var polyline_metro=new GPolyline(selected_station);
+  map.addOverlay(polyline_metro);
+}
 /*FUNCIONES PARA SABER QUE DIRECCION DEBO TOMAR DADO 2 PUNTOS CARDINALES*/
 
 function eval_direction(comes_from, goes_to){
