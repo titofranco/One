@@ -22,6 +22,10 @@ var polyline_metro;
 var latlng_street;
 var latlng_bus;
 var latlng_metro;
+var init_lat;
+var init_lng;
+var end_lat;
+var end_lng;
 
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
@@ -69,12 +73,12 @@ function midArrows(arrowIcon) {
   }
  }
 
-
 //Esta funcion debe estar afuera del init porque sino aparece el error
 //focusPoint is not defined
 function focusPoint(id){
    //Pinta de nuevo toda la ruta
   map.addOverlay(polyline);
+  alert(id);
   var selected_polyline = new GPolyline(
                    [new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),
                    new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end)]
@@ -128,9 +132,10 @@ function validar(form){
 $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
-  var centerLatitude =  6.257221;
-  var centerLongitude = -75.614154;
-  var startZoom = 15;
+//6.2201673770;-75.6076627160; casa de joan
+  var centerLatitude =  6.256965;
+  var centerLongitude = -75.60496;
+  var startZoom = 16;
   var lat;
   var lng;
   var countInitial=0;
@@ -145,9 +150,10 @@ $(document).ready(function(){
  // inputForm.onsubmit = function(){return checkform(this);};
   inputForm.innerHTML=
     '<div id=inputArea><fieldset>'
-    + '<label for="initial_point">Punto Inicial</label>'
+    + '<div id=title>Puntos: </div>'
+    + '<label for="initial_point">Inicial</label>'
     + '<input type="text" id="initial_point" name="initial_point" style="width:280px;"/>'
-    + '<label for="end_point">Punto Final</label>'
+    + '<label for="end_point">Final</label>'
     + '<input type="text" id="end_point" name="end_point" style="width:280px;"/>'
     + '<p><input type="submit" value="Get Directions!"/></p>'
     + '</fieldset></div>';
@@ -210,12 +216,16 @@ $(document).ready(function(){
     if(countInitial==0){
         var marker = new GMarker(point,{draggable:true});
         map.addOverlay(marker);
-        document.getElementById("initial_point").value=lat+','+lng;
+        init_lat=lat;
+        init_lng=lng;
+        document.getElementById("initial_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
         contextmenu.style.visibility="hidden";
         countInitial=1;
 
       GEvent.addListener(marker, "dragend", function() {
-        document.getElementById("initial_point").value=marker.getPoint().lat()+","+marker.getPoint().lng();
+        init_lat=marker.getPoint().lat();
+        init_lng=marker.getPoint().lng();
+        document.getElementById("initial_point").value=String(init_lat).substring(0,7)+","+ String(init_lng).substring(0,9);
       });
     }
   }
@@ -225,12 +235,16 @@ $(document).ready(function(){
     if(countFinal==0){
         var marker = new GMarker(point,{draggable:true});
         map.addOverlay(marker);
-        document.getElementById("end_point").value=lat+','+lng;
+        end_lat=lat;
+        end_lng=lng;
+        document.getElementById("end_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
         contextmenu.style.visibility="hidden";
         countFinal=1;
 
         GEvent.addListener(marker, "dragend", function() {
-         document.getElementById("end_point").value=marker.getPoint().lat()+","+marker.getPoint().lng();
+         end_lat=marker.getPoint().lat();
+         end_lng=marker.getPoint().lng();
+         document.getElementById("end_point").value=String(end_lat).substring(0,7)+","+ String(end_lng).substring(0,9);
         });
      }
   }
@@ -282,8 +296,9 @@ $(document).ready(function(){
 //Metodo que hace la llamada asincrona al controlador, pasando los parametros
 //correspondientes y evaluando la respuesta dada por este
 function findRoute(){
-  var init_lat_lng = document.getElementById("initial_point").value;
-  var end_lat_lng = document.getElementById("end_point").value;
+  var init_lat_lng = init_lat+","+init_lng;
+  var end_lat_lng = end_lat+ "," + end_lng;
+  console.debug("CONSTRUIDO " + end_lat_lng);
   var getVars = "?initial_point="+init_lat_lng+"&end_point="+end_lat_lng;
 
   var request = GXmlHttp.create();
@@ -330,6 +345,7 @@ function parseContent(content){
     var street_name_a=content[i].street_name_a;
     var prefix_a=content[i].prefix_a;
     var common_name_a=content[i].common_name_a;
+    var distance=content[i].distance;
     var label_a=content[i].label_a;
     var way_type_b=content[i].way_type_b;
     var street_name_b=content[i].street_name_b;
@@ -349,6 +365,7 @@ function parseContent(content){
     street_name_a:street_name_a,
     prefix_a:prefix_a,
     common_name_a:common_name_a,
+    distance:distance,
     label_a:label_a,
     way_type_b:way_type_b,
     street_name_b:street_name_b,
@@ -371,13 +388,12 @@ function parseContent(content){
     console.debug("\ni: "+i+ " el ID: " + id + " INIT: " + lat_start+"," + long_start + " END: " + lat_end + "," + long_end +
     " BEARING: " + bearing + " DIRECTION: " + direction  + " STREET_NAME_A: " + way_type_a + street_name_a +
     " COMMON_A: " +common_name_a+ " STREET_NAME_B: "+ way_type_b + street_name_b + " STRETCH_TYPE: " + stretch_type+
-    " COMMON_B: " +common_name_b + " RELATED " +infoRoute[i].related_id );
+    " COMMON_B: " +common_name_b + " RELATED " +infoRoute[i].related_id + " DISTANCE: " + distance);
 
     latlng_street.push(new GLatLng(lat_start,long_start));
-    //latlng_street.push(new GLatLng(lat_end,long_end));
+   // latlng_street.push(new GLatLng(lat_end,long_end));
     if(parseInt(stretch_type) >= 2){latlng_metro.push(new GLatLng(lat_start,long_start));}
-
-    }
+  }
   //Se adiciona el ulitmo trayecto
   latlng_street.push(new GLatLng(lat_end,long_end));
 
@@ -449,9 +465,9 @@ function explainRoute(infoRoute){
   var estacion_metro=false;
 //  console.debug("El tamaño del hash: " + size);
 
-  for(var i=0;i<size;i++){
+  for(var i=0;i<size-1;i++){
 
-    if(first_node && infoRoute[i].stretch_type=='1'){
+    if(first_node){
       explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+ "Usted está en: " +
       "<b>" + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a + "</b>" +
       " dirigete en dirección " + infoRoute[i].direction + " hacia la "
@@ -475,6 +491,11 @@ function explainRoute(infoRoute){
        "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
        infoRoute[i].street_name_b + "</b></a></li>" ;
     }
+  /*  else if(infoRoute[i-1].stretch_type=='1' && infoRoute[i].stretch_type=='4'){
+      explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
+      "Dirigete hacia el <b>" + infoRoute[i].street_name_a + "</b></a></li>" ;
+    }*/
+
     else if ( (infoRoute[i-1].direction != infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
       turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
 
@@ -485,11 +506,12 @@ function explainRoute(infoRoute){
        continueStraight = false;
     }
 
-    else if(infoRoute[i-1].stretch_type=='1' && infoRoute[i].stretch_type=='3'){
+    else if(infoRoute[i-1].stretch_type=='4' && infoRoute[i].stretch_type=='3'){
       //alert("metro true");
       estacion_metro=true;
     }
     else if((infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='2') && estacion_metro==true){
+      alert("hola hola");
       explain += '<li><a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">Ve de la estación <b> ' +
       infoRoute[i-1].common_name_a+ '</b>';
       //console.debug("hola 1 " + explain );
@@ -498,13 +520,26 @@ function explainRoute(infoRoute){
     else if(estacion_metro==true && (infoRoute[i-1].stretch_type=='2' && infoRoute[i].stretch_type=='3')) {
       explain += ' hasta la estación <b>'+infoRoute[i].common_name_a+'</b></a></li>';
       //console.debug("hola 2 " + explain);
+
+    }
+    else if(infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='4'){
+      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">Baja de la estación ' +
+      infoRoute[i-1].common_name_a + " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " + infoRoute[i].street_name_a + "</b></a></li>";
       estacion_metro=false;
     }
-    else if(infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='1'){
-      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">Baja de la estación ' +
-      infoRoute[i].common_name_a + " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " + infoRoute[i].street_name_a + "</b></a></li>";
-    }
 
+  }
+  if(size>1){
+  var end;
+
+  if(infoRoute[size-2].direction==infoRoute[size-1].direction){
+    end='Continua hasta encontrar tu lugar de destino';
+  }
+  else {
+    turn = eval_direction(infoRoute[size-2].direction,infoRoute[size-1].direction)
+    end = 'Voltea <b> '+ turn +'</b> hasta llegar a su lugar destino </b>';
+  }
+  explain += '<li><a href="#" onclick="javascript:focusPoint('+(size-1)+')"> '+end+'</a></li>';
   }
  // console.debug("La respuesta de direccion \n: " + explain);
   var div_sidebar_list = document.getElementById("sidebar-list");
