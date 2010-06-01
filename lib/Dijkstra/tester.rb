@@ -1,5 +1,6 @@
-require "Dijkstra/Parser"
 require "Dijkstra"
+require "AlgoritmoA"
+require "Parser"
 
 puts "parsing..."
 streets = Parser.getGrafo "listas.txt"

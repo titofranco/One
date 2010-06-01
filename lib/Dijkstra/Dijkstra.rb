@@ -3,6 +3,7 @@ require 'algorithms'
 
 class Dijkstra
   def self.encontrarCamino arrayCalles,inicio,destino
+    puts "dijkstriando..."
     numCalles = arrayCalles.length
     nodoI = arrayCalles[inicio]
     nodoD = arrayCalles[destino]
@@ -39,7 +40,7 @@ class Dijkstra
     camino.unshift inicio
     
     #--
-    if true
+    if false
       puts "escribiendo en el archivo"
       cont = 0
       str = ""

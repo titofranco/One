@@ -1,8 +1,9 @@
 require 'Calle'
 class Parser
-  def self.getGrafo nombreArchivo 
+  def self.getGrafo rutaArchivo
     grafo = Array.new
-    f = File.new(nombreArchivo,"r")
+    puts "la ruta es: #{rutaArchivo}"
+    f = File.new(rutaArchivo,"r")
     f.each do |line|
       # puts "\nseparando #{line}"
       temp = line.split(":")
@@ -51,6 +52,7 @@ class Parser
       
     end
     # puts "grafo en parser"
+    f.close
     grafo
   end
 end
