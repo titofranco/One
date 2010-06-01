@@ -2,7 +2,7 @@ require 'rubygems'
 require 'algorithms'
 
 class Dijkstra
-  def self.encontrarCamino arrayCalles,inicio,destino
+  def self.encontrarCamino arrayCalles,inicio,destino 
     numCalles = arrayCalles.length
     nodoI = arrayCalles[inicio]
     nodoD = arrayCalles[destino]
@@ -25,9 +25,9 @@ class Dijkstra
       n.enlaces.each{ |e|
         heap.push(e[1],e[0])
         alt = dist[n.idNodo]+e[1]
-        if alt < dist[e[0]]
+        if alt <= dist[e[0]]
           dist[e[0]] = alt
-          prev[e[0]] = n.idNodo
+          prev[e[0]] = n.iddNodo
         end
       }
     end
@@ -43,9 +43,9 @@ class Dijkstra
       puts "escribiendo en el archivo"
       cont = 0
       str = ""
-      dist.each_with_index{ |d,i|
+      dist.each{ |d|
         if d != Float::MAX
-        str = str + "#{cont.to_s}: #{d.to_s} f #{prev[i].to_s}\n"
+        str = str + "#{cont.to_s}: #{d.to_s}\n"
       end      
         cont = cont.next
       }

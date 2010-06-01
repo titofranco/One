@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'algorithms'
+
 class DijkstraTemp
   def self.encontrarCamino arrayCalles,inicio,destino       
     m = arrayCalles.length
@@ -23,15 +24,6 @@ class DijkstraTemp
         n = arrayCalles[heap.pop]
       end
       break if dist[n.idNodo] == Float::MAX
-      if n.idNodo == destino
-        camino = Array.new
-        while prev[destino]
-          camino.unshift destino
-          destino = prev[destino]
-        end
-        camino.unshift inicio
-        return camino
-      end
       arrayCalles.delete n.idNodo
       n.enlaces.each{ |e|
         heap.push(e[1],e[0])
@@ -42,6 +34,14 @@ class DijkstraTemp
         end
       }
       v[n.idNodo] = true
+      #------------------------
+      str = ""
+      dist.each_with_index{ |d,i|
+        str = str +"#{i}: #{d} desde #{prev[i]}\n"
+      }
+      f=File.new("distancia(#{inicio}-#{destino}.txt","w+")
+      f.write(str)
+      #------------------------
     end
   end
 end

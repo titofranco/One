@@ -19,6 +19,8 @@ ActiveRecord::Schema.define(:version => 20100316040019) do
     t.string   "routes_taken"
     t.datetime "created_at",                                      :default => '2010-04-13 19:50:49'
     t.datetime "updated_at",                                      :default => '2010-04-13 19:50:49'
+    t.datetime "created_at",                                      :default => '2010-04-13 17:51:30'
+    t.datetime "updated_at",                                      :default => '2010-04-13 17:51:30'
   end
 
   create_table "buses_routes", :force => true do |t|
