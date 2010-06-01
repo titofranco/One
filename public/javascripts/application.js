@@ -150,12 +150,12 @@ $(document).ready(function(){
  // inputForm.onsubmit = function(){return checkform(this);};
   inputForm.innerHTML=
     '<div id=inputArea><fieldset>'
-    + '<div id=title>Puntos: </div>'
-    + '<label for="initial_point">Inicial</label>'
-    + '<input type="text" id="initial_point" name="initial_point" style="width:280px;"/>'
-    + '<label for="end_point">Final</label>'
-    + '<input type="text" id="end_point" name="end_point" style="width:280px;"/>'
-    + '<p><input type="submit" value="Get Directions!"/></p>'
+    + '<div id=title> </div>'
+    + '<label for="initial_point">Inicial=></label>'
+    + '<input type="text" id="initial_point" name="initial_point" style="width:150px;"/>'
+    + '<label for="end_point">Final=></label>'
+    + '<input type="text" id="end_point" name="end_point" style="width:150px;"/>'
+    + '<input type="submit" value="Get Directions!"/>'
     + '</fieldset></div>';
   divheader.appendChild(inputForm);
 
