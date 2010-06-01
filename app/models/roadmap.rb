@@ -68,7 +68,7 @@ class Roadmap < ActiveRecord::Base
                                          "where roadmap_id = ? AND roadmap_related_id = ?",nodes[i],nodes[i+1]]
 
       route = route[0]
-      if(route.distance_meters >0 && !route.stretch_type.eql?('1'))
+      if(route.distance_meters >0  || (route.distance_meters == 0 && route.stretch_type != 1))
       resultado.push({:id=>route.id,:lat_start=>route.lat_start, :long_start=>route.long_start,
       :lat_end=>route.lat_end,:long_end=>route.long_end,:stretch_type=>route.stretch_type,
       :way_type_a=>route.way_type_a,:street_name_a=>route.street_name_a,:prefix_a=>route.prefix_a,
@@ -83,7 +83,7 @@ class Roadmap < ActiveRecord::Base
 
     #El ultimo registro en el array es el que va conectado con el punto final escogido por el usuario
     #last_point = Roadmap.find(@end_point[0].id,:select=> "way_type,street_name,prefix,label,lat_start,long_start")
-    resultado.push({:id=>99999,:lat_start=>route.lat_end, :long_start=>route.long_end,
+    resultado.push({:id=>999999,:lat_start=>route.lat_end, :long_start=>route.long_end,
     :lat_end=>lat_end,:long_end=>long_end,:stretch_type=>1,:way_type_a=>route.way_type_b,
     :street_name_a=>route.street_name_b,:prefix_a=>route.prefix_b,:label_a=>route.label_a,
     :common_name_a=>route.common_name_a,:distance=>1,:way_type_b=>" ",:street_name_b=>" ",:prefix_b=>" ",
