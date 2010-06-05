@@ -1,5 +1,5 @@
 class Mda
-  
+
   def initialize(rows,columns)
     @max_row = rows
     @max_column = columns
@@ -7,14 +7,14 @@ class Mda
     @a.map! { Array.new(columns) }
     @first_node = true
   end
-  
+
   # =begin
   #    def fill_array(row,column,value)
   #      @a[row-1][column-1]=value
   #    end
-     
+
   #    def create_file
-       
+
   #      file = File.new("archivo_salida.txt","w+")
   #      begin
   #        for i in 0 ... @max_row
@@ -26,13 +26,13 @@ class Mda
   #            end
   #          end
   #        end
-         
+
   #      rescue StandardError => e
   #        puts e
   #      ensure
   #        file.close if file.nil?
   #      end
-       
+
   #    end
   #    =end
 
@@ -49,9 +49,9 @@ class Mda
   # crea un formato para leer desde disco sin tener que ir a la base de datos
   # el formato que crea es
   # nodo:nodoSiguiente,distancia,tipo;nodoSiguiente,distancia,tipo;...;&latitud,longitud\n
-  
+
   def create_file
-    file = File.new("#{RAILS_ROOT}/lib/Text_Files/listas.txt","w+")
+    file = File.new("#{RAILS_ROOT}/lib/Dijkstra/listas.txt","w+")
     begin
       for i in 0 ... @max_row-1
 
@@ -65,7 +65,7 @@ class Mda
         #   file.printf @a[i][1].to_s + "," + @a[i][2].to_s + ";" + "\n"
         #   @first_node = true
         # end
-        
+
         if @first_node
           file.printf @a[i][0].to_s + ":"
         end
@@ -83,11 +83,11 @@ class Mda
     ensure
       file.close if file.nil?
     end
-    
+
   end
-  
+
   def test_file
-    
+
     iniTime = Time.now
     puts "#The initial Time: #{iniTime} "
     m = Mda.new(10000,10000)
@@ -97,7 +97,8 @@ class Mda
     puts  "#{Time.now - iniTime} seconds for FILLING the matrix}"
     m.create_file
     puts  "#{Time.now - iniTime} seconds for creating the file}"
-    
+
   end
-  
+
 end
+
