@@ -12,7 +12,7 @@ class Roadmap < ActiveRecord::Base
           COS(abs(dest.lat_start) * pi()/180) * POWER(SIN(("+long_start+ "- dest.long_start) *
           pi()/180 / 2), 2) )) as  distance
           FROM roadmaps dest
-          where stretch_type = '1'
+          where stretch_type = '1' and has_relation='S'
           having distance < 0.310685596
           order by distance limit 1"
     @init_point = find_by_sql(sql)
@@ -27,7 +27,8 @@ class Roadmap < ActiveRecord::Base
           pi()/180 / 2), 2) )) as  distance
           FROM roadmaps dest
           where dest.lat_start not in("+@init_point[0].lat_start.to_s+") and dest.long_start not in ("+@init_point[0].long_start.to_s+")
-          and stretch_type = '1' having distance < 0.310685596
+          and stretch_type = '1' and has_relation='S'
+          having distance < 0.310685596
           order by distance limit 1"
     @end_point = find_by_sql(sql)
     @end_point
