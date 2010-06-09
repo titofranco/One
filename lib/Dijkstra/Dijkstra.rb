@@ -6,7 +6,9 @@ class Dijkstra
     puts "dijkstriando..."
     numCalles = arrayCalles.length
     nodoI = arrayCalles[inicio]
+    puts "NODO I #{nodoI} "
     nodoD = arrayCalles[destino]
+    puts "NODO D #{nodoD} "
     distanciaMax = distanceHarvesine(nodoI.lati,nodoI.longi,nodoD.lati,nodoD.longi)
     distanciaMax = distanciaMax + (distanciaMax/3)
     dist = Array.new(numCalles,Float::MAX)
@@ -18,17 +20,17 @@ class Dijkstra
     while heap.size > 0
       n = arrayCalles[heap.pop]
       next if n == nil
-      break if dist[n.idNodo] == Float::MAX 
+      break if dist[n.idNodo] == Float::MAX
       arrayCalles[n.idNodo]=nil
       numCalles = numCalles-1
       d = distanceHarvesine(n.lati,n.longi,nodoD.lati,nodoD.longi)
       next if d > distanciaMax
       n.enlaces.each{ |e|
-        heap.push(e[1],e[0])
         alt = dist[n.idNodo]+e[1]
         if alt < dist[e[0]]
           dist[e[0]] = alt
           prev[e[0]] = n.idNodo
+          heap.push(alt,e[0])
         end
       }
     end
@@ -38,7 +40,7 @@ class Dijkstra
       destino = prev[destino]
     end
     camino.unshift inicio
-    
+
     #--
     if false
       puts "escribiendo en el archivo"
@@ -47,7 +49,7 @@ class Dijkstra
       dist.each_with_index{ |d,i|
         if d != Float::MAX
         str = str + "#{cont.to_s}: #{d.to_s} f #{prev[i].to_s}\n"
-      end      
+      end
         cont = cont.next
       }
       f = File.new("#{inicio}","w+")
@@ -55,27 +57,28 @@ class Dijkstra
       f.close
     end
     #--
-    
+
     return camino
   end
-  
+
   def self.distanceHarvesine(lat1,long1,lat2,long2)
     to_rad=(Math::PI/180)
     dLong = long2 - long1
     dLat  = lat2 - lat1
-    
+
     dLongRad = dLong*to_rad
     dLatRad  = dLat*to_rad
     lat1Rad  = lat1*to_rad
     lat2Rad  = lat2*to_rad
     long1Rad = long1*to_rad
     long2Rad = long2*to_rad
-    
+
     a =(Math.sin(dLatRad/2))**2 + Math.cos(lat1Rad)*Math.cos(lat2Rad)*(Math.sin(dLongRad/2))**2
     c = 2* Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-    
+
     distanceMeters = c*6371000
-    
+
     return distanceMeters
   end
 end
+
