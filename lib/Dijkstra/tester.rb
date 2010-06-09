@@ -1,13 +1,13 @@
 require "Dijkstra"
-require "AlgoritmoA"
 require "Parser"
 
 puts "parsing..."
 streets = Parser.getGrafo "listas.txt"
 puts "numero de calles: #{streets.size}"
 #Carlos-Joan
+puts "camino de 45385 a 45569"
 puts "inicio: #{Time.now}"
-camino = Dijkstra.encontrarCamino streets,20235,6499
+camino = Dijkstra.encontrarCamino streets,45385,45569
 puts "fin: #{Time.now}"
 puts camino.inspect
 puts camino.size
