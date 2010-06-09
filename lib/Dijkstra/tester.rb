@@ -33,8 +33,9 @@ puts camino.size
 # puts camino.inspect
 # puts camino.size
 
-f = File.new("camino","w+")
+f = File.new("camino.txt","w+")
 camino.each{ |l|
   f.write(l.to_s.concat(","))
 }
 f.close
+

@@ -1,5 +1,7 @@
 require "Dijkstra/Parser"
 require "Dijkstra/Dijkstra"
+require "Dijkstra/Calle"
+
 class MapController < ApplicationController
 
 
@@ -73,7 +75,6 @@ end
 
 
 def metodoruta(lat_start,long_start,lat_end,long_end)
-  @a = [45385, 45297, 45175, 45023, 44936, 18628, 18810, 45679, 45582, 20277, 45533, 45528, 20363, 45502, 45498, 45489, 45482, 45475, 20218, 45463, 45451, 45443, 45449, 45512, 45504, 45575, 45569]
   resultado = Roadmap.getRoute(@a,lat_start,long_start,lat_end,long_end)
   resultado
 end
