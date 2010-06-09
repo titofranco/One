@@ -1,13 +1,19 @@
 require 'rubygems'
 require 'algorithms'
+require "#{RAILS_ROOT}/lib/Dijkstra/Harvesine"
 
 class Dijkstra
   def self.encontrarCamino arrayCalles,inicio,destino
     numCalles = arrayCalles.length
     nodoI = arrayCalles[inicio]
     nodoD = arrayCalles[destino]
-    distanciaMax = distanceHarvesine(nodoI.lati,nodoI.longi,nodoD.lati,nodoD.longi)
-    distanciaMax = distanciaMax + (distanciaMax*2)
+    puts nodoI.to_s
+    puts nodoD.to_s
+    h = Harvesine.new
+    distanciaMax =
+  h.distanceHarvesine(nodoI.lati,nodoI.longi,nodoD.lati,nodoD.longi)
+    puts distanciaMax
+    distanciaMax = distanciaMax + (distanciaMax/3)
     puts distanciaMax
     dist = Array.new(numCalles,Float::MAX)
     prev = Array.new(numCalles,nil)
@@ -21,7 +27,7 @@ class Dijkstra
       break if dist[n.idNodo] == Float::MAX
       arrayCalles[n.idNodo]=nil
       numCalles = numCalles-1
-      d = distanceHarvesine(n.lati,n.longi,nodoD.lati,nodoD.longi)
+      d = h.distanceHarvesine(n.lati,n.longi,nodoD.lati,nodoD.longi)
       # puts "#{n.idNodo}: #{dist[n.idNodo]} d:#{d}"
       next if d > distanciaMax
       str = "metio: "
@@ -44,7 +50,7 @@ class Dijkstra
     camino.unshift inicio
 
     #--
-    if true
+    if false
       puts "escribiendo en el archivo"
       cont = 0
       str = ""

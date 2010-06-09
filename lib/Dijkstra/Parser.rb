@@ -1,3 +1,4 @@
+require "#{RAILS_ROOT}/lib/Dijkstra/Calle"
 class Parser
   def self.getGrafo rutaArchivo
     grafo = Array.new
