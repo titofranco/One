@@ -37,6 +37,7 @@ class Roadmap < ActiveRecord::Base
   def self.getRoute(nodes,lat_start,long_start,lat_end,long_end)
     resultado = Array.new
     # Se debe hacer conexion con el punto inicial escogido por el usuario y el primer nodo en el grafo
+=begin
     point_a = find(@init_point[0].id,
                           :select=> "way_type,street_name,prefix,label,common_name,lat_start,long_start")
     resultado.push({:id=>00000,:lat_start=>lat_start, :long_start=>long_start,
@@ -46,6 +47,7 @@ class Roadmap < ActiveRecord::Base
     :prefix_b=>point_a.prefix,:label_b=>point_a.label,:common_name_b=>point_a.common_name})
     #puts "El resultado del query para el punto mas cercano inicial #{init_point}"
     #QuerY para pintar lineas del metro, cada una se debe pintar a parte mejor
+=end
 =begin
       r = Roadmap.find(:all,:conditions => ['stretch_type in (?) AND municipality in (?)',[3],['MEDELLIN']])
         r.each do |s|
@@ -84,12 +86,13 @@ class Roadmap < ActiveRecord::Base
 
     #El ultimo registro en el array es el que va conectado con el punto final escogido por el usuario
     #last_point = Roadmap.find(@end_point[0].id,:select=> "way_type,street_name,prefix,label,lat_start,long_start")
+=begin
     resultado.push({:id=>999999,:lat_start=>route.lat_end, :long_start=>route.long_end,
     :lat_end=>lat_end,:long_end=>long_end,:stretch_type=>1,:way_type_a=>route.way_type_b,
     :street_name_a=>route.street_name_b,:prefix_a=>route.prefix_b,:label_a=>route.label_a,
     :common_name_a=>route.common_name_a,:distance=>1,:way_type_b=>" ",:street_name_b=>" ",:prefix_b=>" ",
     :label_b=>" ",:common_name_b=>" "})
-
+=end
     resultado
   end
 

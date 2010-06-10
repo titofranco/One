@@ -26,6 +26,8 @@ var init_lat;
 var init_lng;
 var end_lat;
 var end_lng;
+var initial_marker;
+var final_marker;
 
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
@@ -214,17 +216,18 @@ $(document).ready(function(){
   //Obtiene el punto inicial del field, crea el marker y lo habilita para que se pueda arrastrar
   function getInitialPoint() {
     if(countInitial==0){
-        var marker = new GMarker(point,{draggable:true});
-        map.addOverlay(marker);
+        initial_marker = new GMarker(point,{draggable:true});
+        map.addOverlay(initial_marker);
+        //marker.setLatLng(new GLatLng(6.256648053,-75.602324565));
         init_lat=lat;
         init_lng=lng;
         document.getElementById("initial_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
         contextmenu.style.visibility="hidden";
         countInitial=1;
 
-      GEvent.addListener(marker, "dragend", function() {
-        init_lat=marker.getPoint().lat();
-        init_lng=marker.getPoint().lng();
+      GEvent.addListener(initial_marker, "dragend", function() {
+        init_lat=initial_marker.getPoint().lat();
+        init_lng=initial_marker.getPoint().lng();
         document.getElementById("initial_point").value=String(init_lat).substring(0,7)+","+ String(init_lng).substring(0,9);
       });
     }
@@ -233,17 +236,17 @@ $(document).ready(function(){
   //Obtiene el punto final del field, crea el marker y lo habilita para que se pueda arrastrar
   function getFinalPoint() {
     if(countFinal==0){
-        var marker = new GMarker(point,{draggable:true});
-        map.addOverlay(marker);
+        final_marker = new GMarker(point,{draggable:true});
+        map.addOverlay(final_marker);
         end_lat=lat;
         end_lng=lng;
         document.getElementById("end_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
         contextmenu.style.visibility="hidden";
         countFinal=1;
 
-        GEvent.addListener(marker, "dragend", function() {
-         end_lat=marker.getPoint().lat();
-         end_lng=marker.getPoint().lng();
+        GEvent.addListener(final_marker, "dragend", function() {
+         end_lat=final_marker.getPoint().lat();
+         end_lng=final_marker.getPoint().lng();
          document.getElementById("end_point").value=String(end_lat).substring(0,7)+","+ String(end_lng).substring(0,9);
         });
      }
@@ -293,6 +296,13 @@ $(document).ready(function(){
 });
 
 
+function setLatLngMarkers(lat_start,long_start,lat_end,long_end){
+  initial_marker.setLatLng(new GLatLng(lat_start,long_start));
+  final_marker.setLatLng(new GLatLng(lat_end,long_end));
+
+}
+
+
 //Metodo que hace la llamada asincrona al controlador, pasando los parametros
 //correspondientes y evaluando la respuesta dada por este
 function findRoute(){
@@ -331,8 +341,8 @@ function parseContent(content){
   infoRoute={};
   latlng_bus=[];
   latlng_street=[];
-  latlng_metro=[]
-
+  latlng_metro=[];
+  last=content.length;
 
   for(var i=0;i<content.length;i++){
     var id = content[i].id;
@@ -405,7 +415,7 @@ function parseContent(content){
     map.removeOverlay(polyline);
   }
 
-
+  setLatLngMarkers(infoRoute[0].lat_start,infoRoute[0].long_start, infoRoute[last-1].lat_end, infoRoute[last-1].long_end);
   drawpolyline(latlng_bus,latlng_street,latlng_metro);
   explainRoute(infoRoute);
 }
@@ -419,6 +429,7 @@ Object.size = function(obj) {
     }
     return size;
 };
+
 
 //Obtiene los grados que hay entre 2 pares lat-long
 function getBearing(lat_start,long_start,lat_end,long_end){
@@ -444,8 +455,8 @@ function getDirection(bearing){
   if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
   {direction="Norte"}
   else if (bearing > 22.5 && bearing <= 66.5 ){direction="Noreste"}
-  else if (bearing > 66.5 && bearing <= 115 ){direction="Este"}
-  else if (bearing > 115 && bearing <= 157.5 ){direction="Sureste"}
+  else if (bearing > 66.5 && bearing <= 117 ){direction="Este"}
+  else if (bearing > 117 && bearing <= 157.5 ){direction="Sureste"}
   else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
   else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroeste"}
   else if (bearing > 247.5 && bearing <= 292.5 ){direction="Oeste"}
