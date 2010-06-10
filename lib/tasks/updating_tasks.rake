@@ -1,4 +1,4 @@
-require 'Harvesine'
+#require 'lib/Dijkstra/Harvesine'
 
 task :calculate_distance => :environment do
 

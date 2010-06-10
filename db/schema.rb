@@ -17,37 +17,16 @@ ActiveRecord::Schema.define(:version => 20100316040019) do
     t.string   "bus_stop_downtown"
     t.decimal  "route_length_km",   :precision => 5, :scale => 5
     t.string   "routes_taken"
-    t.datetime "created_at",                                      :default => '2010-04-13 19:50:49'
-    t.datetime "updated_at",                                      :default => '2010-04-13 19:50:49'
+    t.datetime "created_at",                                      :default => '2010-04-13 17:51:30'
+    t.datetime "updated_at",                                      :default => '2010-04-13 17:51:30'
   end
 
   create_table "buses_routes", :force => true do |t|
-    t.integer "roadmap_id",         :null => false
-    t.integer "roadmap_related_id", :null => false
-    t.integer "bus_id",             :null => false
+    t.integer "roadmap_id",                                 :null => false
+    t.decimal "lat_start",  :precision => 15, :scale => 10, :null => false
+    t.decimal "long_start", :precision => 15, :scale => 10, :null => false
+    t.integer "bus_id",                                     :null => false
   end
-
-  create_table "nodes_by_lat_long_end", :force => true do |t|
-    t.integer "roadmap_id",                                         :null => false
-    t.integer "roadmap_related_id",                                 :null => false
-    t.decimal "lat_start",          :precision => 15, :scale => 10, :null => false
-    t.decimal "long_start",         :precision => 15, :scale => 10, :null => false
-    t.decimal "lat_end",            :precision => 15, :scale => 10, :null => false
-    t.decimal "long_end",           :precision => 15, :scale => 10, :null => false
-    t.decimal "distance_meters",    :precision => 15, :scale => 10, :null => false
-    t.integer "stretch_type",                                       :null => false
-  end
-
-  add_index "nodes_by_lat_long_end", ["roadmap_id", "roadmap_related_id"], :name => "index_nodes_by_lat_long_end_on_roadmap_id_and_roadmap_related_id", :unique => true
-  add_index "nodes_by_lat_long_end", ["roadmap_related_id"], :name => "index_nodes_by_lat_long_end_on_roadmap_related_id"
-
-  create_table "records_to_update", :force => true do |t|
-    t.integer "roadmap_id",         :null => false
-    t.integer "roadmap_related_id", :null => false
-  end
-
-  add_index "records_to_update", ["roadmap_id", "roadmap_related_id"], :name => "index_records_to_update_on_roadmap_id_and_roadmap_related_id", :unique => true
-  add_index "records_to_update", ["roadmap_related_id"], :name => "index_records_to_update_on_roadmap_related_id"
 
   create_table "roadmaps", :force => true do |t|
     t.string  "way_type",     :limit => 13
@@ -73,33 +52,6 @@ ActiveRecord::Schema.define(:version => 20100316040019) do
   add_index "roadmaps", ["long_end"], :name => "index_roadmaps_on_long_end"
   add_index "roadmaps", ["long_start"], :name => "index_roadmaps_on_long_start"
 
-  create_table "st_buenos", :force => true do |t|
-    t.integer "roadmap_id",                                         :null => false
-    t.integer "roadmap_related_id",                                 :null => false
-    t.decimal "lat_start",          :precision => 15, :scale => 10, :null => false
-    t.decimal "long_start",         :precision => 15, :scale => 10, :null => false
-    t.decimal "lat_end",            :precision => 15, :scale => 10, :null => false
-    t.decimal "long_end",           :precision => 15, :scale => 10, :null => false
-    t.decimal "distance_meters",    :precision => 15, :scale => 10, :null => false
-    t.integer "stretch_type",                                       :null => false
-  end
-
-  add_index "st_buenos", ["roadmap_related_id"], :name => "index_street_relations_on_roadmap_related_id"
-
-  create_table "st_fix_records_zero", :force => true do |t|
-    t.integer "roadmap_id",                                         :null => false
-    t.integer "roadmap_related_id",                                 :null => false
-    t.decimal "lat_start",          :precision => 15, :scale => 10, :null => false
-    t.decimal "long_start",         :precision => 15, :scale => 10, :null => false
-    t.decimal "lat_end",            :precision => 15, :scale => 10, :null => false
-    t.decimal "long_end",           :precision => 15, :scale => 10, :null => false
-    t.decimal "distance_meters",    :precision => 15, :scale => 10, :null => false
-    t.integer "stretch_type",                                       :null => false
-  end
-
-  add_index "st_fix_records_zero", ["roadmap_id", "roadmap_related_id"], :name => "index_st_fix_records_zero_on_roadmap_id_and_roadmap_related_id", :unique => true
-  add_index "st_fix_records_zero", ["roadmap_related_id"], :name => "index_st_fix_records_zero_on_roadmap_related_id"
-
   create_table "street_relations", :force => true do |t|
     t.integer "roadmap_id",                                         :null => false
     t.integer "roadmap_related_id",                                 :null => false
@@ -113,19 +65,5 @@ ActiveRecord::Schema.define(:version => 20100316040019) do
 
   add_index "street_relations", ["roadmap_id", "roadmap_related_id"], :name => "index_street_relations_on_roadmap_id_and_roadmap_related_id", :unique => true
   add_index "street_relations", ["roadmap_related_id"], :name => "index_street_relations_on_roadmap_related_id"
-
-  create_table "street_relations_temp", :force => true do |t|
-    t.integer "roadmap_id",                                         :null => false
-    t.integer "roadmap_related_id",                                 :null => false
-    t.decimal "lat_start",          :precision => 15, :scale => 10, :null => false
-    t.decimal "long_start",         :precision => 15, :scale => 10, :null => false
-    t.decimal "lat_end",            :precision => 15, :scale => 10, :null => false
-    t.decimal "long_end",           :precision => 15, :scale => 10, :null => false
-    t.decimal "distance_meters",    :precision => 15, :scale => 10, :null => false
-    t.integer "stretch_type",                                       :null => false
-  end
-
-  add_index "street_relations_temp", ["roadmap_id", "roadmap_related_id"], :name => "index_street_relations_temp_on_roadmap_id_and_roadmap_related_id", :unique => true
-  add_index "street_relations_temp", ["roadmap_related_id"], :name => "index_street_relations_on_roadmap_related_id"
 
 end

@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'algorithms'
-require "#{RAILS_ROOT}/lib/Dijkstra/Harvesine"
+#require "#{RAILS_ROOT}/lib/Dijkstra/Harvesine"
+require "Harvesine"
+
 
 class Dijkstra
   def self.encontrarCamino arrayCalles,inicio,destino

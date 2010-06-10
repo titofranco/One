@@ -64,7 +64,6 @@ def calcular
       puts camino.size
       @a = camino
       #end dijkstra
-      puts "el resultado de a #{@a}"
 
       resultadoquery = metodoruta(lat_start,long_start,lat_end,long_end)
       res={:success=>true, :content=>resultadoquery}
