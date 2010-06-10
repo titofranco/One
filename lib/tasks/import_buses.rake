@@ -4,18 +4,23 @@ task :import_buses => :environment do
   begin
     csv = CSV.open "#{RAILS_ROOT}/lib/Text_Files/rutas_buses.csv","r"
     csv.each_with_index do |row,i|
-      id,lat,long = row
-      r = Roadmap.find(:all,:select=>"id",:conditions =>["lat_start = ? and long_start  =  ? and has_relation = 'S'",lat,long])
-      f = r.collect { |a| a["id"]}
-      b = BusesRoute.new(
-                         :roadmap_id => f,
-                          :lat_start => lat,
-                          :long_start => long,
-                          :bus_id => id
-                          )
-puts  b.inspect
-  puts r.to_s
-  b.save
+      id_bus,lat,long = row
+      roadmap = Roadmap.find(:all,:select=>"id",:conditions =>["lat_start = ? and long_start  =  ?",lat,long])
+      for reg in roadmap
+        busRoute = BusesRoute.create(
+                           :roadmap_id => reg.id,
+                            :lat_start => lat,
+                            :long_start => long,
+                            :bus_id => id_bus
+                            )
+        busRoute.save
+      end
     end
+  ensure
+    csv.close unless csv.nil?
   end
 end
+
+#rake para crear la tabla buses_routes
+#rake db:migrate:down VERSION=20100316040019
+
