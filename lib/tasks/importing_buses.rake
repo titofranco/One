@@ -1,6 +1,6 @@
 require 'csv'
 
-task :import_buses => :environment do
+task :importing_buses => :environment do
   begin
     csv = CSV.open "#{RAILS_ROOT}/lib/Text_Files/rutas_buses.csv","r"
     csv.each_with_index do |row,i|
