@@ -51,7 +51,7 @@ class Mda
   # nodo:nodoSiguiente,distancia,tipo;nodoSiguiente,distancia,tipo;...;&latitud,longitud\n
 
   def create_file
-    file = File.new("#{RAILS_ROOT}/lib/Dijkstra/listas.txt","w+")
+    file = File.new("#{RAILS_ROOT}/lib/dijkstra/listas.txt","w+")
     begin
       for i in 0 ... @max_row-1
 

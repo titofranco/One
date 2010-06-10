@@ -1,8 +1,5 @@
 require 'rubygems'
 require 'algorithms'
-#require "#{RAILS_ROOT}/lib/Dijkstra/Harvesine"
-require "Harvesine"
-
 
 class Dijkstra
   def self.encontrarCamino arrayCalles,inicio,destino
@@ -11,7 +8,7 @@ class Dijkstra
     nodoD = arrayCalles[destino]
     puts nodoI.to_s
     puts nodoD.to_s
-    h = Harvesine.new
+    h = Haversine.new
     distanciaMax =
   h.distanceHarvesine(nodoI.lati,nodoI.longi,nodoD.lati,nodoD.longi)
     puts distanciaMax
@@ -76,19 +73,19 @@ class Dijkstra
     to_rad=(Math::PI/180)
     dLong = long2 - long1
     dLat  = lat2 - lat1
-    
+
     dLongRad = dLong*to_rad
     dLatRad  = dLat*to_rad
     lat1Rad  = lat1*to_rad
     lat2Rad  = lat2*to_rad
     long1Rad = long1*to_rad
     long2Rad = long2*to_rad
-    
+
     a =(Math.sin(dLatRad/2))**2 + Math.cos(lat1Rad)*Math.cos(lat2Rad)*(Math.sin(dLongRad/2))**2
     c = 2* Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-    
+
     distanceMeters = c*6371000
-    
+
     return distanceMeters
   end
 end

@@ -1,8 +1,7 @@
-#require 'lib/Dijkstra/Harvesine'
 
 task :calculate_distance => :environment do
 
-h = Harvesine.new
+h = Haversine.new
 i=0
 
 (StreetRelation.find :all).each do |record|

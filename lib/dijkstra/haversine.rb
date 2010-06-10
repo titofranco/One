@@ -24,7 +24,7 @@ class Haversine
   end
 
 
-  def test_harvesine
+  def test_haversine
     long1 = -75.586799823
     lat1 = 6.263516533
 
@@ -36,6 +36,6 @@ class Haversine
 
 end
 
-h = Harvesine.new
-h.test_harvesine
+#h = Haversine.new
+#h.test_haversine
 

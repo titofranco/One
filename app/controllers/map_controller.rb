@@ -1,7 +1,3 @@
-require "Dijkstra/Parser"
-require "Dijkstra/Dijkstra"
-require "Dijkstra/Calle"
-
 class MapController < ApplicationController
 
 
@@ -53,7 +49,7 @@ def calcular
 
       #dijkstra
       puts "parsing..."
-      streets = Parser.getGrafo "#{RAILS_ROOT}/lib/Dijkstra/listas.txt"
+      streets = Parser.getGrafo "#{RAILS_ROOT}/lib/dijkstra/listas.txt"
       puts "numero de calles: #{streets.size}"
       #Carlos-Joan
       puts "camino de #{closest_init_point.first.id} a #{closest_end_point.first.id}"

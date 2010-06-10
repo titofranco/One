@@ -1,6 +1,3 @@
-require "Dijkstra"
-require "Parser"
-
 puts "parsing..."
 streets = Parser.getGrafo "listas.txt"
 puts "numero de calles: #{streets.size}"
