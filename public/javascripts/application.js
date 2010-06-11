@@ -28,6 +28,7 @@ var end_lat;
 var end_lng;
 var initial_marker;
 var final_marker;
+var marker_route;
 
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
@@ -80,12 +81,23 @@ function midArrows(arrowIcon) {
 function focusPoint(id){
    //Pinta de nuevo toda la ruta
   map.addOverlay(polyline);
-  alert(id);
+  //alert(id);
   var selected_polyline = new GPolyline(
                    [new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),
                    new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end)]
-                   ,'#1068f0',4,0.8);
+                   ,'#FFFFFF',4,0.8);
+
   map.addOverlay(selected_polyline);
+
+  var RonJonLogo = new GIcon();
+  RonJonLogo.image = "http://google-maps-icons.googlecode.com/files/speedriding.png";
+  RonJonLogo.iconSize = new GSize(48,24);
+  RonJonLogo.iconAnchor = new GPoint(24,14);
+  RonJonLogo.infoWindowAnchor = new GPoint(24,24);
+
+  if(marker_route != null){map.removeOverlay(marker_route);}
+  marker_route = new GMarker(new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),{draggable:true,icon:RonJonLogo});
+  map.addOverlay(marker_route);
 }
 
 //Función que pinta la ruta de buses, la de vias y la del metro
@@ -143,7 +155,7 @@ $(document).ready(function(){
   var countInitial=0;
   var countFinal=0;
   var point;
-  var divheader=document.getElementById("toolbar");
+  var divheader=document.getElementById("sidebar");
   var inputForm = document.createElement("form");
 
   inputForm.setAttribute("action","");
@@ -151,14 +163,14 @@ $(document).ready(function(){
   inputForm.onsubmit = function(){validar(this);return false;};
  // inputForm.onsubmit = function(){return checkform(this);};
   inputForm.innerHTML=
-    '<div id=inputArea><fieldset>'
-    + '<div id=title> </div>'
-    + '<label for="initial_point">Inicial=></label>'
-    + '<input type="text" id="initial_point" name="initial_point" style="width:150px;"/>'
-    + '<label for="end_point">Final=></label>'
-    + '<input type="text" id="end_point" name="end_point" style="width:150px;"/>'
-    + '<input type="submit" value="Get Directions!"/>'
-    + '</fieldset></div>';
+    '<div id=inputArea>'
+    + '<label for="initial_point">Origen</label>'
+    + '<input type="text" id="initial_point" name="initial_point" style="width:120px;"/>'
+    + '<p>'
+    + '<label for="end_point">Destino</label>'
+    + '<input type="text" id="end_point" name="end_point" style="width:120px;"/>'
+    + '<input type="submit" align="center" value="Mostrar ruta!"/>'
+    + '</div>';
   divheader.appendChild(inputForm);
 
   document.getElementById("initial_point").value='';
@@ -179,9 +191,11 @@ $(document).ready(function(){
   contextmenu.innerHTML =
     '<a href="javascript:void(0)"  id="initial_point_func"><div class="context">Ruta desde aquí</div></a>'
     +'<a href="javascript:void(0)" id="end_point_func"><div class="context">Ruta hasta aquí</div></a>'
+    +'<hr>'
     +'<a href="javascript:void(0)" id="zoomin_func"><div class="context">Zoom In</div></a>'
     +'<a href="javascript:void(0)" id="zoomout_func"><div class="context">Zoom Out</div></a>'
-    +'<a href="javascript:void(0)" id="centerMap_func"><div class="context">Center map</div></a>'
+    +'<a href="javascript:void(0)" id="centerMap_func"><div class="context">Centrar mapa</div></a>'
+    +'<hr>'
     +'<a href="javascript:void(0)" id="clearMarkers_func"><div class="context">Reiniciar origen/destino </div></a>'
   map.getContainer().appendChild(contextmenu);
 
@@ -236,13 +250,20 @@ $(document).ready(function(){
   //Obtiene el punto final del field, crea el marker y lo habilita para que se pueda arrastrar
   function getFinalPoint() {
     if(countFinal==0){
-        final_marker = new GMarker(point,{draggable:true});
+        var RonJonLogo = new GIcon();
+        RonJonLogo.image = "http://google-maps-icons.googlecode.com/files/speedriding.png";
+        RonJonLogo.iconSize = new GSize(48,24);
+        RonJonLogo.iconAnchor = new GPoint(24,14);
+        RonJonLogo.infoWindowAnchor = new GPoint(24,24);
+        final_marker = new GMarker(point,{draggable:true,icon:RonJonLogo});
+       // final_marker.setImage({url:'http://googlemapsbook.com/chapter4/StoreLocationMap/ronjonsurfshoplogo.png'});
         map.addOverlay(final_marker);
         end_lat=lat;
         end_lng=lng;
         document.getElementById("end_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
         contextmenu.style.visibility="hidden";
         countFinal=1;
+
 
         GEvent.addListener(final_marker, "dragend", function() {
          end_lat=final_marker.getPoint().lat();
