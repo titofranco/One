@@ -51,8 +51,8 @@ pixels—the dimensions of their element, including any padding.
 */
 /*Redimensiona el tamño del mapa y de la barra lateral*/
 function handleResize(){
-  var height = windowHeight()- document.getElementById('toolbar').offsetHeight-30;
-  document.getElementById('map').style.height = height + 'px';
+  var height = windowHeight()- document.getElementById('toolbar').offsetHeight-70;
+  document.getElementById('map').style.height = (height-20) + 'px';
   document.getElementById('sidebar').style.height = height + 'px';
 }
 
@@ -155,7 +155,7 @@ $(document).ready(function(){
   var countInitial=0;
   var countFinal=0;
   var point;
-  var divheader=document.getElementById("sidebar");
+  var divheader=document.getElementById("inputBoxes");
   var inputForm = document.createElement("form");
 
   inputForm.setAttribute("action","");

@@ -14,7 +14,7 @@ html,body {
 
 #content {
      margin-top: 5px;
-     margin-bottom:10px;
+     margin-bottom:100px;
      position: relative;
      background-color: #000000;
 }
@@ -25,8 +25,7 @@ html,body {
   height:100%;
 }
 #map-wrapper {
-margin-right: 300px;
-margin-bottom: 300px; } /*Este es el tamaño donde va a ir el toolbar*/
+  margin-right: 300px; } /*Si pongo margin-bottom chrome pone el mapa debajo Este es el tamaño donde va a ir el toolbar*/
 
 #map {
   position: absolute;
@@ -59,33 +58,43 @@ margin-bottom: 300px; } /*Este es el tamaño donde va a ir el toolbar*/
 }*/
 /*END OF TOOLBAR*/
 
-#toolbar-wrapper{
-  margin-right:300px;
-  position:relative;
+#bla{
+  margin-top: 5px;
+  position: relative;
+  background-color: #000000;
 }
 
+#toolbar-wrapper{
+  position:relative;
+  height:100%;
+}
+
+#toolbar-wrapper{margin-right:300px;}
+
 #toolbar {
+ top:0;
+ position: relative;
  background: white;
- width: 98%;
- left: 10px;
+ width: 79.5%;
  right: 20px;
+ left: 10px;
  height: 90px;
  border: 1px solid black;
- position: relative;
+
 }
 
 #inputBoxes{
-  position:absolute;
+ position:absolute;
+  width:310px;
   top:0;
-  width:320px;
   height: 100%;
-  right:-297px;
+  right: 10px;
   z-index:1;
 }
 
 #sidebar {
      position: absolute;
-     top: 22px;
+     top: 30px;
      bottom:10px;
      width: 310px;
      height: 80%;
@@ -220,7 +229,6 @@ a:visited div{
 {
 position:absolute;
 font-family:Trebuchet MS, serif;
-display:list-item;
 color:#FFFFFF;
 padding: 10px;
 background-color: #4F5D74;
