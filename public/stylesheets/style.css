@@ -6,56 +6,12 @@ html{
   overflow:hidden;
   background-color: black;
 }
+
 html,body {
   margin:0;
   padding:0;
   height:100%;
 }
-
-#content {
-     margin-top: 5px;
-     margin-bottom:100px;
-     position: relative;
-}
-
-/*MAP*/
-#map-wrapper{
-  position:relative;
-  height:100%;
-}
-#map-wrapper {
-  margin-right: 300px; } /*Si pongo margin-bottom chrome pone el mapa debajo Este es el tamaño donde va a ir el toolbar*/
-
-#map {
-  position: absolute;
-  top: 0;
-  right: 20px;
-  left: 10px;
-  width: 100%;
-  height: 80%;
-  border: 1px solid #aaa
-}
-/*END OF MAP*/
-
-/*TOOLBAR*/
-/*
-#toolbar-wrapper{
-  margin-right:310px;
-  position:relative;
-}*/
-/*Poner position:absolute hace que no se muestre en el toolbar-wrapper*/
-/*#toolbar {
-  position: absolute;
-  position:relative;
-  top: 20px;
-  left: 60px;
-  width: 100%;
-  height: 150px;
-  padding: 5px;
-  background: white;
-  border: 1px solid black;
-}*/
-/*END OF TOOLBAR*/
 
 #content_up{
   margin-bottom:15px;
@@ -64,19 +20,19 @@ html,body {
 }
 
 #toolbar-wrapper{
- position:relative;
+  position:relative;
 
 }
 
 #toolbar {
- top:10px;
- position: relative;
- background: white;
- width: 100%;
- right: 20px;
- left: 10px;
- height: 90px;
- border: 1px solid black;
+  top:10px;
+  position: relative;
+  background: white;
+  width: 100%;
+  right: 20px;
+  left: 10px;
+  height: 90px;
+  border: 1px solid black;
 
 }
 
@@ -89,6 +45,35 @@ html,body {
   z-index:1;
 }
 
+/*MAP*/
+
+#content {
+  margin-top: 5px;
+  height:83.5%;
+  position: relative;
+}
+
+#map-wrapper{
+  position:relative;
+  /*height:100%;*/
+}
+#map-wrapper {
+  margin-right: 300px; /*Este es el tamaño donde va a ir el toolbar*/
+  /* margin-top: 50px; Si pongo margin-bottom chrome pone el mapa debajo.*/
+  }
+
+#map {
+  position: absolute;
+  top: 0;
+  right: 20px;
+  left: 10px;
+  width: 100%;
+  height: 80%;
+  border: 1px solid #aaa
+}
+/*END OF MAP*/
+
+
 #sidebar {
   position: absolute;
   top: 0px;
@@ -99,62 +84,13 @@ html,body {
   right:10px;
 }
 
-/*
-#toolbar h1 {
-     margin: 0;
-     font: bold 18px Helvetica, sans-serif;
-}
-
-#toolbar ul {
-     list-style: none;
-     padding: 0;
-     margin: 0;
-}
-
-#toolbar ul li {
-     display: inline;
-}
-
-#toolbar ul li a {
-     padding: 3px 6px;
-     color: #444;
-     text-decoration: none;
-     font-size: 12px;
-}
-
-#toolbar ul li a:hover {
-     color: #aaa;
-     background: #444;
-}
-
-#toolbar ul#sidebar-controls {
-	position: absolute;
-	bottom: 5px;
-	right: 5px;
-}*/
 #sidebar {
   right:0px;
   display:block; /*The element will generate a block box (a line break before and after the element)*/
 }
-/*
-body.sidebar-off #sidebar { display: none; }
-body.sidebar-off #map-wrapper { margin-right: 0px; }*/
-
-#footer{
-  height:70px;
-  bottom:-400px;
-  width:100%;
-  position:absolute;
-  color:white;
-  z-index:1;
-  clear:both;
-  border: 2px solid #C8181A;
-  background: #233B6B;
-
-}
 
 #sidebar p {
-     margin: 10px;
+  margin: 10px;
 }
 
 #sidebar ul#sidebar-list li a {
@@ -195,6 +131,28 @@ body.sidebar-off #map-wrapper { margin-right: 0px; }*/
   margin: 0;
 }
 
+/*
+body.sidebar-off #sidebar { display: none; }
+body.sidebar-off #map-wrapper { margin-right: 0px; }*/
+
+#fwrapper{
+  position:relative;
+}
+
+#footer{
+  height: 20px;
+  width: 99%;
+  bottom: -10px;
+  right: 20px;
+  left: 10px;
+  position:absolute;
+  color:black;
+  z-index:1;
+  border: 1px solid black;
+  background: white;
+}
+
+
 /*CSS PARA EL MENU DESPLEGABLE CON CLICK DERECHO*/
 .context {
   font-family:Trebuchet MS, serif;
@@ -205,49 +163,102 @@ body.sidebar-off #map-wrapper { margin-right: 0px; }*/
 }
 
 a:hover div {
- background:#CED1D7;
+  background:#CED1D7;
 }
 
-#inputArea
-{
-position:absolute;
-font-family:Trebuchet MS, serif;
-color:#FFFFFF;
-padding: 10px;
-background-color: #4F5D74;
-font-size:14px;
-     left: 19px;
-     padding: 4px;
-
+#inputArea {
+  position:absolute;
+  font-family:Trebuchet MS, serif;
+  color:#FFFFFF;
+  padding: 10px;
+  background-color: #4F5D74;
+  font-size:14px;
+  left: 19px;
+  padding: 4px;
 }
 
 #inputArea input[type="text"], #inputArea textarea
 {
-    font-family: Trebuchet MS, serif;
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    margin-left:8px;
-    margin-right:50px;
-    display: inline;
-    padding: 4px;
-    border: solid 1px #85b1de;
-    width: 400px;
+  font-family: Trebuchet MS, serif;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-left:8px;
+  margin-right:50px;
+  display: inline;
+  padding: 4px;
+  border: solid 1px #85b1de;
+  width: 400px;
 }
 
 /*Sirve para alinear los labels y el input text*/
 label {
-    display: block;
-    width: 50px;
-    float: left;
-    margin: 2px 4px 6px 4px;
-    text-align: right;
+  display: block;
+  width: 50px;
+  float: left;
+  margin: 2px 4px 6px 4px;
+  text-align: right;
 }
 
 /*Alinea los botones http://cssbutton.com/forms/*/
 .button {
-    border: none;
-    margin-left:8px;
-    padding: 2px 8px;
+  border: none;
+  margin-left:8px;
+  padding: 2px 8px;
 }
+
+
+/*TOOLBAR*/
+/*
+#toolbar-wrapper{
+  margin-right:310px;
+  position:relative;
+}*/
+/*Poner position:absolute hace que no se muestre en el toolbar-wrapper*/
+/*#toolbar {
+  position: absolute;
+  position:relative;
+  top: 20px;
+  left: 60px;
+  width: 100%;
+  height: 150px;
+  padding: 5px;
+  background: white;
+  border: 1px solid black;
+}*/
+/*END OF TOOLBAR*/
+
+/*
+#toolbar h1 {
+     margin: 0;
+     font: bold 18px Helvetica, sans-serif;
+}
+
+#toolbar ul {
+     list-style: none;
+     padding: 0;
+     margin: 0;
+}
+
+#toolbar ul li {
+     display: inline;
+}
+
+#toolbar ul li a {
+     padding: 3px 6px;
+     color: #444;
+     text-decoration: none;
+     font-size: 12px;
+}
+
+#toolbar ul li a:hover {
+     color: #aaa;
+     background: #444;
+}
+
+#toolbar ul#sidebar-controls {
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
+}*/
 

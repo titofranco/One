@@ -54,8 +54,6 @@ function handleResize(){
   var height = windowHeight()- document.getElementById('toolbar').offsetHeight-50;
   document.getElementById('map').style.height = height + 'px';
   document.getElementById('sidebar').style.height = height + 'px';
-   //document.getElementById('inputBoxes').style.height = height + 'px';
- //document.getElementById('toolbar').style.height = height + 'px';
 }
 
 //Got from http://econym.org.uk/gmap/example_arrows.htm
