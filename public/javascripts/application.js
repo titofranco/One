@@ -54,6 +54,8 @@ function handleResize(){
   var height = windowHeight()- document.getElementById('toolbar').offsetHeight-70;
   document.getElementById('map').style.height = (height-20) + 'px';
   document.getElementById('sidebar').style.height = height + 'px';
+   document.getElementById('inputBoxes').style.height = height + 'px';
+ //document.getElementById('toolbar').style.height = height + 'px';
 }
 
 //Got from http://econym.org.uk/gmap/example_arrows.htm
@@ -166,10 +168,9 @@ $(document).ready(function(){
     '<div id=inputArea>'
     + '<label for="initial_point">Origen</label>'
     + '<input type="text" id="initial_point" name="initial_point" style="width:120px;"/>'
-    + '<p>'
     + '<label for="end_point">Destino</label>'
     + '<input type="text" id="end_point" name="end_point" style="width:120px;"/>'
-    + '<input type="submit" align="center" value="Mostrar ruta!"/>'
+    + '<label>&nbsp;</label><input type="submit" class="button" value="Mostrar ruta!"/>'
     + '</div>';
   divheader.appendChild(inputForm);
 
