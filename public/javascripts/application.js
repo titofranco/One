@@ -7,7 +7,7 @@
 
 // The Javascript Menu and its functions is based on code provided by the
 // Community Church Javascript Team
-// http://www.bisphamchurch.org.uk/
+// http://econym.org.uk/gmap/context.htm
 // http://econym.org.uk/gmap/
 /*+-------+------------+--------------------+--------------+----------------+--------------+----------------+-----------------+--------------+
 | 46216 |      13779 |              17245 | 6.2462726380 | -75.5758657540 | 6.2549021110 | -75.6123003770 | 4139.9967796865 |            1 |
@@ -95,7 +95,9 @@ function focusPoint(id){
   current_loc_icon.iconAnchor = new GPoint(9,34);
   current_loc_icon.shadowSize = new GSize(37,34);
   if(marker_route != null){map.removeOverlay(marker_route);}
-  marker_route = new GMarker(new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),{draggable:true,icon:current_loc_icon});
+  var point = new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start);
+  marker_route = new GMarker(point,{draggable:true,icon:current_loc_icon});
+  map.setCenter(point);
   map.addOverlay(marker_route);
 }
 
