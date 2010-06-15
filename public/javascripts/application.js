@@ -123,15 +123,22 @@ function drawpolyline(latlng_bus,latlng_street,latlng_metro){
   map.addOverlay(polyline);
   polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,1);
   map.addOverlay(polyline_metro);
+}
 
+function drawpolyline_bus(latlng_bus){
+
+  var polyline_bus = new GPolyline(latlng_bus,'#4ed390',6,1);
+  map.addOverlay(polyline_bus);
 }
 
 //Valida y si todo está correcto, procede a hacer la llama asincrona al server
 function validar(form){
   var validate = checkform(form);
-  if (validate) findRoute();
+  if(validate) {
+    findRoute();
+    findBus();
+  }
 }
-
 //Valida que los campos no estén vacios
 function checkform(form){
 
@@ -157,9 +164,9 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
 //6.2201673770;-75.6076627160; casa de joan
-  /*var centerLatitude =  6.256965;
-  var centerLongitude = -75.60496;*/
-  var startZoom = 16;
+  var centerLatitude =  6.20186;
+  var centerLongitude = -75.57754;
+  var startZoom = 14;
   var lat;
   var lng;
   var countInitial=0;
@@ -381,11 +388,47 @@ function findRoute(){
   return false;
 }
 
+function findBus(){
+  var request = GXmlHttp.create();
+  request.open('GET', 'findRouteBuses',true);
+  request.onreadystatechange = function() {
+    if(request.readyState == 4){
+       var success=false;
+       var content="Error contacting web service";
+       try{
+           res=eval("(" + request.responseText + ")" );
+           content=res.content;
+           success=res.success;
+       }catch (e){
+        success=false;
+       }
+       if(!success) {alert(content);}
+       else{
+         parseContentBuses(content);
+       }
+    }
+  }
+  request.send(null);
+  return false;
+}
+
+function parseContentBuses(content){
+  latlng_bus=[];
+  buses_hash={};
+  for (var i=0; i<content.length;i++){
+    var id = content[i].id;
+    var lat_start = content[i].lat_start;
+    var long_start = content[i].long_start;
+    buses_hash[i]={id:id,lat_start:lat_start,long_start:long_start}
+    latlng_bus.push(new GLatLng(lat_start,long_start));
+  }
+  drawpolyline_bus(latlng_bus);
+}
+
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama la funcion para pintar la ruta
 function parseContent(content){
 
   infoRouteHash={};
-  latlng_bus=[];
   latlng_street=[];
   latlng_metro=[];
   last=content.length;

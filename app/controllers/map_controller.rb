@@ -61,12 +61,16 @@ def calcular
       @a = camino
       #end dijkstra
       if camino.size == 0
+        puts "ACA ES FALSO"
         res={:success=>false, :content=>"Ruta no encontrada"}
         render :text=>res.to_json
+
       else
+        puts "ACA ES VERDADERO"
         resultadoquery = metodoruta(lat_start,long_start,lat_end,long_end)
         res={:success=>true, :content=>resultadoquery}
         render :text=>res.to_json
+
       end
     end
   end
@@ -80,6 +84,17 @@ end
 
 def calcularRuta
 end
+
+def findRouteBuses
+  resultado_bus = BusesRoute.getOneBus
+  if resultado_bus.empty?
+    res={:success=>false,:content=>"No se encontró ninguna ruta de bus"}
+  else
+    res={:success=>true,:content=>resultado_bus}
+  end
+  render :text=>res.to_json
+end
+
 
 end
 
