@@ -10,6 +10,7 @@
 // http://econym.org.uk/gmap/context.htm
 // http://econym.org.uk/gmap/
 // Arrow function: http://econym.org.uk/gmap/arrows.htm
+// Cliente location: http://designshack.co.uk/articles/javascript/detecting-location-using-google-ajax-api
 
 var infoRoute;
 var map;
@@ -53,26 +54,7 @@ function handleResize(){
   document.getElementById('sidebar').style.height = height + 'px';
 }
 
-//Got from http://econym.org.uk/gmap/example_arrows.htm
 //Funcion que dibuja triangulos hacia la dirección que se va.
-function midArrows(arrowIcon) {
-
-  var size = Object.size(infoRoute);
-
-  for (var i=1; i < size; i++) {
-    var p1=infoRoute[i-1];
-    var p2=infoRoute[i];
-    // == round it to a multiple of 3 and cast out 120s
-    var dir = Math.round(infoRoute[i].bearing/3) * 3;
-    while (dir >= 120) {dir -= 120;}
-    // == use the corresponding triangle marker
-    arrowIcon.image = "http://www.google.com/intl/en_ALL/mapfiles/dir_"+dir+".png";
-    map.addOverlay(new GMarker(
-    new GLatLng(infoRoute[i].lat_start,infoRoute[i].long_start),
-    arrowIcon));
-  }
- }
-
 function midArrows(id) {
 
   if(arrow_marker){
@@ -119,7 +101,7 @@ function focusPoint(id){
   }
   var point = new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start);
   route_maker = new GMarker(point,{draggable:true,icon:current_loc_icon});
-  /*map.setCenter(point);*/
+  map.panTo(point);
   map.addOverlay(route_maker);
 
   if($('#sidebar-item-'+current_sb_item).hasClass('current')){
@@ -172,8 +154,8 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
 //6.2201673770;-75.6076627160; casa de joan
-  var centerLatitude =  6.256965;
-  var centerLongitude = -75.60496;
+  /*var centerLatitude =  6.256965;
+  var centerLongitude = -75.60496;*/
   var startZoom = 16;
   var lat;
   var lng;
@@ -205,9 +187,20 @@ $(document).ready(function(){
   document.getElementById("end_point").setAttribute("readonly","readonly");
 
   map = new GMap2(document.getElementById("map"));
+
+    // If ClientLocation was filled in by the loader, use that info instead
+  if (google.loader.ClientLocation) {
+    centerLatitude = google.loader.ClientLocation.latitude;
+    centerLongitude = google.loader.ClientLocation.longitude;
+    alert("lat " + centerLatitude);
+    alert("lng " + centerLongitude);
+  }
+
+
+  map.setCenter(new GLatLng(centerLatitude,centerLongitude),17);
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
-  map.setCenter(new GLatLng(centerLatitude,centerLongitude),startZoom);
+
   var contextmenu = document.createElement("div");
   contextmenu.style.visibility="hidden";
   contextmenu.style.background="#ffffff";
@@ -297,7 +290,6 @@ $(document).ready(function(){
         document.getElementById("end_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
         contextmenu.style.visibility="hidden";
         countFinal=1;
-
 
         GEvent.addListener(final_marker, "dragend", function() {
          end_lat=final_marker.getPoint().lat();
@@ -535,22 +527,22 @@ function explainRoute(infoRoute){
       explain = '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + "Dirigete en dirección <b>" + infoRoute[i].direction + "</b> hacia la "
       +"<b>"+ infoRoute[i].way_type_b +  " " +
-       infoRoute[i].street_name_b +  " (" + infoRoute[i].distance + ")m" + "</b></a></li>";
+       infoRoute[i].street_name_b +  " (metros:" + infoRoute[i].distance + ")" + "</b></a></li>";
        first_node=false;
     }
     else if((infoRoute[i-1].direction==infoRoute[i].direction) && continueStraight==false && infoRoute[i].stretch_type=='1'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
       "<b>"+ infoRoute[i].way_type_b +  " " +
-      infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>" ;
+      infoRoute[i].street_name_b + " (metros:" + infoRoute[i].distance + ")" +"</b></a></li>" ;
 
       if(infoRoute[i].direction==infoRoute[i+1].direction)
       continueStraight=true;
     }
     else if(continueStraight==true && (infoRoute[i-1].direction==infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-      j + ". " + "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
-      infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>" ;
+      j + ". " + "Continúa por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
+      infoRoute[i].street_name_b + " (metros:" + infoRoute[i].distance + ")" +"</b></a></li>" ;
     }
   /*  else if(infoRoute[i-1].stretch_type=='1' && infoRoute[i].stretch_type=='4'){
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
@@ -562,7 +554,7 @@ function explainRoute(infoRoute){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
       j + ". " +"Voltear " + "<b>"+ turn+"</b>" + " por " +
       "<b>"+ infoRoute[i].way_type_b +  " " +
-      infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>";
+      infoRoute[i].street_name_b + " (metros:" + infoRoute[i].distance + ")" +"</b></a></li>";
       continueStraight = false;
     }
     else if(infoRoute[i-1].stretch_type=='4' && infoRoute[i].stretch_type=='3'){
@@ -573,7 +565,7 @@ function explainRoute(infoRoute){
       alert("hola hola");
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">'
       j + ". " + 'Ve de la estación <b> ' + infoRoute[i-1].common_name_a +
-      " (" + infoRoute[i].distance + ")m" + '</b>';
+      " (metros:" + infoRoute[i].distance + ")" + '</b>';
       //console.debug("hola 1 " + explain );
     }
     else if(estacion_metro==true && (infoRoute[i-1].stretch_type=='2' && infoRoute[i].stretch_type=='3')) {
@@ -584,7 +576,7 @@ function explainRoute(infoRoute){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + 'Baja de la estación ' + infoRoute[i-1].common_name_a +
       " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " +
-      infoRoute[i].street_name_a + " (" + infoRoute[i].distance + ")m" + "</b></a></li>";
+      infoRoute[i].street_name_a + " (metros:" + infoRoute[i].distance + ")" + "</b></a></li>";
       estacion_metro=false;
     }
     j++;
@@ -593,7 +585,7 @@ function explainRoute(infoRoute){
   var end;
 
   if(infoRoute[size-2].direction==infoRoute[size-1].direction){
-    end=j + ". " +'Continua hasta encontrar tu lugar de destino' +"<b> (" + infoRoute[i].distance + ")m</b>";
+    end=j + ". " +'Continúa hasta encontrar tu lugar de destino' +"<b> (" + infoRoute[i].distance + ")m</b>";
   }
   else {
     turn = eval_direction(infoRoute[size-2].direction,infoRoute[size-1].direction)
