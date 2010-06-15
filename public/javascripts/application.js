@@ -179,7 +179,7 @@ $(document).ready(function(){
 
   map = new GMap2(document.getElementById("map"));
   map.addControl(new GLargeMapControl3D());
-  map.setMapType(G_SATELLITE_MAP);
+  map.setMapType(G_HYBRID_MAP);
   map.setCenter(new GLatLng(centerLatitude,centerLongitude),startZoom);
 
   var contextmenu = document.createElement("div");
@@ -499,7 +499,7 @@ function explainRoute(infoRoute){
 
     if(first_node){
       explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
-      j + ". " + "Dirigete en dirección " + infoRoute[i].direction + " hacia la "
+      j + ". " + "Dirigete en dirección <b>" + infoRoute[i].direction + "</b> hacia la "
       +"<b>"+ infoRoute[i].way_type_b +  " " +
        infoRoute[i].street_name_b +  " (" + infoRoute[i].distance + ")m" + "</b></a></li>";
        first_node=false;
