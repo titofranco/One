@@ -9,12 +9,8 @@
 // Community Church Javascript Team
 // http://econym.org.uk/gmap/context.htm
 // http://econym.org.uk/gmap/
-/*+-------+------------+--------------------+--------------+----------------+--------------+----------------+-----------------+--------------+
-| 46216 |      13779 |              17245 | 6.2462726380 | -75.5758657540 | 6.2549021110 | -75.6123003770 | 4139.9967796865 |            1 |
-| 46217 |      13779 |              17246 | 6.2462726380 | -75.5758657540 | 6.2549021110 | -75.6123003770 | 4139.9967796865 |            1 |
-| 58593 |      17245 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
-| 58599 |      17246 |              13779 | 6.2549021110 | -75.6123003770 | 6.2462726380 | -75.5758657540 | 4139.9967796865 |            1 |
-*/
+// Arrow function: http://econym.org.uk/gmap/arrows.htm
+
 var infoRoute;
 var map;
 var polyline;
@@ -28,7 +24,9 @@ var end_lat;
 var end_lng;
 var initial_marker;
 var final_marker;
-var marker_route;
+var route_maker;
+var current_sb_item=false;
+var arrow_marker;
 
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
@@ -44,7 +42,6 @@ function windowHeight(){
   //Just in case
   return 0;
 }
-
 
 /* The offsetHeight and offsetWidth properties are provided by the browser, and return—in
 pixels—the dimensions of their element, including any padding.
@@ -76,17 +73,40 @@ function midArrows(arrowIcon) {
   }
  }
 
+function midArrows(id) {
+
+  if(arrow_marker){
+    map.removeOverlay(arrow_marker);
+  }
+  arrowIcon = new GIcon();
+  arrowIcon.iconSize = new GSize(24,24);
+  arrowIcon.shadowSize = new GSize(1,1);
+  arrowIcon.iconAnchor = new GPoint(12,12);
+  arrowIcon.infoWindowAnchor = new GPoint(0,0);
+
+  //Pintar la flecha de la próxima dirección
+  if(infoRoute[id+1]){
+    // == round it to a multiple of 3 and cast out 120s
+    var dir = Math.round(infoRoute[id+1].bearing/3) * 3;
+    while (dir >= 120) {dir -= 120;}
+  }
+  // == use the corresponding triangle marker
+  arrowIcon.image = "http://www.google.com/intl/en_ALL/mapfiles/dir_"+dir+".png";
+  arrow_marker= new GMarker(
+  new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end),arrowIcon)
+  map.addOverlay(arrow_marker);
+}
+
+
 //Esta funcion debe estar afuera del init porque sino aparece el error
 //focusPoint is not defined
 function focusPoint(id){
    //Pinta de nuevo toda la ruta
   map.addOverlay(polyline);
-  //alert(id);
   var selected_polyline = new GPolyline(
                    [new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),
                    new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end)]
                    ,'#FFFFFF',4,0.8);
-
   map.addOverlay(selected_polyline);
 
   var current_loc_icon = new GIcon();
@@ -94,28 +114,32 @@ function focusPoint(id){
   current_loc_icon.shadow = "http://maps.google.com/mapfiles/arrowshadow.png";
   current_loc_icon.iconAnchor = new GPoint(9,34);
   current_loc_icon.shadowSize = new GSize(37,34);
-  if(marker_route != null){map.removeOverlay(marker_route);}
+  if(route_maker != null){
+      map.removeOverlay(route_maker);
+  }
   var point = new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start);
-  marker_route = new GMarker(point,{draggable:true,icon:current_loc_icon});
-  map.setCenter(point);
-  map.addOverlay(marker_route);
+  route_maker = new GMarker(point,{draggable:true,icon:current_loc_icon});
+  /*map.setCenter(point);*/
+  map.addOverlay(route_maker);
+
+  if($('#sidebar-item-'+current_sb_item).hasClass('current')){
+    $('#sidebar-item-'+current_sb_item).removeClass('current');
+  } $('#sidebar-item-'+id).addClass('current');
+    current_sb_item=id;
+
+  midArrows(id);
+
 }
 
 //Función que pinta la ruta de buses, la de vias y la del metro
 function drawpolyline(latlng_bus,latlng_street,latlng_metro){
 
   console.debug("el tamaño del array " + latlng_street.length);
-  var arrowIcon = new GIcon();
-  arrowIcon.iconSize = new GSize(24,24);
-  arrowIcon.shadowSize = new GSize(1,1);
-  arrowIcon.iconAnchor = new GPoint(12,12);
-  arrowIcon.infoWindowAnchor = new GPoint(0,0);
-
   polyline = new GPolyline(latlng_street,'#FF6633',6,1);
   map.addOverlay(polyline);
   polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,1);
   map.addOverlay(polyline_metro);
-  //midArrows(arrowIcon);
+
 }
 
 //Valida que los campos no estén vacios
@@ -326,11 +350,10 @@ $(document).ready(function(){
 
 });
 
-
+//Este metodo es para asignar la lat-lng más cercana al marker a el initial_marker y al final_marker
 function setLatLngMarkers(lat_start,long_start,lat_end,long_end){
   initial_marker.setLatLng(new GLatLng(lat_start,long_start));
   final_marker.setLatLng(new GLatLng(lat_end,long_end));
-
 }
 
 
@@ -339,7 +362,6 @@ function setLatLngMarkers(lat_start,long_start,lat_end,long_end){
 function findRoute(){
   var init_lat_lng = init_lat+","+init_lng;
   var end_lat_lng = end_lat+ "," + end_lng;
-  console.debug("CONSTRUIDO " + end_lat_lng);
   var getVars = "?initial_point="+init_lat_lng+"&end_point="+end_lat_lng;
 
   var request = GXmlHttp.create();
@@ -510,14 +532,14 @@ function explainRoute(infoRoute){
   for(var i=0;i<size-1;i++){
 
     if(first_node){
-      explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+      explain = '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + "Dirigete en dirección <b>" + infoRoute[i].direction + "</b> hacia la "
       +"<b>"+ infoRoute[i].way_type_b +  " " +
        infoRoute[i].street_name_b +  " (" + infoRoute[i].distance + ")m" + "</b></a></li>";
        first_node=false;
     }
     else if((infoRoute[i-1].direction==infoRoute[i].direction) && continueStraight==false && infoRoute[i].stretch_type=='1'){
-      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
       "<b>"+ infoRoute[i].way_type_b +  " " +
       infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>" ;
@@ -526,7 +548,7 @@ function explainRoute(infoRoute){
       continueStraight=true;
     }
     else if(continueStraight==true && (infoRoute[i-1].direction==infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
-      explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
       j + ". " + "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
       infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>" ;
     }
@@ -537,7 +559,7 @@ function explainRoute(infoRoute){
     else if ( (infoRoute[i-1].direction != infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
       turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
 
-      explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
       j + ". " +"Voltear " + "<b>"+ turn+"</b>" + " por " +
       "<b>"+ infoRoute[i].way_type_b +  " " +
       infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>";
@@ -549,7 +571,7 @@ function explainRoute(infoRoute){
     }
     else if((infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='2') && estacion_metro==true){
       alert("hola hola");
-      explain += '<li><a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">'
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">'
       j + ". " + 'Ve de la estación <b> ' + infoRoute[i-1].common_name_a +
       " (" + infoRoute[i].distance + ")m" + '</b>';
       //console.debug("hola 1 " + explain );
@@ -559,7 +581,7 @@ function explainRoute(infoRoute){
       //console.debug("hola 2 " + explain);
     }
     else if(infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='4'){
-      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + 'Baja de la estación ' + infoRoute[i-1].common_name_a +
       " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " +
       infoRoute[i].street_name_a + " (" + infoRoute[i].distance + ")m" + "</b></a></li>";
@@ -578,7 +600,7 @@ function explainRoute(infoRoute){
     end = j + ". " + 'Voltea <b> '+ turn +'</b> hasta llegar a tu lugar destino </b>' +
     "<b> (" + infoRoute[i].distance + ")m</b>" ;
   }
-  explain += '<li><a href="#" onclick="javascript:focusPoint('+(size-1)+')"> '+end+'</a></li>';
+  explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(size-1)+')"> '+end+'</a></li>';
   }
  // console.debug("La respuesta de direccion \n: " + explain);
   var div_sidebar_list = document.getElementById("sidebar-list");
