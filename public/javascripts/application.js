@@ -374,7 +374,7 @@ function parseContent(content){
     var street_name_a=content[i].street_name_a;
     var prefix_a=content[i].prefix_a;
     var common_name_a=content[i].common_name_a;
-    var distance=content[i].distance;
+    var distance=String(content[i].distance).substring(0,5);
     var label_a=content[i].label_a;
     var way_type_b=content[i].way_type_b;
     var street_name_b=content[i].street_name_b;
@@ -494,80 +494,77 @@ function explainRoute(infoRoute){
   var first_node=true;
   var estacion_metro=false;
 //  console.debug("El tamaño del hash: " + size);
-
+  var j=1;
   for(var i=0;i<size-1;i++){
 
     if(first_node){
-      explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+ "Usted está en: " +
-      "<b>" + infoRoute[i].way_type_a + " " + infoRoute[i].street_name_a + "</b>" +
-      " dirigete en dirección " + infoRoute[i].direction + " hacia la "
+      explain = '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+      j + ". " + "Dirigete en dirección " + infoRoute[i].direction + " hacia la "
       +"<b>"+ infoRoute[i].way_type_b +  " " +
-       infoRoute[i].street_name_b + "</b></a></li>";
+       infoRoute[i].street_name_b +  " (" + infoRoute[i].distance + ")m" + "</b></a></li>";
        first_node=false;
     }
     else if((infoRoute[i-1].direction==infoRoute[i].direction) && continueStraight==false && infoRoute[i].stretch_type=='1'){
+      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+      j + ". " + "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
+      "<b>"+ infoRoute[i].way_type_b +  " " +
+      infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>" ;
 
-       explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
-       "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
-       "<b>"+ infoRoute[i].way_type_b +  " " +
-       infoRoute[i].street_name_b + "</b></a></li>" ;
-
-       if(infoRoute[i].direction==infoRoute[i+1].direction)
-       continueStraight=true;
-
+      if(infoRoute[i].direction==infoRoute[i+1].direction)
+      continueStraight=true;
     }
     else if(continueStraight==true && (infoRoute[i-1].direction==infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-       "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
-       infoRoute[i].street_name_b + "</b></a></li>" ;
+      j + ". " + "Continua por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
+      infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>" ;
     }
   /*  else if(infoRoute[i-1].stretch_type=='1' && infoRoute[i].stretch_type=='4'){
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
       "Dirigete hacia el <b>" + infoRoute[i].street_name_a + "</b></a></li>" ;
     }*/
-
     else if ( (infoRoute[i-1].direction != infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
       turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
 
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-       "voltear " + "<b>"+ turn+"</b>" + " por " +
-       "<b>"+ infoRoute[i].way_type_b +  " " +
-       infoRoute[i].street_name_b + "</b></a></li>";
-       continueStraight = false;
+      j + ". " +"voltear " + "<b>"+ turn+"</b>" + " por " +
+      "<b>"+ infoRoute[i].way_type_b +  " " +
+      infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>";
+      continueStraight = false;
     }
-
     else if(infoRoute[i-1].stretch_type=='4' && infoRoute[i].stretch_type=='3'){
       //alert("metro true");
       estacion_metro=true;
     }
     else if((infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='2') && estacion_metro==true){
       alert("hola hola");
-      explain += '<li><a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">Ve de la estación <b> ' +
-      infoRoute[i-1].common_name_a+ '</b>';
+      explain += '<li><a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">'
+      j + ". " + 'Ve de la estación <b> ' + infoRoute[i-1].common_name_a +
+      " (" + infoRoute[i].distance + ")m" + '</b>';
       //console.debug("hola 1 " + explain );
-
     }
     else if(estacion_metro==true && (infoRoute[i-1].stretch_type=='2' && infoRoute[i].stretch_type=='3')) {
       explain += ' hasta la estación <b>'+infoRoute[i].common_name_a+'</b></a></li>';
       //console.debug("hola 2 " + explain);
-
     }
     else if(infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='4'){
-      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">Baja de la estación ' +
-      infoRoute[i-1].common_name_a + " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " + infoRoute[i].street_name_a + "</b></a></li>";
+      explain += '<li><a href="#" onclick="javascript:focusPoint('+i+')">'+
+      j + ". " + 'Baja de la estación ' + infoRoute[i-1].common_name_a +
+      " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " +
+      infoRoute[i].street_name_a + " (" + infoRoute[i].distance + ")m" + "</b></a></li>";
       estacion_metro=false;
     }
-
+    j++;
   }
   if(size>1){
   var end;
 
   if(infoRoute[size-2].direction==infoRoute[size-1].direction){
-    end='Continua hasta encontrar tu lugar de destino';
+    end=j + ". " +'Continua hasta encontrar tu lugar de destino' +"<b> (" + infoRoute[i].distance + ")m</b>";
   }
   else {
     turn = eval_direction(infoRoute[size-2].direction,infoRoute[size-1].direction)
-    end = 'Voltea <b> '+ turn +'</b> hasta llegar a su lugar destino </b>';
+    end = j + ". " + 'Voltea <b> '+ turn +'</b> hasta llegar a su lugar destino </b>' +
+    "<b> (" + infoRoute[i].distance + ")m</b>" ;
   }
   explain += '<li><a href="#" onclick="javascript:focusPoint('+(size-1)+')"> '+end+'</a></li>';
   }
