@@ -178,10 +178,9 @@ $(document).ready(function(){
   document.getElementById("end_point").setAttribute("readonly","readonly");
 
   map = new GMap2(document.getElementById("map"));
-  map.addControl(new GLargeMapControl3D());
   map.setMapType(G_HYBRID_MAP);
+  map.setUIToDefault();
   map.setCenter(new GLatLng(centerLatitude,centerLongitude),startZoom);
-
   var contextmenu = document.createElement("div");
   contextmenu.style.visibility="hidden";
   contextmenu.style.background="#ffffff";
