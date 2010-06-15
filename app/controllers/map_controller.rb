@@ -56,14 +56,18 @@ def calcular
       puts "inicio: #{Time.now}"
       camino = Dijkstra.encontrarCamino streets,closest_init_point.first.id,closest_end_point.first.id
       puts "fin: #{Time.now}"
-      puts camino.inspect
+      #puts camino.inspect
       puts camino.size
       @a = camino
       #end dijkstra
-
-      resultadoquery = metodoruta(lat_start,long_start,lat_end,long_end)
-      res={:success=>true, :content=>resultadoquery}
-      render :text=>res.to_json
+      if camino.size == 0
+        res={:success=>false, :content=>"Ruta no encontrada"}
+        render :text=>res.to_json
+      else
+        resultadoquery = metodoruta(lat_start,long_start,lat_end,long_end)
+        res={:success=>true, :content=>resultadoquery}
+        render :text=>res.to_json
+      end
     end
   end
 end
