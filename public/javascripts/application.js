@@ -12,9 +12,10 @@
 // Arrow function: http://econym.org.uk/gmap/arrows.htm
 // Cliente location: http://designshack.co.uk/articles/javascript/detecting-location-using-google-ajax-api
 
-var infoRoute;
+var infoRouteHash;
 var map;
 var polyline;
+var selected_polyline;
 var polyline_metro;
 var latlng_street;
 var latlng_bus;
@@ -23,11 +24,11 @@ var init_lat;
 var init_lng;
 var end_lat;
 var end_lng;
-var initial_marker;
-var final_marker;
-var route_maker;
 var current_sb_item=false;
 var arrow_marker;
+var initial_marker;
+var final_marker;
+var route_marker;
 
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
@@ -45,13 +46,48 @@ function windowHeight(){
 }
 
 /* The offsetHeight and offsetWidth properties are provided by the browser, and return—in
-pixels—the dimensions of their element, including any padding.
-*/
+   pixels—the dimensions of their element, including any padding.*/
 /*Redimensiona el tamño del mapa y de la barra lateral*/
 function handleResize(){
   var height = windowHeight()- document.getElementById('toolbar').offsetHeight-45;
   document.getElementById('map').style.height = height + 'px';
   document.getElementById('sidebar').style.height = height + 'px';
+}
+
+/*Pinta el trayecto seleccionado en sidebar, crea el marker y pinta una flecha
+dependiento hacia donde se debe girar*/
+function focusPoint(id){
+  //Pinta de nuevo toda la ruta y el trayecto seleccionado en sidebar
+  map.addOverlay(polyline);
+  if(selected_polyline){map.removeOverlay(selected_polyline);}
+  selected_polyline = new GPolyline(
+                     [new GLatLng(infoRouteHash[id].lat_start,infoRouteHash[id].long_start),
+                      new GLatLng(infoRouteHash[id].lat_end,infoRouteHash[id].long_end)]
+                      ,'#FFFFFF',4,0.8);
+  map.addOverlay(selected_polyline);
+
+  //Pinta una flecha verde, para indicar la posición elegida en sidebar
+  var current_loc_icon = new GIcon();
+  current_loc_icon.image = "http://maps.google.com/mapfiles/arrow.png";
+  current_loc_icon.shadow = "http://maps.google.com/mapfiles/arrowshadow.png";
+  current_loc_icon.iconAnchor = new GPoint(9,34);
+  current_loc_icon.shadowSize = new GSize(37,34);
+  if(route_marker != null){
+      map.removeOverlay(route_marker);
+  }
+  var latlng_current_loc = new GLatLng(infoRouteHash[id].lat_start,infoRouteHash[id].long_start);
+  route_marker = new GMarker(latlng_current_loc,{icon:current_loc_icon});
+  map.panTo(latlng_current_loc);
+  map.addOverlay(route_marker);
+
+  //Cambia el CSS del sidebar-item-id cuando se hace clic sobre este
+  if($('#sidebar-item-'+current_sb_item).hasClass('current')){
+    $('#sidebar-item-'+current_sb_item).removeClass('current');
+  } $('#sidebar-item-'+id).addClass('current');
+    current_sb_item=id;
+
+  midArrows(id);
+
 }
 
 //Funcion que dibuja triangulos hacia la dirección que se va.
@@ -67,50 +103,16 @@ function midArrows(id) {
   arrowIcon.infoWindowAnchor = new GPoint(0,0);
 
   //Pintar la flecha de la próxima dirección
-  if(infoRoute[id+1]){
+  if(infoRouteHash[id+1]){
     // == round it to a multiple of 3 and cast out 120s
-    var dir = Math.round(infoRoute[id+1].bearing/3) * 3;
+    var dir = Math.round(infoRouteHash[id+1].bearing/3) * 3;
     while (dir >= 120) {dir -= 120;}
   }
   // == use the corresponding triangle marker
   arrowIcon.image = "http://www.google.com/intl/en_ALL/mapfiles/dir_"+dir+".png";
   arrow_marker= new GMarker(
-  new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end),arrowIcon)
+  new GLatLng(infoRouteHash[id].lat_end,infoRouteHash[id].long_end),arrowIcon)
   map.addOverlay(arrow_marker);
-}
-
-
-//Esta funcion debe estar afuera del init porque sino aparece el error
-//focusPoint is not defined
-function focusPoint(id){
-   //Pinta de nuevo toda la ruta
-  map.addOverlay(polyline);
-  var selected_polyline = new GPolyline(
-                   [new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),
-                   new GLatLng(infoRoute[id].lat_end,infoRoute[id].long_end)]
-                   ,'#FFFFFF',4,0.8);
-  map.addOverlay(selected_polyline);
-
-  var current_loc_icon = new GIcon();
-  current_loc_icon.image = "http://maps.google.com/mapfiles/arrow.png";
-  current_loc_icon.shadow = "http://maps.google.com/mapfiles/arrowshadow.png";
-  current_loc_icon.iconAnchor = new GPoint(9,34);
-  current_loc_icon.shadowSize = new GSize(37,34);
-  if(route_maker != null){
-      map.removeOverlay(route_maker);
-  }
-  var point = new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start);
-  route_maker = new GMarker(point,{draggable:true,icon:current_loc_icon});
-  map.panTo(point);
-  map.addOverlay(route_maker);
-
-  if($('#sidebar-item-'+current_sb_item).hasClass('current')){
-    $('#sidebar-item-'+current_sb_item).removeClass('current');
-  } $('#sidebar-item-'+id).addClass('current');
-    current_sb_item=id;
-
-  midArrows(id);
-
 }
 
 //Función que pinta la ruta de buses, la de vias y la del metro
@@ -124,10 +126,16 @@ function drawpolyline(latlng_bus,latlng_street,latlng_metro){
 
 }
 
+//Valida y si todo está correcto, procede a hacer la llama asincrona al server
+function validar(form){
+  var validate = checkform(form);
+  if (validate) findRoute();
+}
+
 //Valida que los campos no estén vacios
 function checkform(form){
 
-  if(form.initial_point.value=="" &&form.end_point.value==""){
+  if(form.initial_point.value=="" && form.end_point.value==""){
     alert("Debe elegir punto inicial y punto final");
   return false;
   }
@@ -144,11 +152,6 @@ function checkform(form){
   return true;
 }
 
-//Valida y si todo está correcto, procede a hacer la llama asincrona al server
-function validar(form){
-  var validate = checkform(form);
-  if (validate) findRoute();
-}
 
 $(document).ready(function(){
  handleResize();
@@ -192,8 +195,6 @@ $(document).ready(function(){
   if (google.loader.ClientLocation) {
     centerLatitude = google.loader.ClientLocation.latitude;
     centerLongitude = google.loader.ClientLocation.longitude;
-    alert("lat " + centerLatitude);
-    alert("lng " + centerLongitude);
   }
 
 
@@ -383,7 +384,7 @@ function findRoute(){
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama la funcion para pintar la ruta
 function parseContent(content){
 
-  infoRoute={};
+  infoRouteHash={};
   latlng_bus=[];
   latlng_street=[];
   latlng_metro=[];
@@ -410,7 +411,7 @@ function parseContent(content){
     var bearing=getBearing(lat_start,long_start,lat_end,long_end);
     var direction = getDirection(bearing);
 
-    infoRoute[i]={id:id,
+    infoRouteHash[i]={id:id,
     lat_start:lat_start,
     long_start:long_start,
     lat_end:lat_end,
@@ -434,16 +435,16 @@ function parseContent(content){
 
     if(stretch_type=='3'){
       id_metro_related=id;
-      infoRoute[i].related_id=id_metro_related;
+      infoRouteHash[i].related_id=id_metro_related;
     }
     if(stretch_type=='2'){
-      infoRoute[i].related_id=id_metro_related;
+      infoRouteHash[i].related_id=id_metro_related;
     }
 
     console.debug("\ni: "+i+ " el ID: " + id + " INIT: " + lat_start+"," + long_start + " END: " + lat_end + "," + long_end +
     " BEARING: " + bearing + " DIRECTION: " + direction  + " STREET_NAME_A: " + way_type_a + street_name_a +
     " COMMON_A: " +common_name_a+ " STREET_NAME_B: "+ way_type_b + street_name_b + " STRETCH_TYPE: " + stretch_type+
-    " COMMON_B: " +common_name_b + " RELATED " +infoRoute[i].related_id + " DISTANCE: " + distance);
+    " COMMON_B: " +common_name_b + " RELATED " +infoRouteHash[i].related_id + " DISTANCE: " + distance);
 
     latlng_street.push(new GLatLng(lat_start,long_start));
    // latlng_street.push(new GLatLng(lat_end,long_end));
@@ -453,16 +454,11 @@ function parseContent(content){
   latlng_street.push(new GLatLng(lat_end,long_end));
 
   //Si se intenta eliminar un overlay que no está en el mapa se genera error
-  if(polyline_metro != null){
-    map.removeOverlay(polyline_metro);
-  }
-  if(polyline !=null){
-    map.removeOverlay(polyline);
-  }
+  clearExistingOverlays();
 
-  setLatLngMarkers(infoRoute[0].lat_start,infoRoute[0].long_start, infoRoute[last-1].lat_end, infoRoute[last-1].long_end);
+  setLatLngMarkers(infoRouteHash[0].lat_start,infoRouteHash[0].long_start, infoRouteHash[last-1].lat_end, infoRouteHash[last-1].long_end);
   drawpolyline(latlng_bus,latlng_street,latlng_metro);
-  explainRoute(infoRoute);
+  explainRoute(infoRouteHash);
 }
 
 //Got from http://stackoverflow.com/questions/5223/length-of-javascript-associative-array
@@ -475,6 +471,14 @@ Object.size = function(obj) {
     return size;
 };
 
+function clearExistingOverlays(){
+  if(polyline_metro){map.removeOverlay(polyline_metro);}
+  if(polyline){ map.removeOverlay(polyline);}
+  if(selected_polyline){map.removeOverlay(selected_polyline);}
+  if(route_marker){map.removeOverlay(route_marker);}
+  if(arrow_marker){map.removeOverlay(arrow_marker);}
+
+}
 
 //Obtiene los grados que hay entre 2 pares lat-long
 function getBearing(lat_start,long_start,lat_end,long_end){
@@ -512,9 +516,9 @@ function getDirection(bearing){
 }
 
 //Explica la ruta a tomar y la pone en el panel derecho
-function explainRoute(infoRoute){
+function explainRoute(infoRouteHash){
   var continueStraight=false;
-  var size = Object.size(infoRoute);
+  var size = Object.size(infoRouteHash);
   var explain;
   var turn;
   var first_node=true;
@@ -525,58 +529,58 @@ function explainRoute(infoRoute){
 
     if(first_node){
       explain = '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
-      j + ". " + "Dirigete en dirección <b>" + infoRoute[i].direction + "</b> hacia la "
-      +"<b>"+ infoRoute[i].way_type_b +  " " +
-       infoRoute[i].street_name_b +  " (metros:" + infoRoute[i].distance + ")" + "</b></a></li>";
+      j + ". " + "Dirigete en dirección <b>" + infoRouteHash[i].direction + "</b> hacia la "
+      +"<b>"+ infoRouteHash[i].way_type_b +  " " +
+       infoRouteHash[i].street_name_b +  " (metros:" + infoRouteHash[i].distance + ")" + "</b></a></li>";
        first_node=false;
     }
-    else if((infoRoute[i-1].direction==infoRoute[i].direction) && continueStraight==false && infoRoute[i].stretch_type=='1'){
+    else if((infoRouteHash[i-1].direction==infoRouteHash[i].direction) && continueStraight==false && infoRouteHash[i].stretch_type=='1'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
-      j + ". " + "Sigue derecho en dirección: <b> " + infoRoute[i].direction + "</b> por la: " +
-      "<b>"+ infoRoute[i].way_type_b +  " " +
-      infoRoute[i].street_name_b + " (metros:" + infoRoute[i].distance + ")" +"</b></a></li>" ;
+      j + ". " + "Sigue derecho en dirección: <b> " + infoRouteHash[i].direction + "</b> por la: " +
+      "<b>"+ infoRouteHash[i].way_type_b +  " " +
+      infoRouteHash[i].street_name_b + " (metros:" + infoRouteHash[i].distance + ")" +"</b></a></li>" ;
 
-      if(infoRoute[i].direction==infoRoute[i+1].direction)
+      if(infoRouteHash[i].direction==infoRouteHash[i+1].direction)
       continueStraight=true;
     }
-    else if(continueStraight==true && (infoRoute[i-1].direction==infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
+    else if(continueStraight==true && (infoRouteHash[i-1].direction==infoRouteHash[i].direction) && infoRouteHash[i].stretch_type=='1'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-      j + ". " + "Continúa por: " + "<b>"+ infoRoute[i].way_type_b +  " " +
-      infoRoute[i].street_name_b + " (metros:" + infoRoute[i].distance + ")" +"</b></a></li>" ;
+      j + ". " + "Continúa por: " + "<b>"+ infoRouteHash[i].way_type_b +  " " +
+      infoRouteHash[i].street_name_b + " (metros:" + infoRouteHash[i].distance + ")" +"</b></a></li>" ;
     }
-  /*  else if(infoRoute[i-1].stretch_type=='1' && infoRoute[i].stretch_type=='4'){
+  /*  else if(infoRouteHash[i-1].stretch_type=='1' && infoRouteHash[i].stretch_type=='4'){
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-      "Dirigete hacia el <b>" + infoRoute[i].street_name_a + "</b></a></li>" ;
+      "Dirigete hacia el <b>" + infoRouteHash[i].street_name_a + "</b></a></li>" ;
     }*/
-    else if ( (infoRoute[i-1].direction != infoRoute[i].direction) && infoRoute[i].stretch_type=='1'){
-      turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
+    else if ( (infoRouteHash[i-1].direction != infoRouteHash[i].direction) && infoRouteHash[i].stretch_type=='1'){
+      turn = eval_direction(infoRouteHash[i-1].direction,infoRouteHash[i].direction)
 
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
       j + ". " +"Voltear " + "<b>"+ turn+"</b>" + " por " +
-      "<b>"+ infoRoute[i].way_type_b +  " " +
-      infoRoute[i].street_name_b + " (metros:" + infoRoute[i].distance + ")" +"</b></a></li>";
+      "<b>"+ infoRouteHash[i].way_type_b +  " " +
+      infoRouteHash[i].street_name_b + " (metros:" + infoRouteHash[i].distance + ")" +"</b></a></li>";
       continueStraight = false;
     }
-    else if(infoRoute[i-1].stretch_type=='4' && infoRoute[i].stretch_type=='3'){
+    else if(infoRouteHash[i-1].stretch_type=='4' && infoRouteHash[i].stretch_type=='3'){
       //alert("metro true");
       estacion_metro=true;
     }
-    else if((infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='2') && estacion_metro==true){
+    else if((infoRouteHash[i-1].stretch_type=='3' && infoRouteHash[i].stretch_type=='2') && estacion_metro==true){
       alert("hola hola");
-      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusMetro('+infoRoute[i-1].related_id+')">'
-      j + ". " + 'Ve de la estación <b> ' + infoRoute[i-1].common_name_a +
-      " (metros:" + infoRoute[i].distance + ")" + '</b>';
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusMetro('+infoRouteHash[i-1].related_id+')">'
+      j + ". " + 'Ve de la estación <b> ' + infoRouteHash[i-1].common_name_a +
+      " (metros:" + infoRouteHash[i].distance + ")" + '</b>';
       //console.debug("hola 1 " + explain );
     }
-    else if(estacion_metro==true && (infoRoute[i-1].stretch_type=='2' && infoRoute[i].stretch_type=='3')) {
-      explain += ' hasta la estación <b>'+infoRoute[i].common_name_a+'</b></a></li>';
+    else if(estacion_metro==true && (infoRouteHash[i-1].stretch_type=='2' && infoRouteHash[i].stretch_type=='3')) {
+      explain += ' hasta la estación <b>'+infoRouteHash[i].common_name_a+'</b></a></li>';
       //console.debug("hola 2 " + explain);
     }
-    else if(infoRoute[i-1].stretch_type=='3' && infoRoute[i].stretch_type=='4'){
+    else if(infoRouteHash[i-1].stretch_type=='3' && infoRouteHash[i].stretch_type=='4'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
-      j + ". " + 'Baja de la estación ' + infoRoute[i-1].common_name_a +
-      " dirigete por el <b>"+ infoRoute[i].common_name_b +  " " +
-      infoRoute[i].street_name_a + " (metros:" + infoRoute[i].distance + ")" + "</b></a></li>";
+      j + ". " + 'Baja de la estación ' + infoRouteHash[i-1].common_name_a +
+      " dirigete por el <b>"+ infoRouteHash[i].common_name_b +  " " +
+      infoRouteHash[i].street_name_a + " (metros:" + infoRouteHash[i].distance + ")" + "</b></a></li>";
       estacion_metro=false;
     }
     j++;
@@ -584,13 +588,13 @@ function explainRoute(infoRoute){
   if(size>1){
   var end;
 
-  if(infoRoute[size-2].direction==infoRoute[size-1].direction){
-    end=j + ". " +'Continúa hasta encontrar tu lugar de destino' +"<b> (" + infoRoute[i].distance + ")m</b>";
+  if(infoRouteHash[size-2].direction==infoRouteHash[size-1].direction){
+    end=j + ". " +'Continúa hasta encontrar tu lugar de destino' +"<b> (" + infoRouteHash[i].distance + ")m</b>";
   }
   else {
-    turn = eval_direction(infoRoute[size-2].direction,infoRoute[size-1].direction)
+    turn = eval_direction(infoRouteHash[size-2].direction,infoRouteHash[size-1].direction)
     end = j + ". " + 'Voltea <b> '+ turn +'</b> hasta llegar a tu lugar destino </b>' +
-    "<b> (" + infoRoute[i].distance + ")m</b>" ;
+    "<b> (" + infoRouteHash[i].distance + ")m</b>" ;
   }
   explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(size-1)+')"> '+end+'</a></li>';
   }
@@ -601,16 +605,16 @@ function explainRoute(infoRoute){
 }
 
 function focusMetro(id_metro_related){
-  var size = Object.size(infoRoute);
+  var size = Object.size(infoRouteHash);
   var selected_station=[];
   map.addOverlay(polyline);
 
   for(var i=0;i<size;i++){
-    if(infoRoute[i].related_id==id_metro_related){
-       selected_station.push(new GLatLng(infoRoute[i].lat_start,infoRoute[i].long_start));
-       selected_station.push(new GLatLng(infoRoute[i].lat_end,infoRoute[i].long_end));
-      // console.debug("el id " + id_metro_related + " INIT: " + infoRoute[i].lat_start+","+infoRoute[i].long_start+
-      // " END: " + infoRoute[i].lat_end+","+infoRoute[i].long_end);
+    if(infoRouteHash[i].related_id==id_metro_related){
+       selected_station.push(new GLatLng(infoRouteHash[i].lat_start,infoRouteHash[i].long_start));
+       selected_station.push(new GLatLng(infoRouteHash[i].lat_end,infoRouteHash[i].long_end));
+      // console.debug("el id " + id_metro_related + " INIT: " + infoRouteHash[i].lat_start+","+infoRouteHash[i].long_start+
+      // " END: " + infoRouteHash[i].lat_end+","+infoRouteHash[i].long_end);
     }
   }
 
