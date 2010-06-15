@@ -89,14 +89,13 @@ function focusPoint(id){
 
   map.addOverlay(selected_polyline);
 
-  var RonJonLogo = new GIcon();
-  RonJonLogo.image = "http://google-maps-icons.googlecode.com/files/speedriding.png";
-  RonJonLogo.iconSize = new GSize(48,24);
-  RonJonLogo.iconAnchor = new GPoint(24,14);
-  RonJonLogo.infoWindowAnchor = new GPoint(24,24);
-
+  var current_loc_icon = new GIcon();
+  current_loc_icon.image = "http://maps.google.com/mapfiles/arrow.png";
+  current_loc_icon.shadow = "http://maps.google.com/mapfiles/arrowshadow.png";
+  current_loc_icon.iconAnchor = new GPoint(9,34);
+  current_loc_icon.shadowSize = new GSize(37,34);
   if(marker_route != null){map.removeOverlay(marker_route);}
-  marker_route = new GMarker(new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),{draggable:true,icon:RonJonLogo});
+  marker_route = new GMarker(new GLatLng(infoRoute[id].lat_start,infoRoute[id].long_start),{draggable:true,icon:current_loc_icon});
   map.addOverlay(marker_route);
 }
 
@@ -164,8 +163,10 @@ $(document).ready(function(){
  // inputForm.onsubmit = function(){return checkform(this);};
   inputForm.innerHTML=
     '<div id=inputArea>'
+    +'<img src="http://www.google.com/mapfiles/dd-start.png" class="icon"/>'
     + '<label for="initial_point">Origen</label>'
     + '<input type="text" id="initial_point" name="initial_point" style="width:120px;"/>'
+    + '<p> <img src="http://www.google.com/mapfiles/dd-end.png" class="icon"/>'
     + '<label for="end_point">Destino</label>'
     + '<input type="text" id="end_point" name="end_point" style="width:120px;"/>'
     + '<label>&nbsp;</label><input type="submit" class="button" value="Mostrar ruta!"/>'
@@ -228,6 +229,14 @@ $(document).ready(function(){
   function getInitialPoint() {
     if(countInitial==0){
         initial_marker = new GMarker(point,{draggable:true});
+        var init_icon = new GIcon();
+        init_icon.image = "http://www.google.com/mapfiles/dd-start.png";
+        init_icon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+        init_icon.iconSize = new GSize(20,34);
+        init_icon.iconAnchor = new GPoint(9,34);
+        init_icon.shadowSize = new GSize(37, 34);
+        init_icon.infoWindowAnchor = new GPoint(24,24);
+        initial_marker = new GMarker(point,{draggable:true,icon:init_icon});
         map.addOverlay(initial_marker);
         //marker.setLatLng(new GLatLng(6.256648053,-75.602324565));
         init_lat=lat;
@@ -247,12 +256,14 @@ $(document).ready(function(){
   //Obtiene el punto final del field, crea el marker y lo habilita para que se pueda arrastrar
   function getFinalPoint() {
     if(countFinal==0){
-        var RonJonLogo = new GIcon();
-        RonJonLogo.image = "http://google-maps-icons.googlecode.com/files/speedriding.png";
-        RonJonLogo.iconSize = new GSize(48,24);
-        RonJonLogo.iconAnchor = new GPoint(24,14);
-        RonJonLogo.infoWindowAnchor = new GPoint(24,24);
-        final_marker = new GMarker(point,{draggable:true,icon:RonJonLogo});
+        var final_icon = new GIcon();
+        final_icon.image = "http://www.google.com/mapfiles/dd-end.png";
+        final_icon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+        final_icon.iconSize = new GSize(20,34);
+        final_icon.iconAnchor = new GPoint(9,34);
+        final_icon.shadowSize = new GSize(37, 34);
+        final_icon.infoWindowAnchor = new GPoint(24,24);
+        final_marker = new GMarker(point,{draggable:true,icon:final_icon});
        // final_marker.setImage({url:'http://googlemapsbook.com/chapter4/StoreLocationMap/ronjonsurfshoplogo.png'});
         map.addOverlay(final_marker);
         end_lat=lat;
