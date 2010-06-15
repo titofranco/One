@@ -51,7 +51,7 @@ pixels—the dimensions of their element, including any padding.
 */
 /*Redimensiona el tamño del mapa y de la barra lateral*/
 function handleResize(){
-  var height = windowHeight()- document.getElementById('toolbar').offsetHeight-50;
+  var height = windowHeight()- document.getElementById('toolbar').offsetHeight-45;
   document.getElementById('map').style.height = height + 'px';
   document.getElementById('sidebar').style.height = height + 'px';
 }
@@ -178,8 +178,7 @@ $(document).ready(function(){
   document.getElementById("end_point").setAttribute("readonly","readonly");
 
   map = new GMap2(document.getElementById("map"));
-  map.addControl(new GMapTypeControl());
-  map.addControl(new GSmallMapControl());
+  map.addControl(new GLargeMapControl3D());
   map.setMapType(G_SATELLITE_MAP);
   map.setCenter(new GLatLng(centerLatitude,centerLongitude),startZoom);
 
