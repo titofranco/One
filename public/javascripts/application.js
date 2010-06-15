@@ -473,13 +473,13 @@ function getDirection(bearing){
   var direction;
   if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
   {direction="Norte"}
-  else if (bearing > 22.5 && bearing <= 66.5 ){direction="Noreste"}
-  else if (bearing > 66.5 && bearing <= 117 ){direction="Este"}
-  else if (bearing > 117 && bearing <= 157.5 ){direction="Sureste"}
+  else if (bearing > 22.5 && bearing <= 66.5 ){direction="Nororiente"}
+  else if (bearing > 66.5 && bearing <= 117 ){direction="Oriente"}
+  else if (bearing > 117 && bearing <= 157.5 ){direction="Suroriente"}
   else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
-  else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroeste"}
-  else if (bearing > 247.5 && bearing <= 292.5 ){direction="Oeste"}
-  else if (bearing > 292.5 && bearing <=337.5  ){direction="Noroeste"}
+  else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroccidente"}
+  else if (bearing > 247.5 && bearing <= 292.5 ){direction="Occidente"}
+  else if (bearing > 292.5 && bearing <=337.5  ){direction="Noroccidente"}
 
   return direction;
 
@@ -526,7 +526,7 @@ function explainRoute(infoRoute){
       turn = eval_direction(infoRoute[i-1].direction,infoRoute[i].direction)
 
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-      j + ". " +"voltear " + "<b>"+ turn+"</b>" + " por " +
+      j + ". " +"Voltear " + "<b>"+ turn+"</b>" + " por " +
       "<b>"+ infoRoute[i].way_type_b +  " " +
       infoRoute[i].street_name_b + " (" + infoRoute[i].distance + ")m" +"</b></a></li>";
       continueStraight = false;
@@ -563,7 +563,7 @@ function explainRoute(infoRoute){
   }
   else {
     turn = eval_direction(infoRoute[size-2].direction,infoRoute[size-1].direction)
-    end = j + ". " + 'Voltea <b> '+ turn +'</b> hasta llegar a su lugar destino </b>' +
+    end = j + ". " + 'Voltea <b> '+ turn +'</b> hasta llegar a tu lugar destino </b>' +
     "<b> (" + infoRoute[i].distance + ")m</b>" ;
   }
   explain += '<li><a href="#" onclick="javascript:focusPoint('+(size-1)+')"> '+end+'</a></li>';
@@ -603,22 +603,22 @@ var tell;
   else if(comes_from == "Sur"){
     tell=where_to_turn_s(goes_to);
   }
-  else if(comes_from == "Este"){
+  else if(comes_from == "Oriente"){
     tell=where_to_turn_e(goes_to);
   }
-  else if(comes_from == "Oeste"){
+  else if(comes_from == "Occidente"){
     tell=where_to_turn_w(goes_to);
   }
-  else if(comes_from == "Noreste"){
+  else if(comes_from == "Nororiente"){
     tell=where_to_turn_ne(goes_to);
   }
-  else if(comes_from == "Noroeste"){
+  else if(comes_from == "Noroccidente"){
     tell=where_to_turn_nw(goes_to);
   }
-  else if(comes_from == "Sureste"){
+  else if(comes_from == "Suroriente"){
     tell=where_to_turn_se(goes_to);
   }
-  else if(comes_from == "Suroeste"){
+  else if(comes_from == "Suroccidente"){
     tell=where_to_turn_sw(goes_to);
   }
   return tell;
@@ -628,16 +628,16 @@ var tell;
 function where_to_turn_n(goes_to){
   var turn;
 
-  if(goes_to=="Este"){
+  if(goes_to=="Oriente"){
     turn = "a la derecha";
   }
-  else if(goes_to=="Noroeste" || goes_to=="Suroeste"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Noroccidente" || goes_to=="Suroccidente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
-  else if(goes_to=="Noreste" || goes_to=="Sureste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Nororiente" || goes_to=="Suroriente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
-  else if(goes_to=="Oeste"){
+  else if(goes_to=="Occidente"){
     turn = "a la izquierda";
   }
   else if(goes_to=="Sur"){
@@ -653,16 +653,16 @@ function where_to_turn_w(goes_to){
   if(goes_to=="Norte"){
     turn = "a la derecha";
   }
-  else if(goes_to=="Noroeste" || goes_to=="Noreste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Noroccidente" || goes_to=="Nororiente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
   else if(goes_to=="Sur"){
     turn = "a la izquierda";
   }
-  else if(goes_to=="Suroeste" || goes_to=="Sureste"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Suroccidente" || goes_to=="Suroriente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
-  else if(goes_to=="Este"){
+  else if(goes_to=="Oriente"){
     turn = "ALGO RARO PASA EN DIRECCION OESTE ESTE";
   }
 return turn;
@@ -675,16 +675,16 @@ function where_to_turn_e(goes_to){
   if(goes_to=="Norte"){
     turn = "a la izquierda";
   }
-  else if(goes_to=="Noroeste" || goes_to == "Noreste"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Noroccidente" || goes_to == "Nororiente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
   else if(goes_to=="Sur"){
     turn = "a la derecha";
   }
-  else if(goes_to=="Suroeste" || goes_to=="Sureste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Suroccidente" || goes_to=="Suroriente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
-  else if(goes_to=="Oeste"){
+  else if(goes_to=="Occidente"){
     turn = "ALGO RARO PASA EN DIRECCION ESTE OESTE";
   }
   return turn;
@@ -694,16 +694,16 @@ function where_to_turn_e(goes_to){
 function where_to_turn_s(goes_to){
   var turn;
 
-  if(goes_to=="Este"){
+  if(goes_to=="Oriente"){
     turn = "a la izquierda";
   }
-  else if(goes_to=="Noroeste" || goes_to=="Suroeste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Noroccidente" || goes_to=="Suroccidente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
-  else if(goes_to=="Noreste" || goes_to=="Sureste"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Nororiente" || goes_to=="Suroriente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
-  else if(goes_to=="Oeste"){
+  else if(goes_to=="Occidente"){
     turn = "a la derecha";
   }
   else if(goes_to=="Norte"){
@@ -719,16 +719,16 @@ function where_to_turn_sw(goes_to){
   if(goes_to=="Norte"){
     turn = "a la derecha";
   }
-  else if(goes_to=="Noroeste" || goes_to=="Oeste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Noroccidente" || goes_to=="Occidente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
-  else if(goes_to=="Sur" || goes_to=="Sureste"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Sur" || goes_to=="Suroriente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
-  else if(goes_to=="Este"){
+  else if(goes_to=="Oriente"){
     turn = "a la izquierda";
   }
-  else if(goes_to=="Noreste"){
+  else if(goes_to=="Nororiente"){
     turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
   }
   return turn;
@@ -740,16 +740,16 @@ function where_to_turn_se(goes_to){
   if(goes_to=="Norte"){
     turn = "a la izquierda";
   }
-  else if(goes_to=="Noreste" || goes_to=="Este"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Nororiente" || goes_to=="Oriente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
-  else if(goes_to=="Sur" || goes_to=="Suroeste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Sur" || goes_to=="Suroccidente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
-  else if(goes_to=="Oeste"){
+  else if(goes_to=="Occidente"){
     turn = "a la derecha";
   }
-  else if(goes_to=="Noroeste"){
+  else if(goes_to=="Noroccidente"){
     turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
   }
   return turn;
@@ -759,19 +759,19 @@ function where_to_turn_se(goes_to){
 function where_to_turn_nw(goes_to){
   var turn;
 
-  if(goes_to=="Este"){
+  if(goes_to=="Oriente"){
     turn = "a la derecha";
   }
-  else if(goes_to=="Oeste" || goes_to=="Suroeste"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Occidente" || goes_to=="Suroccidente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
-  else if(goes_to=="Norte" || goes_to=="Noreste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Norte" || goes_to=="Nororiente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
   else if(goes_to=="Sur"){
     turn = "a la izquierda";
   }
-  else if(goes_to=="Sureste"){
+  else if(goes_to=="Suroriente"){
     turn = "ALGO RARO PASA EN DIRECCION NOROESTE SURESTE ";
   }
   return turn;
@@ -784,16 +784,16 @@ function where_to_turn_ne(goes_to){
   if(goes_to=="Sur"){
     turn = "a la derecha";
   }
-  else if(goes_to=="Norte" || goes_to=="Noroeste"){
-    turn = "ligeramente a la izquierda en direccion " + goes_to;
+  else if(goes_to=="Norte" || goes_to=="Noroccidente"){
+    turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
-  else if(goes_to=="Este" || goes_to=="Sureste"){
-    turn = "ligeramente a la derecha en direccion " + goes_to;
+  else if(goes_to=="Oriente" || goes_to=="Suroriente"){
+    turn = "ligeramente a la derecha en dirección " + goes_to;
   }
-  else if(goes_to=="Oeste"){
+  else if(goes_to=="Occidente"){
     turn = "a la izquierda";
   }
-  else if(goes_to=="Suroeste"){
+  else if(goes_to=="Suroccidente"){
     turn = "ALGO RARO PASA EN DIRECCION NORESTE SURESTE ";
   }
   return turn;
