@@ -1,4 +1,4 @@
-require 'Mda'
+require 'mda'
 require 'csv'
 
 #debe imprimir nodo incial,nodo al que se conecta,distancia 1:2585,204.35874;784,3985.14|lat-long
