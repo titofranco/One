@@ -125,17 +125,28 @@ function drawpolyline(latlng_bus,latlng_street,latlng_metro){
   map.addOverlay(polyline_metro);
 }
 
-function drawpolyline_bus(latlng_bus){
-
-  var polyline_bus = new GPolyline(latlng_bus,'#4ed390',6,1);
-  map.addOverlay(polyline_bus);
+//Random colors: http://paulirish.com/2009/random-hex-color-code-snippets/
+function drawpolyline_bus(buses_hash){
+  var array =[];
+  var size=Object.size(buses_hash);
+  for (var i=0;i<size;i++){
+    if(buses_hash[i].id == buses_hash[i+1].id){
+      array.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
+    }
+    else {
+      var color='#'+Math.floor(Math.random()*16777215).toString(16);
+      var polyline_bus = new GPolyline(array,color,6,0.8);
+      map.addOverlay(polyline_bus);
+      array=[];
+    }
+  }
 }
 
 //Valida y si todo está correcto, procede a hacer la llama asincrona al server
 function validar(form){
   var validate = checkform(form);
   if(validate) {
-    findRoute();
+   // findRoute();
     findBus();
   }
 }
@@ -164,8 +175,8 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
 //6.2201673770;-75.6076627160; casa de joan
-  var centerLatitude =  6.20186;
-  var centerLongitude = -75.57754;
+  var centerLatitude =  6.277413845000;
+  var centerLongitude = -75.589492305;
   var startZoom = 14;
   var lat;
   var lng;
@@ -199,10 +210,10 @@ $(document).ready(function(){
   map = new GMap2(document.getElementById("map"));
 
     // If ClientLocation was filled in by the loader, use that info instead
-  if (google.loader.ClientLocation) {
+/*  if (google.loader.ClientLocation) {
     centerLatitude = google.loader.ClientLocation.latitude;
     centerLongitude = google.loader.ClientLocation.longitude;
-  }
+  }*/
 
 
   map.setCenter(new GLatLng(centerLatitude,centerLongitude),17);
@@ -415,14 +426,17 @@ function findBus(){
 function parseContentBuses(content){
   latlng_bus=[];
   buses_hash={};
-  for (var i=0; i<content.length;i++){
+  var size=content.length;
+  for (var i=0; i<size;i++){
     var id = content[i].id;
     var lat_start = content[i].lat_start;
     var long_start = content[i].long_start;
     buses_hash[i]={id:id,lat_start:lat_start,long_start:long_start}
-    latlng_bus.push(new GLatLng(lat_start,long_start));
+   // latlng_bus.push(new GLatLng(lat_start,long_start));
   }
-  drawpolyline_bus(latlng_bus);
+  //Agrego este ultimo registro falso, ya que debo recorrer el arreglo y comparar el siguiente id del bus
+  buses_hash[size]={id:99999,lat_start:content[size-1].lat_start ,long_start:content[size-1].long_start}
+  drawpolyline_bus(buses_hash);
 }
 
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama la funcion para pintar la ruta
