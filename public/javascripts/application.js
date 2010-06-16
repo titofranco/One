@@ -17,6 +17,7 @@ var map;
 var polyline;
 var selected_polyline;
 var polyline_metro;
+var polyline_bus;
 var latlng_street;
 var latlng_bus;
 var latlng_metro;
@@ -29,6 +30,7 @@ var arrow_marker;
 var initial_marker;
 var final_marker;
 var route_marker;
+var buses_hash={};
 
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
@@ -51,7 +53,7 @@ function windowHeight(){
 function handleResize(){
   var height = windowHeight()- document.getElementById('toolbar').offsetHeight-45;
   document.getElementById('map').style.height = height + 'px';
-  document.getElementById('sidebar').style.height = height + 'px';
+  document.getElementById('sidebar').style.height = (height-18) + 'px';
 }
 
 /*Pinta el trayecto seleccionado en sidebar, crea el marker y pinta una flecha
@@ -79,16 +81,37 @@ function focusPoint(id){
   route_marker = new GMarker(latlng_current_loc,{icon:current_loc_icon});
   map.panTo(latlng_current_loc);
   map.addOverlay(route_marker);
-
-  //Cambia el CSS del sidebar-item-id cuando se hace clic sobre este
-  if($('#sidebar-item-'+current_sb_item).hasClass('current')){
-    $('#sidebar-item-'+current_sb_item).removeClass('current');
-  } $('#sidebar-item-'+id).addClass('current');
-    current_sb_item=id;
-
+  addClassSidebar('#sidebar-item-',id);
   midArrows(id);
 
 }
+
+function addClassSidebar(element,id){
+  //Cambia el CSS del sidebar-item-id cuando se hace clic sobre este
+  if($(element+''+current_sb_item).hasClass('current')){
+    $(element+''+current_sb_item).removeClass('current');
+  } $(element+''+id).addClass('current');
+    current_sb_item=id;
+}
+
+function focusMetro(id_metro_related){
+  var size = Object.size(infoRouteHash);
+  var selected_station=[];
+  map.addOverlay(polyline);
+
+  for(var i=0;i<size;i++){
+    if(infoRouteHash[i].related_id==id_metro_related){
+       selected_station.push(new GLatLng(infoRouteHash[i].lat_start,infoRouteHash[i].long_start));
+       selected_station.push(new GLatLng(infoRouteHash[i].lat_end,infoRouteHash[i].long_end));
+      // console.debug("el id " + id_metro_related + " INIT: " + infoRouteHash[i].lat_start+","+infoRouteHash[i].long_start+
+      // " END: " + infoRouteHash[i].lat_end+","+infoRouteHash[i].long_end);
+    }
+  }
+
+  var polyline_metro=new GPolyline(selected_station);
+  map.addOverlay(polyline_metro);
+}
+
 
 //Funcion que dibuja triangulos hacia la dirección que se va.
 function midArrows(id) {
@@ -116,7 +139,7 @@ function midArrows(id) {
 }
 
 //Función que pinta la ruta de buses, la de vias y la del metro
-function drawpolyline(latlng_bus,latlng_street,latlng_metro){
+function drawPolyline(latlng_bus,latlng_street,latlng_metro){
 
   console.debug("el tamaño del array " + latlng_street.length);
   polyline = new GPolyline(latlng_street,'#FF6633',6,1);
@@ -126,10 +149,10 @@ function drawpolyline(latlng_bus,latlng_street,latlng_metro){
 }
 
 //Random colors: http://paulirish.com/2009/random-hex-color-code-snippets/
-function drawpolyline_bus(buses_hash){
+function drawPolyline_bus(buses_hash){
   var array =[];
   var size=Object.size(buses_hash);
-  for (var i=0;i<size;i++){
+  for (var i=0;i<size-1;i++){
     if(buses_hash[i].id == buses_hash[i+1].id){
       array.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
     }
@@ -142,11 +165,28 @@ function drawpolyline_bus(buses_hash){
   }
 }
 
+function drawSelectedPolyline_bus(id){
+  var array =[];
+  var size=Object.size(buses_hash);
+  for (var i=0;i<size-1;i++){
+    if(id == buses_hash[i].id){
+     array.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
+    }
+  }
+  if(polyline_bus){map.removeOverlay(polyline_bus);}
+  var color='#'+Math.floor(Math.random()*16777215).toString(16);
+  polyline_bus = new GPolyline(array,color,6,0.8);
+  map.addOverlay(polyline_bus);
+  array=[];
+  // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
+  addClassSidebar('#sidebar-item-',(id+99999));
+}
+
 //Valida y si todo está correcto, procede a hacer la llama asincrona al server
 function validar(form){
   var validate = checkform(form);
   if(validate) {
-   // findRoute();
+    findRoute();
     findBus();
   }
 }
@@ -215,7 +255,6 @@ $(document).ready(function(){
     centerLongitude = google.loader.ClientLocation.longitude;
   }*/
 
-
   map.setCenter(new GLatLng(centerLatitude,centerLongitude),17);
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
@@ -266,27 +305,27 @@ $(document).ready(function(){
   //Obtiene el punto inicial del field, crea el marker y lo habilita para que se pueda arrastrar
   function getInitialPoint() {
     if(countInitial==0){
-        initial_marker = new GMarker(point,{draggable:true});
-        var init_icon = new GIcon();
-        init_icon.image = "http://www.google.com/mapfiles/dd-start.png";
-        init_icon.shadow = "http://www.google.com/mapfiles/shadow50.png";
-        init_icon.iconSize = new GSize(20,34);
-        init_icon.iconAnchor = new GPoint(9,34);
-        init_icon.shadowSize = new GSize(37, 34);
-        init_icon.infoWindowAnchor = new GPoint(24,24);
-        initial_marker = new GMarker(point,{draggable:true,icon:init_icon});
-        map.addOverlay(initial_marker);
-        //marker.setLatLng(new GLatLng(6.256648053,-75.602324565));
-        init_lat=lat;
-        init_lng=lng;
-        document.getElementById("initial_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
-        contextmenu.style.visibility="hidden";
-        countInitial=1;
+      initial_marker = new GMarker(point,{draggable:true});
+      var init_icon = new GIcon();
+      init_icon.image = "http://www.google.com/mapfiles/dd-start.png";
+      init_icon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+      init_icon.iconSize = new GSize(20,34);
+      init_icon.iconAnchor = new GPoint(9,34);
+      init_icon.shadowSize = new GSize(37, 34);
+      init_icon.infoWindowAnchor = new GPoint(24,24);
+      initial_marker = new GMarker(point,{draggable:true,icon:init_icon});
+      map.addOverlay(initial_marker);
+      //marker.setLatLng(new GLatLng(6.256648053,-75.602324565));
+      init_lat=lat;
+      init_lng=lng;
+      document.getElementById("initial_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
+      contextmenu.style.visibility="hidden";
+      countInitial=1;
 
       GEvent.addListener(initial_marker, "dragend", function() {
-        init_lat=initial_marker.getPoint().lat();
-        init_lng=initial_marker.getPoint().lng();
-        document.getElementById("initial_point").value=String(init_lat).substring(0,7)+","+ String(init_lng).substring(0,9);
+      init_lat=initial_marker.getPoint().lat();
+      init_lng=initial_marker.getPoint().lng();
+      document.getElementById("initial_point").value=String(init_lat).substring(0,7)+","+ String(init_lng).substring(0,9);
       });
     }
   }
@@ -294,28 +333,28 @@ $(document).ready(function(){
   //Obtiene el punto final del field, crea el marker y lo habilita para que se pueda arrastrar
   function getFinalPoint() {
     if(countFinal==0){
-        var final_icon = new GIcon();
-        final_icon.image = "http://www.google.com/mapfiles/dd-end.png";
-        final_icon.shadow = "http://www.google.com/mapfiles/shadow50.png";
-        final_icon.iconSize = new GSize(20,34);
-        final_icon.iconAnchor = new GPoint(9,34);
-        final_icon.shadowSize = new GSize(37, 34);
-        final_icon.infoWindowAnchor = new GPoint(24,24);
-        final_marker = new GMarker(point,{draggable:true,icon:final_icon});
-       // final_marker.setImage({url:'http://googlemapsbook.com/chapter4/StoreLocationMap/ronjonsurfshoplogo.png'});
-        map.addOverlay(final_marker);
-        end_lat=lat;
-        end_lng=lng;
-        document.getElementById("end_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
-        contextmenu.style.visibility="hidden";
-        countFinal=1;
+      var final_icon = new GIcon();
+      final_icon.image = "http://www.google.com/mapfiles/dd-end.png";
+      final_icon.shadow = "http://www.google.com/mapfiles/shadow50.png";
+      final_icon.iconSize = new GSize(20,34);
+      final_icon.iconAnchor = new GPoint(9,34);
+      final_icon.shadowSize = new GSize(37, 34);
+      final_icon.infoWindowAnchor = new GPoint(24,24);
+      final_marker = new GMarker(point,{draggable:true,icon:final_icon});
+     // final_marker.setImage({url:'http://googlemapsbook.com/chapter4/StoreLocationMap/ronjonsurfshoplogo.png'});
+      map.addOverlay(final_marker);
+      end_lat=lat;
+      end_lng=lng;
+      document.getElementById("end_point").value=String(lat).substring(0,7)+','+String(lng).substring(0,9);
+      contextmenu.style.visibility="hidden";
+      countFinal=1;
 
-        GEvent.addListener(final_marker, "dragend", function() {
-         end_lat=final_marker.getPoint().lat();
-         end_lng=final_marker.getPoint().lng();
-         document.getElementById("end_point").value=String(end_lat).substring(0,7)+","+ String(end_lng).substring(0,9);
-        });
-     }
+      GEvent.addListener(final_marker, "dragend", function() {
+       end_lat=final_marker.getPoint().lat();
+       end_lng=final_marker.getPoint().lng();
+       document.getElementById("end_point").value=String(end_lat).substring(0,7)+","+ String(end_lng).substring(0,9);
+      });
+    }
   }
 
 
@@ -427,7 +466,7 @@ function parseContentBuses(content){
   latlng_bus=[];
   buses_hash={};
   var size=content.length;
-  for (var i=0; i<size;i++){
+  for(var i=0; i<size;i++){
     var id = content[i].id;
     var lat_start = content[i].lat_start;
     var long_start = content[i].long_start;
@@ -435,8 +474,9 @@ function parseContentBuses(content){
    // latlng_bus.push(new GLatLng(lat_start,long_start));
   }
   //Agrego este ultimo registro falso, ya que debo recorrer el arreglo y comparar el siguiente id del bus
-  buses_hash[size]={id:99999,lat_start:content[size-1].lat_start ,long_start:content[size-1].long_start}
-  drawpolyline_bus(buses_hash);
+  buses_hash[size]={id:99999,lat_start:content[size-1].lat_start ,long_start:content[size-1].long_start};
+  addOptimalBusesRoutes(buses_hash);
+  //drawPolyline_bus(buses_hash);
 }
 
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama la funcion para pintar la ruta
@@ -514,7 +554,7 @@ function parseContent(content){
   clearExistingOverlays();
 
   setLatLngMarkers(infoRouteHash[0].lat_start,infoRouteHash[0].long_start, infoRouteHash[last-1].lat_end, infoRouteHash[last-1].long_end);
-  drawpolyline(latlng_bus,latlng_street,latlng_metro);
+  drawPolyline(latlng_bus,latlng_street,latlng_metro);
   explainRoute(infoRouteHash);
 }
 
@@ -570,6 +610,22 @@ function getDirection(bearing){
 
   return direction;
 
+}
+
+
+function addOptimalBusesRoutes(buses_hash){
+  var explain_='';
+  var size = Object.size(buses_hash);
+  for(var i=0;i<size-1;i++){
+    if(buses_hash[i].id != buses_hash[i+1].id){
+      // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
+      explain_ += '<li id=sidebar-item-'+(buses_hash[i].id+99999)+' >'+
+                  '<a href="#" onclick="javascript:drawSelectedPolyline_bus('+buses_hash[i].id+')">'+
+                  "Ruta numero " + buses_hash[i].id + "</a></li>";
+    }
+  }
+  var div_sidebar_bus_list = document.getElementById("sidebar-bus-list");
+  div_sidebar_bus_list.innerHTML=explain_;
 }
 
 //Explica la ruta a tomar y la pone en el panel derecho
@@ -661,23 +717,6 @@ function explainRoute(infoRouteHash){
 
 }
 
-function focusMetro(id_metro_related){
-  var size = Object.size(infoRouteHash);
-  var selected_station=[];
-  map.addOverlay(polyline);
-
-  for(var i=0;i<size;i++){
-    if(infoRouteHash[i].related_id==id_metro_related){
-       selected_station.push(new GLatLng(infoRouteHash[i].lat_start,infoRouteHash[i].long_start));
-       selected_station.push(new GLatLng(infoRouteHash[i].lat_end,infoRouteHash[i].long_end));
-      // console.debug("el id " + id_metro_related + " INIT: " + infoRouteHash[i].lat_start+","+infoRouteHash[i].long_start+
-      // " END: " + infoRouteHash[i].lat_end+","+infoRouteHash[i].long_end);
-    }
-  }
-
-  var polyline_metro=new GPolyline(selected_station);
-  map.addOverlay(polyline_metro);
-}
 /*FUNCIONES PARA SABER QUE DIRECCION DEBO TOMAR DADO 2 PUNTOS CARDINALES*/
 
 function eval_direction(comes_from, goes_to){
