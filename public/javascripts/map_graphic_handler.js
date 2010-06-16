@@ -99,7 +99,7 @@ function drawPolyline_bus(buses_hash){
   var latlng_bus =[];
   var size=Object.size(buses_hash);
   for (var i=0;i<size-1;i++){
-    if(buses_hash[i].id == buses_hash[i+1].id){
+    if(buses_hash[i].bus_id == buses_hash[i+1].bus_id){
       latlng_bus.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
     }
     else {
@@ -112,20 +112,37 @@ function drawPolyline_bus(buses_hash){
 }
 
 //Función para pintar sólo una ruta de bus
-function drawSelectedPolyline_bus(id){
+function drawSelectedPolyline_bus(bus_id){
   var latlng_bus =[];
   var size=Object.size(buses_hash);
+  var color;
   for (var i=0;i<size-1;i++){
-    if(id == buses_hash[i].id){
+    if(bus_id == buses_hash[i].bus_id){
      latlng_bus.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
+     color=buses_hash[i].color;
     }
   }
+
   if(polyline_bus){map.removeOverlay(polyline_bus);}
-  var color='#'+Math.floor(Math.random()*16777215).toString(16);
-  polyline_bus = new GPolyline(latlng_bus,color,6,0.8);
+  polyline_bus = new GPolyline(latlng_bus,color,6,1);
   map.addOverlay(polyline_bus);
   // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
-  addClassSidebar('#sidebar-item-',(id+99999));
+  addClassSidebar('#sidebar-item-',(bus_id+99999));
+}
+
+//Asigna un color aleatorio a ultima posicion relativa del arreglo antes de que
+//encuentre un nuevo bus_id
+function AssignRandomColor(size){
+  for(var i=0; i<size;i++){
+    if(buses_hash[i].bus_id != buses_hash[i+1].bus_id){
+      var color='#'+Math.floor(Math.random()*16777215).toString(16);
+      //Si el color es de 6 digitos incluye el signo # la ruta no es pintada
+      while(color.length<=6){
+        color='#'+Math.floor(Math.random()*16777215).toString(16);
+      }
+      buses_hash[i].color=color;
+    }
+  }
 }
 
 //Cambia el CSS del sidebar-item-id cuando se hace clic sobre este
@@ -159,11 +176,11 @@ function addBusesSidebar(buses_hash){
   var explain_='';
   var size = Object.size(buses_hash);
   for(var i=0;i<size-1;i++){
-    if(buses_hash[i].id != buses_hash[i+1].id){
+    if(buses_hash[i].bus_id != buses_hash[i+1].bus_id){
       // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
-      explain_ += '<li id=sidebar-item-'+(buses_hash[i].id+99999)+' >'+
-                  '<a href="#" onclick="javascript:drawSelectedPolyline_bus('+buses_hash[i].id+')">'+
-                  "Ruta numero " + buses_hash[i].id + "</a></li>";
+      explain_ += '<li id=sidebar-item-'+(buses_hash[i].bus_id+99999)+' >'+
+                  '<a href="#" onclick="javascript:drawSelectedPolyline_bus('+buses_hash[i].bus_id+')">'+
+                  "Ruta numero " + buses_hash[i].bus_id + "</a></li>";
     }
   }
   var div_sidebar_bus_list = document.getElementById("sidebar-bus-list");
@@ -259,6 +276,7 @@ function explainRoute(infoRouteHash){
 
 }
 
+//Crea el form donde va a estar el Origen y Destino
 function createInputForm(){
   var divheader=document.getElementById("inputBoxes");
   var inputForm = document.createElement("form");
@@ -278,6 +296,7 @@ function createInputForm(){
   divheader.appendChild(inputForm);
 }
 
+//Crea el menú desplegable cuando se hace click derecho sobre el mapa
 function createContextMenu(){
   var contextmenu=document.createElement("div");
 

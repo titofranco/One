@@ -319,6 +319,7 @@ function parseContentBuses(content){
     long_start:content[size-1].long_start,
     color:'#FFFFFF'
     };
+  AssignRandomColor(size);
   addBusesSidebar(buses_hash);
   //drawPolyline_bus(buses_hash);
 
