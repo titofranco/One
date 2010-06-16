@@ -64,20 +64,46 @@ def calcular
         puts "ACA ES FALSO"
         res={:success=>false, :content=>"Ruta no encontrada"}
         render :text=>res.to_json
-
       else
         puts "ACA ES VERDADERO"
-        resultadoquery = metodoruta(lat_start,long_start,lat_end,long_end)
+        resultadoquery = getRuta(lat_start,long_start,lat_end,long_end)
         res={:success=>true, :content=>resultadoquery}
         render :text=>res.to_json
-
+        #encontrar rutas
+        tabla = Hash.new
+        rutaOptima = Array.new
+        
+        for n in camino
+          rutasPorN = BusesRoute.find(:all,:select=>"bus_id",
+                                      :conditions =>["roadmap_id = ?",n])
+          tempBus = ["-",n]
+          nodosComunes = 0
+          if rutasPorN.size > 0            
+            for r in rutasPorN
+              if tabla[r.bus_id.to_s]==nil
+                rutaBus = BusesRoute.find(:all,:select=>"roadmap_id",
+                                          :conditions =>["bus_id = ?",r.bus_id])
+                rr = rutaBus.collect{ |x| x.roadmap_id}
+                tabla[r.bus_id.to_s] = rr
+              end
+              arrayBus = tabla[r.bus_id.to_s]
+              u = camino&arrayBus 
+              if u.size > nodosComunes
+                tempBus = [r.bus_id,u.last]
+                n = u.last
+              end              
+            end
+          end
+          rutaOptima.push tempBus
+        end
+        puts "rutaOptima? #{rutaOptima.inspect}"
       end
     end
   end
 end
 
 
-def metodoruta(lat_start,long_start,lat_end,long_end)
+def getRuta(lat_start,long_start,lat_end,long_end)
   resultado = Roadmap.getRoute(@a,lat_start,long_start,lat_end,long_end)
   resultado
 end
