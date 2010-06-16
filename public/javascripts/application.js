@@ -55,7 +55,7 @@ function handleResize(){
 function validar(form){
   var validate = checkform(form);
   if(validate) {
-    findRoute();
+    //findRoute();
     findBus();
   }
 }
@@ -255,6 +255,8 @@ function findRoute(){
        if(!success) {alert(content);}
        else{
          parseContent(content);
+         //Una vez se encuentre la ruta, se procede a buscar las rutas de buses más cercanas
+         findBus();
        }
     }
   }
@@ -292,17 +294,34 @@ function findBus(){
 //addBusesSidebar para que a cada ruta de bus se le cree un elemento en el panel derecho
 function parseContentBuses(content){
   buses_hash={};
+  var color;
   var size=content.length;
   for(var i=0; i<size;i++){
-    var id = content[i].id;
-    var lat_start = content[i].lat_start;
+    var id         = content[i].id;
+    var bus_id     = content[i].bus_id;
+    var lat_start  = content[i].lat_start;
     var long_start = content[i].long_start;
-    buses_hash[i]={id:id,lat_start:lat_start,long_start:long_start}
+    var color      = '';
+
+    buses_hash[i]={
+    id:id,
+    bus_id:bus_id,
+    lat_start:lat_start,
+    long_start:long_start,
+    color:color
+    };
   }
   //Agrego este ultimo registro falso, ya que debo recorrer el arreglo y comparar el siguiente id del bus
-  buses_hash[size]={id:99999,lat_start:content[size-1].lat_start ,long_start:content[size-1].long_start};
+  buses_hash[size]={
+    id:-1,
+    bus_id:99999,
+    lat_start:content[size-1].lat_start,
+    long_start:content[size-1].long_start,
+    color:'#FFFFFF'
+    };
   addBusesSidebar(buses_hash);
   //drawPolyline_bus(buses_hash);
+
 }
 
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama al metodo
