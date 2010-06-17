@@ -22,13 +22,13 @@ html,body {
 
 #toolbar-wrapper{
   position:relative;
-
+  margin-right:300px;
 }
 
 #toolbar {
   top:10px;
   position: relative;
-  background: white;
+  background: #4F5D74;;
   width: 100%;
   right: 20px;
   left: 10px;
@@ -40,10 +40,33 @@ html,body {
 #inputBoxes{
   position:absolute;
   width:300px;
-  height: 90px;
+  height: 120px;
   right: -300px;
   top:10px;
   z-index:1;
+}
+
+#explain{
+  color:black;
+  width:280px;
+  margin-left:20px;
+  text-align:left;
+  top:126px;
+  margin-top:2px;
+  font-family:Trebuchet MS, serif;
+  font-size:14px;
+  position:absolute;
+  background: #F9A910;
+}
+
+a.normal_text:visited{
+  color:black;
+  font-style:italic
+}
+
+/*Si lo pongo así, no me genera el underline*/
+a.normal_text:visited{
+  text-decoration:none
 }
 
 /*MAP*/
@@ -96,7 +119,7 @@ html,body {
   margin: 10px;
 }
 
-#sidebar ul#sidebar-list li a,#sidebar-bus-list li a {
+#sidebar ul#sidebar-list li a,#sidebar ul#sidebar-bus-list li a {
   display: block;
   border: 1px solid #ddd;
   background: #CED1D7;
@@ -108,9 +131,9 @@ html,body {
   color: #444;
 }
 
-#sidebar ul#sidebar-list li.current a,#sidebar-bus-list li.current a {
+#sidebar ul#sidebar-list li.current a,#sidebar ul#sidebar-bus-list li.current a {
   background-color: #4F5D74;
-  border: 1px solid #444;
+  border: 1px solid white;
   border-left-width: 3px;
   padding-left: 2px;
   font-size:14px;
@@ -118,26 +141,51 @@ html,body {
   color: white;
 }
 
-#sidebar ul#sidebar-list li a:hover,#sidebar-bus-list li a:hover {
+#sidebar ul#sidebar-list li a:hover,#sidebar ul#sidebar-bus-list li a:hover {
   background: white;
   color: #555;
 }
 
 
-#sidebar ul#sidebar-list li a strong,#sidebar-bus-list li a strong {
+#sidebar ul#sidebar-list li a strong,#sidebar ul#sidebar-bus-list li a strong {
   display: block;
 }
-#sidebar ul#sidebar-list li a span,#sidebar-bus-list li a span  {
+#sidebar ul#sidebar-list li a span,#sidebar ul#sidebar-bus-list li a span  {
   font-style: italic;
   font-size: 7px;
 }
 
-#sidebar ul#sidebar-list,#sidebar-bus-list {
+#sidebar ul#sidebar-list,#sidebar ul#sidebar-bus-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
+li.route-explain{
+  font-family:Trebuchet MS, serif;
+  color:black;
+  padding:1px;
+  font-size:12px;
+  background: #F9A910;
+  margin-left:5px;
+  margin-top:5px;
+  margin-right:5px;
+/**/
+}
+
+b.header{
+  font-family:Trebuchet MS, serif;
+  color:black;
+  font-size:14px;
+}
+
+table{
+border-collapse:collapse;
+}
+td{
+text-align:left;
+width:50%;
+}
 /*
 body.sidebar-off #sidebar { display: none; }
 body.sidebar-off #map-wrapper { margin-right: 0px; }*/
@@ -145,14 +193,18 @@ body.sidebar-off #map-wrapper { margin-right: 0px; }*/
 #footer{
   height: 20px;
   width: 99%;
-  bottom: 0;
+  bottom: 2px;
   right: 20px;
   left: 10px;
   clear:both;
   position:absolute;
-  color:black;
+  color:white;
   border: 1px solid black;
-  background: white;
+  text-align:center;
+  font-family:Trebuchet MS, serif;
+  background: #4F5D74;
+  font-size:12px;
+  z-index:-1;
 }
 
 
@@ -163,6 +215,7 @@ body.sidebar-off #map-wrapper { margin-right: 0px; }*/
   color:black;
   padding:3px;
   font-size:13px;
+  z-index:1;
 }
 
 .icon{
@@ -176,7 +229,7 @@ a:hover div {
   background:#CED1D7;
 }
 
-#inputArea {
+#inputArea{
   position:absolute;
   font-family:Trebuchet MS, serif;
   color:#FFFFFF;
@@ -186,6 +239,7 @@ a:hover div {
   left: 19px;
   padding: 4px;
 }
+
 
 #inputArea input[type="text"], #inputArea textarea
 {
@@ -214,59 +268,4 @@ label {
   margin-left:8px;
   padding: 2px 8px;
 }
-
-
-/*TOOLBAR*/
-/*
-#toolbar-wrapper{
-  margin-right:310px;
-  position:relative;
-}*/
-/*Poner position:absolute hace que no se muestre en el toolbar-wrapper*/
-/*#toolbar {
-  position: absolute;
-  position:relative;
-  top: 20px;
-  left: 60px;
-  width: 100%;
-  height: 150px;
-  padding: 5px;
-  background: white;
-  border: 1px solid black;
-}*/
-/*END OF TOOLBAR*/
-
-/*
-#toolbar h1 {
-     margin: 0;
-     font: bold 18px Helvetica, sans-serif;
-}
-
-#toolbar ul {
-     list-style: none;
-     padding: 0;
-     margin: 0;
-}
-
-#toolbar ul li {
-     display: inline;
-}
-
-#toolbar ul li a {
-     padding: 3px 6px;
-     color: #444;
-     text-decoration: none;
-     font-size: 12px;
-}
-
-#toolbar ul li a:hover {
-     color: #aaa;
-     background: #444;
-}
-
-#toolbar ul#sidebar-controls {
-	position: absolute;
-	bottom: 5px;
-	right: 5px;
-}*/
 
