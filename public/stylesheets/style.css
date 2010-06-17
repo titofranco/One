@@ -40,7 +40,7 @@ html,body {
 #inputBoxes{
   position:absolute;
   width:300px;
-  height: 180px;
+  height: 120px;
   right: -300px;
   top:10px;
   z-index:1;
@@ -51,7 +51,8 @@ html,body {
   width:280px;
   margin-left:20px;
   text-align:left;
-  top:124px;
+  top:126px;
+  margin-top:2px;
   font-family:Trebuchet MS, serif;
   font-size:14px;
   position:absolute;
@@ -203,6 +204,7 @@ body.sidebar-off #map-wrapper { margin-right: 0px; }*/
   font-family:Trebuchet MS, serif;
   background: #4F5D74;
   font-size:12px;
+  z-index:-1;
 }
 
 
@@ -213,6 +215,7 @@ body.sidebar-off #map-wrapper { margin-right: 0px; }*/
   color:black;
   padding:3px;
   font-size:13px;
+  z-index:1;
 }
 
 .icon{
@@ -265,59 +268,4 @@ label {
   margin-left:8px;
   padding: 2px 8px;
 }
-
-
-/*TOOLBAR*/
-/*
-#toolbar-wrapper{
-  margin-right:310px;
-  position:relative;
-}*/
-/*Poner position:absolute hace que no se muestre en el toolbar-wrapper*/
-/*#toolbar {
-  position: absolute;
-  position:relative;
-  top: 20px;
-  left: 60px;
-  width: 100%;
-  height: 150px;
-  padding: 5px;
-  background: white;
-  border: 1px solid black;
-}*/
-/*END OF TOOLBAR*/
-
-/*
-#toolbar h1 {
-     margin: 0;
-     font: bold 18px Helvetica, sans-serif;
-}
-
-#toolbar ul {
-     list-style: none;
-     padding: 0;
-     margin: 0;
-}
-
-#toolbar ul li {
-     display: inline;
-}
-
-#toolbar ul li a {
-     padding: 3px 6px;
-     color: #444;
-     text-decoration: none;
-     font-size: 12px;
-}
-
-#toolbar ul li a:hover {
-     color: #aaa;
-     background: #444;
-}
-
-#toolbar ul#sidebar-controls {
-	position: absolute;
-	bottom: 5px;
-	right: 5px;
-}*/
 
