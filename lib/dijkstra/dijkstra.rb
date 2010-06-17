@@ -1,19 +1,16 @@
 require 'rubygems'
 require 'algorithms'
+#require 'haversine'
 
 class Dijkstra
   def self.encontrarCamino arrayCalles,inicio,destino
     numCalles = arrayCalles.length
     nodoI = arrayCalles[inicio]
     nodoD = arrayCalles[destino]
-    puts nodoI.to_s
-    puts nodoD.to_s
     h = Haversine.new
     distanciaMax =
   h.distanceHarvesine(nodoI.lati,nodoI.longi,nodoD.lati,nodoD.longi)
-    puts distanciaMax
     distanciaMax = distanciaMax + (distanciaMax/3)
-    puts distanciaMax
     dist = Array.new(numCalles,Float::MAX)
     prev = Array.new(numCalles,nil)
     heap = Containers::MinHeap.new
@@ -46,25 +43,7 @@ class Dijkstra
       camino.unshift destino
       destino = prev[destino]
     end
-    camino.unshift inicio
-
-    #--
-    if false
-      puts "escribiendo en el archivo"
-      cont = 0
-      str = ""
-      dist.each_with_index{ |d,i|
-        if d != Float::MAX
-        str = str + "#{cont.to_s}: #{d.to_s} f #{prev[i].to_s}\n"
-      end
-        cont = cont.next
-      }
-      f = File.new("#{inicio}.txt","w+")
-      f.write str
-      f.close
-    end
-    #--
-
+    camino.unshift inicio if camino.size > 0
     return camino
   end
 

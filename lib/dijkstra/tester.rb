@@ -1,34 +1,18 @@
+# require 'parser'
+# require 'dijkstra'
+
 puts "parsing..."
 streets = Parser.getGrafo "listas.txt"
 puts "numero de calles: #{streets.size}"
 #Carlos-Joan
-puts "camino de 45385 a 45569"
+inicio = 26918
+destino = 20736
+puts "camino de #{inicio} a #{destino}"
 puts "inicio: #{Time.now}"
-camino = Dijkstra.encontrarCamino streets,4456,4265
+camino = Dijkstra.encontrarCamino streets,inicio,destino
 puts "fin: #{Time.now}"
 puts camino.inspect
 puts camino.size
-
-#Joan-Carlos
-# puts "inicio: #{Time.now}"
-# camino = Dijkstra.encontrarCamino streets,6499,20235
-# puts "fin: #{Time.now}"
-# puts camino.inspect
-# puts camino.size
-
-#ruta 4
-# puts "inicio: #{Time.now}"
-# camino = Dijkstra.encontrarCamino streets,30060,13729
-# puts "fin: #{Time.now}"
-# puts camino.inspect
-# puts camino.size
-
-#test
-# puts "inicio: #{Time.now}"
-# camino = Dijkstra.encontrarCamino streets,12668,6499
-# puts "fin: #{Time.now}"
-# puts camino.inspect
-# puts camino.size
 
 f = File.new("camino.txt","w+")
 camino.each{ |l|

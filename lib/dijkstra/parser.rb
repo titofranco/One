@@ -1,3 +1,5 @@
+#require 'calle'
+
 class Parser
   def self.getGrafo rutaArchivo
     grafo = Array.new
