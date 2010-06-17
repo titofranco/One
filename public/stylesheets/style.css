@@ -96,7 +96,7 @@ html,body {
   margin: 10px;
 }
 
-#sidebar ul#sidebar-list li a,#sidebar-bus-list li a {
+#sidebar ul#sidebar-list li a,#sidebar ul#sidebar-bus-list li a {
   display: block;
   border: 1px solid #ddd;
   background: #CED1D7;
@@ -108,9 +108,9 @@ html,body {
   color: #444;
 }
 
-#sidebar ul#sidebar-list li.current a,#sidebar-bus-list li.current a {
+#sidebar ul#sidebar-list li.current a,#sidebar ul#sidebar-bus-list li.current a {
   background-color: #4F5D74;
-  border: 1px solid #444;
+  border: 1px solid white;
   border-left-width: 3px;
   padding-left: 2px;
   font-size:14px;
@@ -118,24 +118,35 @@ html,body {
   color: white;
 }
 
-#sidebar ul#sidebar-list li a:hover,#sidebar-bus-list li a:hover {
+#sidebar ul#sidebar-list li a:hover,#sidebar ul#sidebar-bus-list li a:hover {
   background: white;
   color: #555;
 }
 
 
-#sidebar ul#sidebar-list li a strong,#sidebar-bus-list li a strong {
+#sidebar ul#sidebar-list li a strong,#sidebar ul#sidebar-bus-list li a strong {
   display: block;
 }
-#sidebar ul#sidebar-list li a span,#sidebar-bus-list li a span  {
+#sidebar ul#sidebar-list li a span,#sidebar ul#sidebar-bus-list li a span  {
   font-style: italic;
   font-size: 7px;
 }
 
-#sidebar ul#sidebar-list,#sidebar-bus-list {
+#sidebar ul#sidebar-list,#sidebar ul#sidebar-bus-list {
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+li.route-explain{
+  font-family:Trebuchet MS, serif;
+  color:black;
+  padding:1px;
+  font-size:12px;
+  background: #F9A910;
+  margin-left:4px;
+  margin-top:4px;
+/**/
 }
 
 /*
@@ -176,7 +187,7 @@ a:hover div {
   background:#CED1D7;
 }
 
-#inputArea {
+#inputArea{
   position:absolute;
   font-family:Trebuchet MS, serif;
   color:#FFFFFF;
@@ -186,6 +197,7 @@ a:hover div {
   left: 19px;
   padding: 4px;
 }
+
 
 #inputArea input[type="text"], #inputArea textarea
 {

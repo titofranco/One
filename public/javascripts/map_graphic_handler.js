@@ -173,18 +173,19 @@ function setLatLngMarkers(lat_start,long_start,lat_end,long_end){
 
 //Adiciona el li correspondiente a cada ruta de bus al panel derecho (sidebar)
 function addBusesSidebar(buses_hash){
-  var explain_='';
+  var explain ='';
   var size = Object.size(buses_hash);
+  explain = '<hr><li class="route-explain">Indicación de ruta de bus cercana</li>';
   for(var i=0;i<size-1;i++){
     if(buses_hash[i].bus_id != buses_hash[i+1].bus_id){
       // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
-      explain_ += '<li id=sidebar-item-'+(buses_hash[i].bus_id+99999)+' >'+
+      explain += '<li id=sidebar-item-'+(buses_hash[i].bus_id+99999)+' >'+
                   '<a href="#" onclick="javascript:drawSelectedPolyline_bus('+buses_hash[i].bus_id+')">'+
                   "Ruta numero " + buses_hash[i].bus_id + "</a></li>";
     }
   }
   var div_sidebar_bus_list = document.getElementById("sidebar-bus-list");
-  div_sidebar_bus_list.innerHTML=explain_;
+  div_sidebar_bus_list.innerHTML=explain;
 }
 
 //Explica la ruta a tomar y la pone en el panel derecho (sidebar)
@@ -197,10 +198,11 @@ function explainRoute(infoRouteHash){
   var estacion_metro=false;
   //console.debug("El tamaño del hash: " + size);
   var j=1;
+  explain = '<li class="route-explain">Indicaciones de ruta a pie para llegar a tu lugar de destino</li>';
   for(var i=0;i<size-1;i++){
 
     if(first_node){
-      explain = '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + "Dirigete en dirección <b>" + infoRouteHash[i].direction + "</b> hacia la "
       +"<b>"+ infoRouteHash[i].way_type_b +  " " +
        infoRouteHash[i].street_name_b +  " (metros:" + infoRouteHash[i].distance + ")" + "</b></a></li>";

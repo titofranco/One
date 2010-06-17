@@ -55,7 +55,7 @@ function handleResize(){
 function validar(form){
   var validate = checkform(form);
   if(validate) {
-    //findRoute();
+    findRoute();
     findBus();
   }
 }
