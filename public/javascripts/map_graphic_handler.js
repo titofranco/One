@@ -175,7 +175,8 @@ function setLatLngMarkers(lat_start,long_start,lat_end,long_end){
 function addBusesSidebar(buses_hash){
   var explain ='';
   var size = Object.size(buses_hash);
-  explain = '<hr><li class="route-explain">Indicación de ruta de bus cercana</li>';
+  explain = '<hr><li class="route-explain">'+
+            '<b class="header">Indicación de ruta de bus cercana</b></li>';
   for(var i=0;i<size-1;i++){
     if(buses_hash[i].bus_id != buses_hash[i+1].bus_id){
       // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
@@ -196,9 +197,16 @@ function explainRoute(infoRouteHash){
   var turn;
   var first_node=true;
   var estacion_metro=false;
+  var total_distance;
+  total_distance = getTotalDistanceRoute(infoRouteHash,size);
+  total_time = getTimeAprox(total_distance);
   //console.debug("El tamaño del hash: " + size);
   var j=1;
-  explain = '<li class="route-explain">Indicaciones de ruta a pie para llegar a tu lugar de destino</li>';
+  explain = '<li class="route-explain">'
+  +'<b class="header">Indicaciones de ruta a pie para llegar a tu lugar de destino</b>'
+  +'<table><br><tr><td><b>Distancia aproximada: </b></td><td>' + total_distance + ' metros</td></tr>'
+  +'<tr><td><b>Tiempo aproximado caminando a 3km/h: </b></td><td>' + total_time + ' minutos</td></tr>'
+  +'</table></li>';
   for(var i=0;i<size-1;i++){
 
     if(first_node){
@@ -276,6 +284,20 @@ function explainRoute(infoRouteHash){
   var div_sidebar_list = document.getElementById("sidebar-list");
   div_sidebar_list.innerHTML=explain;
 
+}
+
+function getTotalDistanceRoute(infoRouteHash,size){
+  var total_distance=0;
+  for (var i=0;i<size;i++){
+    total_distance+=infoRouteHash[i].distance
+  }
+  return Math.round(total_distance*100)/100;
+}
+
+function getTimeAprox(total_distance){
+  var time_aprox;
+  time_aprox=(total_distance*60)/3000;
+  return Math.round(time_aprox);
 }
 
 //Crea el form donde va a estar el Origen y Destino

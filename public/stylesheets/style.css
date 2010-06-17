@@ -144,11 +144,24 @@ li.route-explain{
   padding:1px;
   font-size:12px;
   background: #F9A910;
-  margin-left:4px;
-  margin-top:4px;
+  margin-left:5px;
+  margin-top:5px;
 /**/
 }
 
+b.header{
+  font-family:Trebuchet MS, serif;
+  color:black;
+  font-size:14px;
+}
+
+table{
+border-collapse:collapse;
+}
+td{
+text-align:left;
+width:50%;
+}
 /*
 body.sidebar-off #sidebar { display: none; }
 body.sidebar-off #map-wrapper { margin-right: 0px; }*/

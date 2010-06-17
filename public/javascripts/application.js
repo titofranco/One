@@ -345,7 +345,7 @@ function parseContent(content){
     var street_name_a = content[i].street_name_a;
     var prefix_a      = content[i].prefix_a;
     var common_name_a = content[i].common_name_a;
-    var distance      = String(content[i].distance).substring(0,5);
+    var distance      = Math.round(content[i].distance*100)/100;
     var label_a       = content[i].label_a;
     var way_type_b    = content[i].way_type_b;
     var street_name_b = content[i].street_name_b;
