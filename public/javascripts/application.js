@@ -399,6 +399,8 @@ function parseContent(content){
   //Se adiciona el ulitmo trayecto
   latlng_street.push(new GLatLng(lat_end,long_end));
 
+  document.getElementById("initial_point").value=infoRouteHash[0].way_type_a +' '+infoRouteHash[0].street_name_a;
+  document.getElementById("end_point").value=way_type_b+' '+street_name_b;
   //Se eliminar los overlays existentes, en caso tal se haga otro llamado al controlador
   clearExistingOverlays();
 
