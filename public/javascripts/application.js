@@ -255,6 +255,8 @@ function findRoute(){
        if(!success) {alert(content);}
        else{
          parseContent(content);
+         //Esconde la explicación de la aplicación
+         $('#explain').hide();
          //Una vez se encuentre la ruta, se procede a buscar las rutas de buses más cercanas
          findBus();
        }

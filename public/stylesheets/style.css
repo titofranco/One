@@ -22,7 +22,7 @@ html,body {
 
 #toolbar-wrapper{
   position:relative;
-
+  margin-right:300px;
 }
 
 #toolbar {
@@ -40,10 +40,32 @@ html,body {
 #inputBoxes{
   position:absolute;
   width:300px;
-  height: 90px;
+  height: 180px;
   right: -300px;
   top:10px;
   z-index:1;
+}
+
+#explain{
+  color:black;
+  width:280px;
+  margin-left:20px;
+  text-align:left;
+  top:124px;
+  font-family:Trebuchet MS, serif;
+  font-size:14px;
+  position:absolute;
+  background: #F9A910;
+}
+
+a.normal_text:visited{
+  color:black;
+  font-style:italic
+}
+
+/*Si lo pongo así, no me genera el underline*/
+a.normal_text:visited{
+  text-decoration:none
 }
 
 /*MAP*/
