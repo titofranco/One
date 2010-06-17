@@ -84,8 +84,8 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
   //6.2201673770;-75.6076627160; casa de joan
-  var centerLatitude =  6.277413845000;
-  var centerLongitude = -75.589492305;
+  var centerLatitude =  6.26350;
+  var centerLongitude = -75.58676;
   var startZoom = 14;
   var lat;
   var lng;

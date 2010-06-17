@@ -20,9 +20,9 @@ function getDirection(bearing){
 
   if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
   {direction="Norte"}
-  else if (bearing > 22.5 && bearing <= 66.5 ){direction="Nororiente"}
-  else if (bearing > 66.5 && bearing <= 117 ){direction="Oriente"}
-  else if (bearing > 117 && bearing <= 157.5 ){direction="Suroriente"}
+  else if (bearing > 22.5 && bearing <= 67.5 ){direction="Nororiente"}
+  else if (bearing > 67.5 && bearing <= 112.5 ){direction="Oriente"}
+  else if (bearing > 112.5 && bearing <= 157.5 ){direction="Suroriente"}
   else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
   else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroccidente"}
   else if (bearing > 247.5 && bearing <= 292.5 ){direction="Occidente"}
@@ -30,6 +30,25 @@ function getDirection(bearing){
 
   return direction;
 }
+
+//Funcion que compara con los grados que hay entre un registro y otro.
+//Se hace esto porque por ejemplo si el registro i tiene 22.5 grados y el registro
+//(i-1) tiene 22 grados entonces a la hora de explicar va a decir que hay que voltear
+//cuando en realidad debe seguir es derecho, se va tomar un valor base de +- 5 grados
+/*function reAssingDirection(infoRouteHash,size){
+  var bearing_dif;
+  var prev_dir;
+  var curr_dir;
+  for (var i=1;i<size,i++){
+    bearing_dif = infoRouteHash[i] - infoRouteHash[i-1];
+    prev_dir = infoRouteHash[i-1].direction;
+    curr_dir = infoRouteHash[i].direction;
+    //Caso en el que el actual es mayor es que el anterior
+    if( (bearing_dif>0 && bearing_dif<=5) && (curr_dir != prev_dir ) ){
+       infoRouteHash
+    }
+  }
+}*/
 
 
 /*FUNCIONES PARA SABER QUE DIRECCION DEBO TOMAR DADO 2 PUNTOS CARDINALES*/
