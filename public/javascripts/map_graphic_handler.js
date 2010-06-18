@@ -197,90 +197,129 @@ function explainRoute(infoRouteHash){
   var turn;
   var first_node=true;
   var estacion_metro=false;
-  var total_distance;
-  total_distance = getTotalDistanceRoute(infoRouteHash,size);
-  total_time = getTimeAprox(total_distance);
-  //console.debug("El tamaño del hash: " + size);
+  var curr_dir;
+  var prev_dir;
+  var curr_stretch_type;
+  var prev_stretch_type;
+  var curr_bearing;
+  var prev_bearing;
+  var total_distance = getTotalDistanceRoute(infoRouteHash,size);
+  var total_time = getTimeAprox(total_distance);
+  //La variable j indica el número de pasos que requiere el algoritmo
   var j=1;
+  console.debug("el tamaño del hash " + size);
+  //Estas son las estadisticas de la ruta
   explain = '<li class="route-explain">'
   +'<b class="header">Indicaciones de ruta a pie para llegar a tu lugar de destino</b>'
   +'<table><br><tr><td><b>Distancia aproximada: </b></td><td>' + total_distance + ' metros</td></tr>'
   +'<tr><td><b>Tiempo aproximado caminando a 3km/h: </b></td><td>' + total_time + ' minutos</td></tr>'
   +'</table></li>';
   for(var i=0;i<size-1;i++){
+    //Asigno (direccion y stretch_type) actual y anterior
+    //evaluo debo seguir derecho
+    if(i>0){
+      prev_stretch_type = infoRouteHash[i-1].stretch_type;
+      curr_stretch_type = infoRouteHash[i].stretch_type;
+      prev_bearing = infoRouteHash[i-1].bearing;
+      curr_bearing = infoRouteHash[i].bearing;
+      prev_dir = infoRouteHash[i-1].direction;
+      curr_dir = reAssingDirection(prev_dir,infoRouteHash[i].direction,prev_bearing,curr_bearing);
+
+      if(prev_dir==curr_dir){
+        continueStraight=true;
+      }
+    }
 
     if(first_node){
-      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
-      j + ". " + "Dirigete en dirección <b>" + infoRouteHash[i].direction + "</b> hacia la "
-      +"<b>"+ infoRouteHash[i].way_type_b +  " " +
-       infoRouteHash[i].street_name_b +  " (metros:" + infoRouteHash[i].distance + ")" + "</b></a></li>";
-       first_node=false;
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'
+      +j + ". " + "Dirigete en dirección <b>" + infoRouteHash[i].direction + "</b> hacia la "
+      +"<b>"+ infoRouteHash[i].way_type_b +  " "
+      +infoRouteHash[i].street_name_b +  " (metros:" + infoRouteHash[i].distance + ")" + "</b></a></li>";
+      first_node=false;
     }
-    else if((infoRouteHash[i-1].direction==infoRouteHash[i].direction) && continueStraight==false && infoRouteHash[i].stretch_type=='1'){
+    /*else if((prev_dir==curr_dir) && continueStraight==false && curr_stretch_type=='1'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
       j + ". " + "Sigue derecho en dirección: <b> " + infoRouteHash[i].direction + "</b> por la: " +
       "<b>"+ infoRouteHash[i].way_type_b +  " " +
       infoRouteHash[i].street_name_b + " (metros:" + infoRouteHash[i].distance + ")" +"</b></a></li>" ;
 
-      if(infoRouteHash[i].direction==infoRouteHash[i+1].direction)
+      if(curr_dir==infoRouteHash[i+1].direction)
       continueStraight=true;
+    }*/
+
+    else if(continueStraight==true && (prev_dir==curr_dir) && curr_stretch_type=='1'){
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">'
+      +j + ". Continúa por: " + "<b>"+ infoRouteHash[i].way_type_b +  " "
+      +infoRouteHash[i].street_name_b + " (metros: " + infoRouteHash[i].distance + ")</b></a></li>";
     }
-    else if(continueStraight==true && (infoRouteHash[i-1].direction==infoRouteHash[i].direction) && infoRouteHash[i].stretch_type=='1'){
-      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-      j + ". " + "Continúa por: " + "<b>"+ infoRouteHash[i].way_type_b +  " " +
-      infoRouteHash[i].street_name_b + " (metros:" + infoRouteHash[i].distance + ")" +"</b></a></li>" ;
+    else if ( (prev_dir != curr_dir) && curr_stretch_type=='1'){
+      turn = eval_direction(infoRouteHash[i-1].direction,infoRouteHash[i].direction)
+
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">'
+      +j + ". Voltear " + "<b>"+ turn+"</b> por <b>"+ infoRouteHash[i].way_type_b +  " "
+      +infoRouteHash[i].street_name_b + " (metros: " + infoRouteHash[i].distance + ")</b></a></li>";
+      continueStraight = false;
     }
-    /*else if(infoRouteHash[i-1].stretch_type=='1' && infoRouteHash[i].stretch_type=='4'){
+
+    //SE EXPLICA RUTA PARA ESTACION DEL METRO
+    //Este primer else if no es viable porque despues de un tipo 4 puede haber un tipo 1
+    /*else if(prev_stretch_type=='1' && curr_stretch_type=='4'){
       explain += '<li><a href="#" onclick="javascript:focusPoint('+(i)+')">' +
       "Dirigete hacia el <b>" + infoRouteHash[i].street_name_a + "</b></a></li>" ;
     }*/
-    else if ( (infoRouteHash[i-1].direction != infoRouteHash[i].direction) && infoRouteHash[i].stretch_type=='1'){
-      turn = eval_direction(infoRouteHash[i-1].direction,infoRouteHash[i].direction)
-
-      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">' +
-      j + ". " +"Voltear " + "<b>"+ turn+"</b>" + " por " +
-      "<b>"+ infoRouteHash[i].way_type_b +  " " +
-      infoRouteHash[i].street_name_b + " (metros:" + infoRouteHash[i].distance + ")" +"</b></a></li>";
-      continueStraight = false;
-    }
-    else if(infoRouteHash[i-1].stretch_type=='4' && infoRouteHash[i].stretch_type=='3'){
-      //alert("metro true");
+    //Si va en un trayecto o puente y se encuentre con el inicio de una estación entonces
+    //indica que el algoritmo cogió por el metro
+    else if(prev_stretch_type=='4' && curr_stretch_type=='3'){
       estacion_metro=true;
     }
-    else if((infoRouteHash[i-1].stretch_type=='3' && infoRouteHash[i].stretch_type=='2') && estacion_metro==true){
-      alert("hola hola");
-      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusMetro('+infoRouteHash[i-1].related_id+')">'
-      j + ". " + 'Ve de la estación <b> ' + infoRouteHash[i-1].common_name_a +
-      " (metros:" + infoRouteHash[i].distance + ")" + '</b>';
-      //console.debug("hola 1 " + explain );
+    //El stretch_type 2 indica que está en un tramo del metro
+    else if((prev_stretch_type=='3' && curr_stretch_type=='2') && estacion_metro==true){
+      explain += '<li id=sidebar-item-'+i+' >'
+      +'<a href="#" onclick="javascript:focusMetro('+infoRouteHash[i-1].related_id+')">'
+      +j + ". Ve de la estación <b> " + infoRouteHash[i-1].common_name_a;
     }
-    else if(estacion_metro==true && (infoRouteHash[i-1].stretch_type=='2' && infoRouteHash[i].stretch_type=='3')) {
+    //Si encuentró un stretch_type 3 quiere decir que llegó al final de una estación
+    else if(estacion_metro==true && (prev_stretch_type=='2' && curr_stretch_type=='3')) {
       explain += ' hasta la estación <b>'+infoRouteHash[i].common_name_a+'</b></a></li>';
-      //console.debug("hola 2 " + explain);
     }
-    else if(infoRouteHash[i-1].stretch_type=='3' && infoRouteHash[i].stretch_type=='4'){
+    //Si encontró un stretch_type 4 es porque se bajó del metro y va hacia alguna calle
+    else if(prev_stretch_type=='3' && curr_stretch_type=='4'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
-      j + ". " + 'Baja de la estación ' + infoRouteHash[i-1].common_name_a +
+      j + ". Baja de la estación " + infoRouteHash[i-1].common_name_a +
       " dirigete por el <b>"+ infoRouteHash[i].common_name_b +  " " +
-      infoRouteHash[i].street_name_a + " (metros:" + infoRouteHash[i].distance + ")" + "</b></a></li>";
+      infoRouteHash[i].street_name_a + " (metros:" + infoRouteHash[i].distance + ")</b></a></li>";
       estacion_metro=false;
     }
     j++;
   }
-  if(size>1){
+ //Si se tiene mas de 2 nodos entonces se procede a finalizar la explicacion
+ //de la ruta
+ if(size>1){
   var end;
-
   if(infoRouteHash[size-2].direction==infoRouteHash[size-1].direction){
-    end=j + ". " +'Continúa hasta encontrar tu lugar de destino' +"<b> (" + infoRouteHash[i].distance + ")m</b>";
+    end = j + ". " +'Continúa hasta encontrar tu lugar de destino' +
+          "<b> (metros: " + infoRouteHash[i].distance + ")</b>";
   }
   else {
-    turn = eval_direction(infoRouteHash[size-2].direction,infoRouteHash[size-1].direction)
+    turn = eval_direction(infoRouteHash[size-2].direction,infoRouteHash[size-1].direction);
     end = j + ". " + 'Voltea <b> '+ turn +'</b> hasta llegar a tu lugar destino </b>' +
-    "<b> (" + infoRouteHash[i].distance + ")m</b>" ;
+    "<b> (metros: " + infoRouteHash[i].distance + ")</b>" ;
   }
-  explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(size-1)+')"> '+end+'</a></li>';
+  explain += '<li id=sidebar-item-'+i+' >'+
+             '<a href="#" onclick="javascript:focusPoint('+(size-1)+')">'+
+             end+'</a></li>';
   }
-  //console.debug("La respuesta de direccion \n: " + explain);
+  //En caso tal la ruta sólo tenga una arista
+  else{
+    explain += '<li id=sidebar-item-'+0+' >'+
+               '<a href="#" onclick="javascript:focusPoint('+0+')">'+
+               "1. Dirigete en dirección <b>" + infoRouteHash[i].direction +
+               "</b> hacia la <b>" + infoRouteHash[i].way_type_b +  " " +
+                infoRouteHash[i].street_name_b + "</b> hasta llegar a tu lugar de destino (metros: "
+                + infoRouteHash[i].distance + ")</b></a></li>";
+  }
+
+  //Se adiciona el HTML al panel derecho
   var div_sidebar_list = document.getElementById("sidebar-list");
   div_sidebar_list.innerHTML=explain;
 
