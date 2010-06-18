@@ -84,9 +84,9 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
   //6.2201673770;-75.6076627160; casa de joan
-  var centerLatitude =  6.26350;
-  var centerLongitude = -75.58676;
-  var startZoom = 14;
+  var centerLatitude =  6.25420;
+  var centerLongitude = -75.57473;
+  var startZoom = 17;
   var lat;
   var lng;
   //Variables utilizadas para limitar a que se cree sólo un marker
@@ -101,7 +101,7 @@ $(document).ready(function(){
     centerLongitude = google.loader.ClientLocation.longitude;
   }
 */
-  map.setCenter(new GLatLng(centerLatitude,centerLongitude),17);
+  map.setCenter(new GLatLng(centerLatitude,centerLongitude),startZoom);
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
 

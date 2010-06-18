@@ -201,6 +201,8 @@ function explainRoute(infoRouteHash){
   var prev_dir;
   var curr_stretch_type;
   var prev_stretch_type;
+  var curr_bearing;
+  var prev_bearing;
   var total_distance = getTotalDistanceRoute(infoRouteHash,size);
   var total_time = getTimeAprox(total_distance);
   //La variable j indica el número de pasos que requiere el algoritmo
@@ -216,10 +218,13 @@ function explainRoute(infoRouteHash){
     //Asigno (direccion y stretch_type) actual y anterior
     //evaluo debo seguir derecho
     if(i>0){
-      curr_dir = infoRouteHash[i].direction;
-      prev_dir = infoRouteHash[i-1].direction;
-      curr_stretch_type = infoRouteHash[i].stretch_type;
       prev_stretch_type = infoRouteHash[i-1].stretch_type;
+      curr_stretch_type = infoRouteHash[i].stretch_type;
+      prev_bearing = infoRouteHash[i-1].bearing;
+      curr_bearing = infoRouteHash[i].bearing;
+      prev_dir = infoRouteHash[i-1].direction;
+      curr_dir = reAssingDirection(prev_dir,infoRouteHash[i].direction,prev_bearing,curr_bearing);
+
       if(prev_dir==curr_dir){
         continueStraight=true;
       }

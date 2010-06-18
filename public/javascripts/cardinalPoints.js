@@ -34,21 +34,25 @@ function getDirection(bearing){
 //Funcion que compara con los grados que hay entre un registro y otro.
 //Se hace esto porque por ejemplo si el registro i tiene 22.5 grados y el registro
 //(i-1) tiene 22 grados entonces a la hora de explicar va a decir que hay que voltear
-//cuando en realidad debe seguir es derecho, se va tomar un valor base de +- 5 grados
-/*function reAssingDirection(infoRouteHash,size){
+//cuando en realidad debe seguir es derecho, se va tomar un valor base de +- 15 grados
+function reAssingDirection(prev_dir,curr_dir,prev_bearing,curr_bearing){
   var bearing_dif;
-  var prev_dir;
-  var curr_dir;
-  for (var i=1;i<size,i++){
-    bearing_dif = infoRouteHash[i] - infoRouteHash[i-1];
-    prev_dir = infoRouteHash[i-1].direction;
-    curr_dir = infoRouteHash[i].direction;
-    //Caso en el que el actual es mayor es que el anterior
-    if( (bearing_dif>0 && bearing_dif<=5) && (curr_dir != prev_dir ) ){
-       infoRouteHash
-    }
+  var new_direction;
+
+  bearing_dif = curr_bearing - prev_bearing;
+  //Caso en el que el actual es MAYOR que el anterior
+  if( (bearing_dif>0 && bearing_dif<=15) && (curr_dir != prev_dir) ){
+     new_direction = prev_dir;
+  }//Caso en el que el actual es MENOR que el anterior
+  else if( (bearing_dif<0 && bearing_dif>=-15) && (curr_dir != prev_dir)){
+     new_direction = prev_dir;
+  }//Caso en el que no se cumple ninguna condicion
+  else{
+    new_direction = curr_dir;
   }
-}*/
+  //console.debug("dir actual " + curr_dir+ " la direccion retornada " + new_direction);
+  return new_direction;
+}
 
 
 /*FUNCIONES PARA SABER QUE DIRECCION DEBO TOMAR DADO 2 PUNTOS CARDINALES*/
