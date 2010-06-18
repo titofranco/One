@@ -102,9 +102,6 @@ def calcular
                               :conditions=>["roadmap_id = ?",n.id])
           puts r.inspect
         end
-
-        puts "\nlas rutas qe se pueden coger son #{rutasInicio&rutasFinal}\n"
-        
       end
     end
   end
