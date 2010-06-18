@@ -5,8 +5,12 @@ class Roadmap < ActiveRecord::Base
   @end_point
   end
 
-  #Ambos queries tienen un radio equivalente a 500 metros equivalente a 0.310685596 millas
   def self.get_closest_init_point(lat_start,long_start)
+    nodo = self.get_closest_points(lat_start,long_start,1)
+    nodo
+  end
+  #Ambos queries tienen un radio equivalente a 500 metros equivalente a 0.310685596 millas
+  def self.get_closest_points(lat_start,long_start,numNodos)
     sql = "select id, dest.lat_start,dest.long_start,3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start+
           "-abs(dest.lat_start)) * pi()/180 / 2), 2) +  COS("+lat_start+" * pi()/180 ) *
           COS(abs(dest.lat_start) * pi()/180) * POWER(SIN(("+long_start+ "- dest.long_start) *
@@ -14,14 +18,13 @@ class Roadmap < ActiveRecord::Base
           FROM roadmaps dest
           where stretch_type = '1' and has_relation='S'
           having distance < 0.310685596
-          order by distance limit 1"
+          order by distance limit "+numNodos.to_s
     @init_point = find_by_sql(sql)
     @init_point
   end
-
   #Ambos queries tienen un radio equivalente a 500 metros equivalente a 0.310685596 millas
   def self.get_closest_end_point(lat_end,long_end)
-    sql = "select id,3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_end+ "-abs(dest.lat_start)) *
+    sql = "select id,lat_start,long_start,3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_end+ "-abs(dest.lat_start)) *
           pi()/180 / 2), 2) +  COS("+lat_end+" * pi()/180 ) *
           COS(abs(dest.lat_start) * pi()/180) * POWER(SIN(("+long_end+ "- dest.long_start) *
           pi()/180 / 2), 2) )) as  distance

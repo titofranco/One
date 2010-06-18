@@ -41,7 +41,7 @@ def calcular
     render :text=>res.to_json
   else
     closest_end_point = Roadmap.get_closest_end_point(lat_end,long_end)
-    if(closest_end_point.empty?)
+    if closest_end_point.empty? 
       res={:success=>false, :content=>"Debe de elegir un punto final más cercano"}
       render :text=>res.to_json
     else
@@ -69,34 +69,42 @@ def calcular
         resultadoquery = getRuta(lat_start,long_start,lat_end,long_end)
         res={:success=>true, :content=>resultadoquery}
         render :text=>res.to_json
-        #encontrar rutas
-        tabla = Hash.new
-        rutaOptima = Array.new
+
+        #encontrar rutas de buses
+        nodoInicial = Roadmap.find(:all,:select=>"id",
+                                   :conditions=>["lat_start = ? and long_start = ?",
+                                                 closest_init_point.first.lat_start,
+                                                 closest_init_point.first.long_start])
+
+        nodoFinal = Roadmap.find(:all,:select=>"id",
+                                   :conditions=>["lat_start = ? and long_start = ?",
+                                                 closest_end_point.first.lat_start,
+                                                 closest_end_point.first.long_start])
+
+        puts "nodos iniciales #{nodoInicial.inspect}"
+        puts "nodos finales #{nodoFinal.inspect}"
         
-        for n in camino
-          rutasPorN = BusesRoute.find(:all,:select=>"bus_id",
-                                      :conditions =>["roadmap_id = ?",n])
-          tempBus = ["-",n]
-          nodosComunes = 0
-          if rutasPorN.size > 0            
-            for r in rutasPorN
-              if tabla[r.bus_id.to_s]==nil
-                rutaBus = BusesRoute.find(:all,:select=>"roadmap_id",
-                                          :conditions =>["bus_id = ?",r.bus_id])
-                rr = rutaBus.collect{ |x| x.roadmap_id}
-                tabla[r.bus_id.to_s] = rr
-              end
-              arrayBus = tabla[r.bus_id.to_s]
-              u = camino&arrayBus 
-              if u.size > nodosComunes
-                tempBus = [r.bus_id,u.last]
-                n = u.last
-              end              
-            end
-          end
-          rutaOptima.push tempBus
+        b4 = BusesRoute.find(:all,:select=>"roadmap_id",:conditions=>["bus_id=4"])
+        puts "bus 4: #{b4.inspect}"
+        rutasFinal,rutasInicial = Array.new
+        puts "Inicio"
+        for n in nodoInicial 
+          puts "buscando para el nodo #{n.id}"
+          r = BusesRoute.find(:all,:select=>"bus_id",
+                              :conditions=>["roadmap_id = ?",n.id])
+          puts r.inspect
         end
-        puts "rutaOptima? #{rutaOptima.inspect}"
+
+        puts "Final"        
+        for n in nodoFinal
+          puts "buscando para el nodo #{n.id}"
+          r = BusesRoute.find(:all,:select=>"bus_id",
+                              :conditions=>["roadmap_id = ?",n.id])
+          puts r.inspect
+        end
+
+        puts "\nlas rutas qe se pueden coger son #{rutasInicio&rutasFinal}\n"
+        
       end
     end
   end
