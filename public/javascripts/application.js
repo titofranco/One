@@ -56,7 +56,6 @@ function validar(form){
   var validate = checkform(form);
   if(validate) {
     findRoute();
-    findBus();
   }
 }
 
@@ -84,8 +83,8 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
   //6.2201673770;-75.6076627160; casa de joan
-  var centerLatitude =  6.25420;
-  var centerLongitude = -75.57473;
+  var centerLatitude =  6.27210;
+  var centerLongitude = -75.56512;
   var startZoom = 17;
   var lat;
   var lng;
