@@ -248,16 +248,16 @@ function findRoute(){
            res=eval("(" + request.responseText + ")" );
            content=res.content;
            success=res.success;
+           bus = res.bus;
        }catch (e){
         success=false;
        }
        if(!success) {alert(content);}
        else{
          parseContent(content);
+        // parseContentBuses(bus);
          //Esconde la explicación de la aplicación
          $('#explain').hide();
-         //Una vez se encuentre la ruta, se procede a buscar las rutas de buses más cercanas
-         findBus();
        }
     }
   }
@@ -267,8 +267,8 @@ function findRoute(){
 
 //Hace la llamada asincrona al servidor para obtener las rutas de buses que son más cercanas a la ruta
 //entrega en el metodo findRoute()
-function findBus(){
-  var request = GXmlHttp.create();
+/*function findBus(request){
+ var request = GXmlHttp.create();
   request.open('GET', 'findRouteBuses',true);
   request.onreadystatechange = function() {
     if(request.readyState == 4){
@@ -278,6 +278,7 @@ function findBus(){
            res=eval("(" + request.responseText + ")" );
            content=res.content;
            success=res.success;
+           bus = res.bus;
        }catch (e){
         success=false;
        }
@@ -289,7 +290,7 @@ function findBus(){
   }
   request.send(null);
   return false;
-}
+}*/
 
 //La respuesta entrega por map controler es puesta en buses_hash y llama el metodo
 //addBusesSidebar para que a cada ruta de bus se le cree un elemento en el panel derecho
