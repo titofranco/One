@@ -7,8 +7,7 @@ class MapController < ApplicationController
     lat_start,long_start = params_initial_point.split(/,/)
     lat_end,long_end = params_end_point.split(/,/)
 
-    @closest_init_point =
-    Roadmap.get_closest_init_point(lat_start,long_start)
+    @closest_init_point = Roadmap.get_closest_init_point(lat_start,long_start)
     if(@closest_init_point.empty?)
       res={:success=>false, :content=>"Debe de elegir un punto inicial más cercano"}
       render :text=>res.to_json
@@ -27,11 +26,18 @@ class MapController < ApplicationController
         if @pathDijkstra.size == 0
           res={:success=>false, :content=>"Ruta no encontrada"}
           render :text=>res.to_json
-        else
-          resultadoquery = getRuta(lat_start,long_start,lat_end,long_end)
-          res={:success=>true, :content=>resultadoquery}
-          render :text=>res.to_json
+          return nil
         end
+        
+        infoPath = getInfoPath(lat_start,long_start,lat_end,long_end)
+       
+        busRoute = findUniqueBus
+        puts
+        infoBus = parserRouteBus busRoute
+        
+        res={:success=>true, :content=>infoPath, :bus=>infoBus}
+        render :text=>res.to_json
+        
       end
     end
   end
@@ -90,14 +96,12 @@ class MapController < ApplicationController
     rutasComunes.flatten
   end
   
-  def getRuta(lat_start,long_start,lat_end,long_end)
+  def getInfoPath(lat_start,long_start,lat_end,long_end)
     resultado = Roadmap.getRoute(@pathDijkstra,lat_start,long_start,lat_end,long_end)
     resultado
   end
 
   def findRouteBuses
-    busRoute = findUniqueBus
-    resultado_bus = parserRouteBus busRoute
     if resultado_bus.empty?
       res={:success=>false,:content=>"No se encontró ninguna ruta de bus"}
     else
