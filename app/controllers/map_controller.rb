@@ -22,13 +22,10 @@ class MapController < ApplicationController
         #Carlos-Joan
         puts "camino de #{closest_init_point.first.id} a #{closest_end_point.first.id}"
         puts "inicio: #{Time.now}"
-        camino = Dijkstra.encontrarCamino streets,closest_init_point.first.id,closest_end_point.first.id
+        @a = Dijkstra.encontrarCamino streets,closest_init_point.first.id,closest_end_point.first.id
         puts "fin: #{Time.now}"
-        #puts camino.inspect
-        puts camino.size
-        @a = camino
         #end dijkstra
-        if camino.size == 0
+        if @a.size == 0
           puts "ACA ES FALSO"
           res={:success=>false, :content=>"Ruta no encontrada"}
           render :text=>res.to_json
@@ -37,53 +34,77 @@ class MapController < ApplicationController
           resultadoquery = getRuta(lat_start,long_start,lat_end,long_end)
           res={:success=>true, :content=>resultadoquery}
           render :text=>res.to_json
-          
           #encontrar rutas de buses
-          nodoInicial = Roadmap.find(:all,:select=>"id,lat_start,long_start",
-                                     :conditions=>["lat_start = ? and long_start = ?",
-                                                   closest_init_point.first.lat_start,
-                                                   closest_init_point.first.long_start])
           
-          nodoFinal = Roadmap.find(:all,:select=>"id,lat_start,long_start",
-                                   :conditions=>["lat_start = ? and long_start = ?",
-                                                 closest_end_point.first.lat_start,
-                                                 closest_end_point.first.long_start])
-          
-          puts "nodos iniciales #{nodoInicial.inspect}"
-          puts "nodos finales #{nodoFinal.inspect}"
-          
-          rutasInicial = Array.new
-          rutasFinal = Array.new
-          puts "Inicio"
-          for n in nodoInicial 
-            nn = Roadmap.get_closest_points(n.lat_start.to_s,long_start.to_s,20)
-            for i in nn
-              r = BusesRoute.find(:all,:select=>"bus_id",
-                                  :conditions=>["roadmap_id = ?",i.id])
-              if r.size>0
-                rutasInicial.push r
-              end
-            end
+          @ruta = encontrarBusUnico closest_init_point,closest_end_point
+          puts @ruta==nil
+          if !@ruta
+            puts "gg, le toca coger varios buses"
+          else
+            
           end
-          
-          puts "Final"        
-          for n in nodoFinal
-            nn = Roadmap.get_closest_points(n.lat_start.to_s,long_start.to_s,20)
-            for i in nn
-              r = BusesRoute.find(:all,:select=>"bus_id",
-                                  :conditions=>["roadmap_id = ?",i.id])
-              if r.size>0
-                rutasFinal.push r
-              end
-            end
-          end
-          rutasComunes = rutasInicial&rutasFinal
-          puts "rutas en comun: #{rutasComunes.inspect}"
         end
       end
     end
   end
+
+  def omgBus
+    puts "oh hai, estoy en omgRuta"
+    resultado = Array.new
+    puts @ruta == nil
+    puts "tamano de @ruta: #{@ruta.size}"
+    for bus in @ruta
+      #puts "bus: #{bus.inspect}"
+      resultado.push(:id=>bus.id,
+                     :bus_id=>bus.bus_id,
+                     :lat_start=>bus.lat_start,
+                     :long_start=>bus.long_start)
+    end
+    puts "tan tan taaaaan"
+    puts resultado.inspect
+    resultado
+  end
   
+  def encontrarBusUnico puntoInicial,puntoFinal
+    nodoInicial = Roadmap.find(:all,:select=>"lat_start,long_start",
+                               :conditions=>["lat_start = ? and long_start = ?",
+                                             puntoInicial.first.lat_start,
+                                             puntoInicial.first.long_start])
+    
+    nodoFinal = Roadmap.find(:all,:select=>"lat_start,long_start",
+                             :conditions=>["lat_start = ? and long_start = ?",
+                                           puntoFinal.first.lat_start,
+                                           puntoFinal.first.long_start])
+    
+    # puts "nodos iniciales #{nodoInicial.inspect}"
+    # puts "nodos finales #{nodoFinal.inspect}"
+    
+    rutasInicial = Array.new
+    rutasFinal = Array.new
+    # puts "Inicio"
+    for n in nodoInicial 
+      nn = Roadmap.get_closest_points(n.lat_start.to_s,n.long_start.to_s,20)
+      for i in nn
+        r = BusesRoute.find(:all,:select=>"bus_id,id,lat_start,long_start",
+                            :conditions=>["roadmap_id = ?",i.id])
+        rutasInicial.push r if !r.empty?
+      end
+    end
+    
+    # puts "Final"        
+    for n in nodoFinal
+      nn = Roadmap.get_closest_points(n.lat_start.to_s,n.long_start.to_s,20)
+      for i in nn
+        r = BusesRoute.find(:all,:select=>"bus_id,id,lat_start,long_start",
+                            :conditions=>["roadmap_id = ?",i.id])
+        
+        rutasFinal.push r if !r.empty?
+      end
+    end
+    rutasComunes = (rutasInicial&rutasFinal).compact
+    puts "rutas en comun: #{rutasComunes.inspect}"
+    rutasComunes.flatten
+  end
   
   def getRuta(lat_start,long_start,lat_end,long_end)
     resultado = Roadmap.getRoute(@a,lat_start,long_start,lat_end,long_end)
@@ -94,7 +115,7 @@ class MapController < ApplicationController
   end
   
   def findRouteBuses
-    resultado_bus = BusesRoute.getOneBus
+    resultado_bus = omgBus
     if resultado_bus.empty?
       res={:success=>false,:content=>"No se encontró ninguna ruta de bus"}
     else
