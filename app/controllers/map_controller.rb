@@ -1,131 +1,106 @@
 class MapController < ApplicationController
 
-
-def initialize
-  @a = Array.new
-#Toda la linea B del metro
-#@a=["18022","17977","40026","40025","40024","40023","40022","40021","40020","40019","40018","40017","40016","40015","40014","40013","40012","40011","40010","40009","40008","40007","40006","40005","40004","40003","40002","40001","40000","39999","39998","39997","39996","39995","39994","39993","39992","39991","39990","39989","39988","39987","39986","39985","39984","39983","39982","39981","39980","39979","39978","39977","39976","39975","39974","39973","39972","39971","39970","39969","39968","39967","39966","39965","39964","39963","39962","39961","39960","39959","39958","39957","39956","39955","39954","39953","39952","39951","39950","39949","39948","39947","39946","39945","39944","39943","39942","39941","39940","39939","39938","39937","39936","39935","39934","39933","39932","39931","39930","39929","39928","39927","39926","39925","39924","39923","39922","39921","39920","39919","39918","39917","39916"]
-
-#Una estación del metro
-#@a=[" 18022","17977","40026","40025","40024","40023","40022","40021","40020","40019","40018","40017","40016","40015","40014","40013","40012","40011","40010","40009","40008","40007","40006","40005","40004","40003","40002","40001","40000","39999","39998","39997","39996","18179", "18292", "18436"]
-
-#Trayecto de prueba del metro
-#@a=["40026","40025","40024","40023","40022","40021","40020","40019","39996","39995"]
-#RUTA CON LA BD DE DATOS DONDE SE PONEN LOS NODOS DONDE CRUZA LA LAT-LONG INICIAL
-#@a=[20235, 20236, 19925, 19590, 19468, 19388, 19352, 19158, 18942, 18943, 18799, 18877, 18710, 18711, 18776, 18891, 19064, 18988, 18987, 19020, 19178, 19042, 19091, 18898, 18692, 18569, 18464, 18324, 18182, 18091, 18246, 18297, 18339, 18358, 18192, 18193, 18125, 17620, 17300, 17235, 17116, 16912, 16779, 16781, 16596, 16117, 15964, 15679, 15498, 15401, 15083, 14690, 14692, 14416, 14356, 14341, 14308, 14282, 14040, 13976, 13951, 13903, 13800, 13552, 13510, 13361, 13330, 13190, 13163, 13001, 13081, 13127, 13116, 13137, 13347, 13344, 13538, 13941, 13882, 13827, 13762, 13705, 13915, 13914, 13817, 13759, 13709, 13575, 13550, 13439, 13267, 13004, 12896, 12680, 12527, 12432, 12440, 12282, 12283, 12130, 11982, 11826, 11813, 11696, 11617, 11618, 11616, 11605, 11462, 11249, 11086, 10944, 10941, 10943, 11078, 11074, 11070, 11069, 10921, 10911, 10902, 10901, 10900, 10906, 10896, 10898, 10816, 10793, 10788, 10784, 10733, 10550, 10552, 10539, 10407, 10273, 10196, 10191, 10031, 10032, 10023, 10017, 9637, 9483, 9475, 9476, 9329, 9340, 9333, 9391, 9398, 9377, 9631, 9607, 9710, 9929, 9937, 9930, 9916, 9773, 9758, 9750, 9740, 9579, 9722, 9792, 9791, 9801, 10289, 10513, 10690, 10881, 11079, 11060, 11058, 11046, 11030, 11027, 11022, 10919, 10920, 10764, 10516, 10421, 10201, 9842, 9606, 9605, 9401, 9239, 9217, 9221, 8940, 8925, 8909, 8672, 8673, 8655, 8529, 8499, 8374, 8323, 8305, 8293, 8302, 8287, 8041, 7944, 7841, 7811, 7775, 7707, 7583, 7536, 7537, 7531, 7526, 7520, 7500, 7499, 7549, 7487, 7489, 7413, 7328, 7327, 7303, 7256, 7249, 7255, 7091, 7035, 7045, 7049, 7008, 6955, 6904, 6860, 6836, 6648, 6650, 6644, 6499]
-
-#ruta con la BD buena
-#@a=[20235, 19746, 19590, 19468, 19388, 19352, 19158, 18942, 18815, 18943, 18799, 18877, 18946, 18775, 18711, 18776, 18891, 19064, 19076, 19019, 18987, 19020, 19178, 19042, 19091, 18898, 18692, 18569, 18464, 18324, 18182, 18091, 18246, 18297, 18339, 18358, 18192, 18229, 18193, 18125, 17620, 17300, 17235, 17116, 16912, 16779, 16772, 16781, 16596, 16117, 15964, 15679, 15498, 15401, 15083, 14690, 14737, 14692, 14416, 14356, 14341, 14309, 13923, 13876, 13687, 13373, 13416, 13450, 13506, 13208, 12972, 12742, 12772, 12608, 12409, 12387, 12250, 12154, 12174, 12083, 12076, 12011, 11930, 11905, 11796, 11806, 11811, 11825, 11592, 11470, 11412, 11239, 11413, 11396, 11393, 11388, 11379, 11398, 11383, 11197, 11060, 11058, 11061, 10974, 10804, 10694, 10402, 10415, 10420, 10516, 10421, 10201, 9842, 9606, 9611, 9605, 9401, 9239, 9217, 9221, 8940, 8925, 8909, 8672, 8542, 8528, 8655, 8529, 8499, 8374, 8323, 8305, 8293, 8302, 8287, 8041, 7944, 7841, 7811, 7775, 7712, 7685, 7667, 7599, 7526, 7520, 7500, 7439, 7362, 7326, 7303, 7256, 7249, 7255, 7091, 7035, 7045, 7049, 7008, 6955, 6904, 6860, 6836, 6648, 6650, 6644, 6499]
-#@a=[20235, 20236, 19925, 19590, 19468, 19388, 19352, 19158, 18942, 18943, 18799, 18877, 18946, 18775, 18776, 18891, 19064, 18988, 18865, 18972, 18971, 19042, 19091, 18898, 18692, 18569, 18464, 18324, 18182, 18091, 18246, 18297, 18339, 18358, 18192, 17654, 17460, 17233, 17235, 17116, 16912, 16779, 16781, 16597, 16407, 16135, 15610, 15580, 15521, 15282, 15171, 14841, 14843, 14478, 14161, 13903, 13800, 13552, 13510, 13361, 13330, 13190, 13163, 13001, 13081, 13127, 13116, 13137, 13139, 13344, 13538, 13941, 13882, 13827, 13762, 13705, 13915, 13914, 13817, 13759, 13709, 13575, 13550, 13439, 13267, 13004, 12896, 12680, 12527, 12432, 12440, 12282, 12283, 12130, 11982, 11826, 11813, 11696, 11697, 11680, 11615, 11616, 11605, 11462, 11249, 11086, 10944, 10941, 10943, 11078, 11074, 11070, 11069, 10921, 10911, 10902, 10901, 10900, 10906, 10896, 10898, 10816, 10793, 10788, 10784, 10733, 10550, 10552, 10539, 10407, 10399, 10400, 10389, 10387, 10368, 10569, 10287, 10056, 9831, 9832, 9391, 9398, 9377, 9631, 9607, 9710, 9929, 9937, 9930, 9916, 9773, 9758, 9750, 9740, 9579, 9722, 9792, 9791, 9801, 10290, 10281, 10521, 10716, 10974, 10804, 10694, 10695, 10920, 10764, 10516, 10421, 10201, 9842, 9606, 9605, 9401, 9239, 9217, 9221, 8940, 8925, 8909, 8672, 8673, 8655, 8529, 8499, 8374, 8323, 8305, 8293, 8302, 8287, 8041, 7944, 7841, 7811, 7775, 7707, 7708, 7634, 7638, 7530, 7531, 7526, 7520, 7500, 7499, 7549, 7487, 7489, 7413, 7328, 7327, 7303, 7256, 7255, 7091, 7036, 7045, 7049, 7008, 6955, 6904, 6860, 6836, 6797, 6761, 6762, 6644, 6499]
-#Tercera ruta de prueb
-#@a=[20235, 20395, 20236, 19925, 19590, 19468, 19388, 19352, 19158, 18942, 18943, 18799, 18877, 18710, 18654, 18711, 18776, 18891, 19064, 19076, 19019, 18987, 19020, 19178, 19042, 19091, 18898, 18692, 18569, 18666, 18739, 18593, 18476, 18348, 18245, 18297, 18339, 18358, 18192, 18229, 18193, 18125, 17620, 17300, 17235, 17116, 16912, 16779, 16772, 16781, 16596, 16117, 15964, 15679, 15498, 15401, 15083, 15402, 15396, 15109, 15084, 15111, 14737, 14692, 14416, 14356, 14341, 14309, 13923, 13876, 13687, 13373, 13416, 13450, 13506, 13208, 12972, 12742, 12772, 12608, 12409, 12387, 12250, 12154, 12174, 12083, 12076, 12011, 11930, 11905, 11796, 11806, 11811, 11825, 11592, 11470, 11412, 11239, 11413, 11396, 11393, 11388, 11379, 11398, 11383, 11197, 11060, 11058, 11046, 11030, 11027, 11022, 10919, 10695, 10402, 10415, 10403, 10241, 10072, 9636, 9590, 9550, 9570, 9611, 9605, 9401, 9239, 9217, 9221, 8940, 8925, 8909, 8672, 8542, 8673, 8655, 8529, 8498, 8443, 8479, 8290, 8283, 8274, 8197, 8122, 8042, 7944, 7841, 7811, 7775, 7712, 7685, 7667, 7599, 7526, 7520, 7500, 7439, 7362, 7326, 7303, 7256, 7249, 7255, 7091, 7035, 7045, 7049, 7008, 6955, 6904, 6860, 6836, 6797, 6761, 6796, 6650, 6644, 6499]
-
-#@a = [20235, 19925, 19590, 19468, 19388, 19352, 19158, 18943, 18799, 18877, 18946, 18776, 18891, 19064, 18988, 18865, 18971, 19042, 19091, 18898, 18692, 18569, 18464, 18324, 18182, 18091, 18246, 18297, 18339, 18358, 18192, 17654, 17460, 17235, 17116, 16912, 16781, 16597, 16407, 16135, 15610, 15580, 15521, 15282, 15171, 14843, 14478, 14161, 13903, 13800, 13552, 13510, 13361, 13330, 13190, 13163, 13001, 13081, 13127, 13116, 13139, 13344, 13538, 13941, 13882, 13827, 13762, 13705, 13914, 13817, 13759, 13709, 13575, 13550, 13439, 13267, 13004, 12896, 12680, 12527, 12432, 12440, 12283, 12130, 11982, 11826, 11813, 11697, 11680, 11616, 11605, 11462, 11249, 11086, 10944, 10941, 10943, 11078, 11074, 11070, 11069, 10921, 10911, 10902, 10900, 10906, 10896, 10898, 10816, 10793, 10788, 10784, 10733, 10552, 10539, 10407, 10400, 10389, 10387, 10368, 10569, 10287, 10056, 9832, 9391, 9398, 9377, 9631, 9607, 9710, 9929, 9937, 9930, 9916, 9773, 9758, 9750, 9740, 9579, 9722, 9791, 9801, 10290, 10281, 10521, 10716, 10974, 10804, 10695, 10920, 10764, 10516, 10421, 10201, 9842, 9605, 9401, 9239, 9217, 9221, 8940, 8925, 8909, 8673, 8655, 8529, 8499, 8374, 8323, 8305, 8293, 8302, 8287, 8041, 7944, 7841, 7811, 7775, 7708, 7634, 7638, 7531, 7526, 7520, 7499, 7549, 7489, 7413, 7328, 7327, 7303, 7255, 7091, 7036, 7045, 7049, 7008, 6955, 6904, 6860, 6836, 6797, 6762, 6644, 6499]
-
-#@a=[20235, 6644, 6499]
-
-
-@init_point
-@end_point
-end
-
-def calcular
-
-  params_initial_point = params[:initial_point]
-  params_end_point = params[:end_point]
-  lat_start,long_start = params_initial_point.split(/,/)
-  lat_end,long_end = params_end_point.split(/,/)
-  closest_init_point = Roadmap.get_closest_init_point(lat_start,long_start)
-  if(closest_init_point.empty?)
-    res={:success=>false, :content=>"Debe de elegir un punto inicial más cercano"}
-    render :text=>res.to_json
-  else
-    closest_end_point = Roadmap.get_closest_end_point(lat_end,long_end)
-    if closest_end_point.empty? 
-      res={:success=>false, :content=>"Debe de elegir un punto final más cercano"}
+  def calcular
+    params_initial_point = params[:initial_point]
+    params_end_point = params[:end_point]
+    lat_start,long_start = params_initial_point.split(/,/)
+    lat_end,long_end = params_end_point.split(/,/)
+    closest_init_point = Roadmap.get_closest_init_point(lat_start,long_start)
+    if(closest_init_point.empty?)
+      res={:success=>false, :content=>"Debe de elegir un punto inicial más cercano"}
       render :text=>res.to_json
     else
-
-
-      #dijkstra
-      puts "parsing..."
-      streets = Parser.getGrafo "#{RAILS_ROOT}/lib/dijkstra/listas.txt"
-      puts "numero de calles: #{streets.size}"
-      #Carlos-Joan
-      puts "camino de #{closest_init_point.first.id} a #{closest_end_point.first.id}"
-      puts "inicio: #{Time.now}"
-      camino = Dijkstra.encontrarCamino streets,closest_init_point.first.id,closest_end_point.first.id
-      puts "fin: #{Time.now}"
-      #puts camino.inspect
-      puts camino.size
-      @a = camino
-      #end dijkstra
-      if camino.size == 0
-        puts "ACA ES FALSO"
-        res={:success=>false, :content=>"Ruta no encontrada"}
+      closest_end_point = Roadmap.get_closest_end_point(lat_end,long_end)
+      if closest_end_point.empty? 
+        res={:success=>false, :content=>"Debe de elegir un punto final más cercano"}
         render :text=>res.to_json
-      else
-        puts "ACA ES VERDADERO"
-        resultadoquery = getRuta(lat_start,long_start,lat_end,long_end)
-        res={:success=>true, :content=>resultadoquery}
-        render :text=>res.to_json
-
-        #encontrar rutas de buses
-        nodoInicial = Roadmap.find(:all,:select=>"id",
-                                   :conditions=>["lat_start = ? and long_start = ?",
-                                                 closest_init_point.first.lat_start,
-                                                 closest_init_point.first.long_start])
-
-        nodoFinal = Roadmap.find(:all,:select=>"id",
+      else        
+        #dijkstra
+        puts "parsing..."
+        streets = Parser.getGrafo "#{RAILS_ROOT}/lib/dijkstra/listas.txt"
+        puts "numero de calles: #{streets.size}"
+        #Carlos-Joan
+        puts "camino de #{closest_init_point.first.id} a #{closest_end_point.first.id}"
+        puts "inicio: #{Time.now}"
+        camino = Dijkstra.encontrarCamino streets,closest_init_point.first.id,closest_end_point.first.id
+        puts "fin: #{Time.now}"
+        #puts camino.inspect
+        puts camino.size
+        @a = camino
+        #end dijkstra
+        if camino.size == 0
+          puts "ACA ES FALSO"
+          res={:success=>false, :content=>"Ruta no encontrada"}
+          render :text=>res.to_json
+        else
+          puts "ACA ES VERDADERO"
+          resultadoquery = getRuta(lat_start,long_start,lat_end,long_end)
+          res={:success=>true, :content=>resultadoquery}
+          render :text=>res.to_json
+          
+          #encontrar rutas de buses
+          nodoInicial = Roadmap.find(:all,:select=>"id,lat_start,long_start",
+                                     :conditions=>["lat_start = ? and long_start = ?",
+                                                   closest_init_point.first.lat_start,
+                                                   closest_init_point.first.long_start])
+          
+          nodoFinal = Roadmap.find(:all,:select=>"id,lat_start,long_start",
                                    :conditions=>["lat_start = ? and long_start = ?",
                                                  closest_end_point.first.lat_start,
                                                  closest_end_point.first.long_start])
-
-        puts "nodos iniciales #{nodoInicial.inspect}"
-        puts "nodos finales #{nodoFinal.inspect}"
-        
-        b4 = BusesRoute.find(:all,:select=>"roadmap_id",:conditions=>["bus_id=4"])
-        puts "bus 4: #{b4.inspect}"
-        rutasFinal,rutasInicial = Array.new
-        puts "Inicio"
-        for n in nodoInicial 
-          puts "buscando para el nodo #{n.id}"
-          r = BusesRoute.find(:all,:select=>"bus_id",
-                              :conditions=>["roadmap_id = ?",n.id])
-          puts r.inspect
-        end
-
-        puts "Final"        
-        for n in nodoFinal
-          puts "buscando para el nodo #{n.id}"
-          r = BusesRoute.find(:all,:select=>"bus_id",
-                              :conditions=>["roadmap_id = ?",n.id])
-          puts r.inspect
+          
+          puts "nodos iniciales #{nodoInicial.inspect}"
+          puts "nodos finales #{nodoFinal.inspect}"
+          
+          rutasInicial = Array.new
+          rutasFinal = Array.new
+          puts "Inicio"
+          for n in nodoInicial 
+            nn = Roadmap.get_closest_points(n.lat_start.to_s,long_start.to_s,20)
+            for i in nn
+              r = BusesRoute.find(:all,:select=>"bus_id",
+                                  :conditions=>["roadmap_id = ?",i.id])
+              if r.size>0
+                rutasInicial.push r
+              end
+            end
+          end
+          
+          puts "Final"        
+          for n in nodoFinal
+            nn = Roadmap.get_closest_points(n.lat_start.to_s,long_start.to_s,20)
+            for i in nn
+              r = BusesRoute.find(:all,:select=>"bus_id",
+                                  :conditions=>["roadmap_id = ?",i.id])
+              if r.size>0
+                rutasFinal.push r
+              end
+            end
+          end
+          rutasComunes = rutasInicial&rutasFinal
+          puts "rutas en comun: #{rutasComunes.inspect}"
         end
       end
     end
   end
-end
-
-
-def getRuta(lat_start,long_start,lat_end,long_end)
-  resultado = Roadmap.getRoute(@a,lat_start,long_start,lat_end,long_end)
-  resultado
-end
-
-def calcularRuta
-end
-
-def findRouteBuses
-  resultado_bus = BusesRoute.getOneBus
-  if resultado_bus.empty?
-    res={:success=>false,:content=>"No se encontró ninguna ruta de bus"}
-  else
-    res={:success=>true,:content=>resultado_bus}
+  
+  
+  def getRuta(lat_start,long_start,lat_end,long_end)
+    resultado = Roadmap.getRoute(@a,lat_start,long_start,lat_end,long_end)
+    resultado
   end
-  render :text=>res.to_json
-end
-
-
+  
+  def calcularRuta
+  end
+  
+  def findRouteBuses
+    resultado_bus = BusesRoute.getOneBus
+    if resultado_bus.empty?
+      res={:success=>false,:content=>"No se encontró ninguna ruta de bus"}
+    else
+      res={:success=>true,:content=>resultado_bus}
+    end
+    render :text=>res.to_json
+  end 
 end
 
