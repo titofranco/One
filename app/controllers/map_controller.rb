@@ -32,7 +32,6 @@ class MapController < ApplicationController
         infoPath = getInfoPath(lat_start,long_start,lat_end,long_end)
        
         busRoute = findUniqueBus
-        puts
         infoBus = parserRouteBus busRoute
         
         res={:success=>true, :content=>infoPath, :bus=>infoBus}
