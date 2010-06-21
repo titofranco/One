@@ -305,13 +305,14 @@ function parseContentBuses(content){
     var bus_id     = content[i].bus_id;
     var lat_start  = content[i].lat_start;
     var long_start = content[i].long_start;
-    var color      = '';
+    var status     = "inactive";
 
     buses_hash[i]={
     id:id,
     bus_id:bus_id,
     lat_start:lat_start,
-    long_start:long_start
+    long_start:long_start,
+    status:status
     };
   }
   //Agrego este ultimo registro falso, ya que debo recorrer el arreglo y comparar el siguiente id del bus
@@ -319,7 +320,8 @@ function parseContentBuses(content){
     id:-1,
     bus_id:99999,
     lat_start:content[size-1].lat_start,
-    long_start:content[size-1].long_start
+    long_start:content[size-1].long_start,
+    status:"inactive"
   };
   //AssignRandomColor(size);
   createBusesOverlays(size);

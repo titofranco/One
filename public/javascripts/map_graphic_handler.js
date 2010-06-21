@@ -105,7 +105,7 @@ function drawPolyline_bus(buses_hash){
     }
     else {
       var color='#'+Math.floor(Math.random()*16777215).toString(16);
-      var polyline_bus = new GPolyline(latlng_bus,color,4,0.8);
+      var polyline_bus = new GPolyline(latlng_bus,color,4,1);
       map.addOverlay(polyline_bus);
       latlng_bus=[];
     }
@@ -114,19 +114,9 @@ function drawPolyline_bus(buses_hash){
 
 //Función para pintar sólo una ruta de bus
 function drawSelectedPolyline_bus(checkbox,bus_id){
-  var latlng_bus =[];
-  var size=Object.size(overlay_buses_hash);
-  var color;
-  var polyline_bus;
-  for (var i=0;i<size;i++){
-    if(bus_id == overlay_buses_hash[i].bus_id){
-      polyline_bus=overlay_buses_hash[i].polyline_bus;
-      break;
-    }
-  }
+  var polyline_bus = getSingleBusPolyline(bus_id,"active");
   map.addOverlay(polyline_bus);
   addClassSidebarBus('#sidebar-item-bus',bus_id,checkbox);
-
 }
 
 //Se crean todos los overlays para los buses
@@ -151,17 +141,26 @@ var latlng_bus=[];
   }
 }
 
-
-
-//Remueve la polylinea del bus seleccionada
-function removeSelectedPolyline_bus(bus_id){
+function getSingleBusPolyline(bus_id,status){
   var size=Object.size(overlay_buses_hash);
+  var polyline_bus;
   for (var i=0;i<size;i++){
     if(bus_id == overlay_buses_hash[i].bus_id){
       polyline_bus=overlay_buses_hash[i].polyline_bus;
+      if(status="active"){
+        overlay_buses_hash[i].status="active";
+      }else{
+        overlay_buses_hash[i].status="inactive";
+      }
       break;
     }
   }
+  return polyline_bus;
+}
+
+//Remueve la polylinea del bus seleccionada
+function removeSelectedPolyline_bus(bus_id){
+  var polyline_bus = getSingleBusPolyline(bus_id,"inactive");
   map.removeOverlay(polyline_bus);
 }
 
@@ -201,12 +200,19 @@ function addClassSidebarBus(element,id,checkbox){
 
 //Elimina todos los overlays existentes en el mapa
 function clearExistingOverlays(){
+  var size=Object.size(overlay_buses_hash);
+
   if(polyline_metro){map.removeOverlay(polyline_metro);}
   if(polyline){ map.removeOverlay(polyline);}
   if(selected_polyline){map.removeOverlay(selected_polyline);}
   if(route_marker){map.removeOverlay(route_marker);}
   if(arrow_marker){map.removeOverlay(arrow_marker);}
-
+  //Remueve todas las polilineas de buses activas
+  for(var i=0;i<size;i++){
+    if (overlay_buses_hash[i].status="active"){
+      removeSelectedPolyline_bus(overlay_buses_hash[i].bus_id);
+    }
+  }
 }
 
 //Este metodo es para asignar la lat-lng más cercana al marker a el initial_marker y al final_marker
