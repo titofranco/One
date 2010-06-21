@@ -37,6 +37,19 @@ class Roadmap < ActiveRecord::Base
     @end_point
   end
 
+  def self.get_closest_point_by_id(roadmapId)
+    sql = "select id, dest.lat_start,dest.long_start,3956 * 2 *
+    ASIN(SQRT(POWER(SIN((temp.lat_start-abs(dest.lat_start)) 
+    * pi()/180 / 2), 2) + COS(temp.lat_start * pi()/180 ) *
+    COS(abs(dest.lat_start) * pi()/180) * POWER(SIN((temp.long_start- dest.long_start) *
+    pi()/180 / 2), 2) )) as distance
+    FROM roadmaps dest, (select lat_start,long_start from roadmaps where id="+roadmapId.to_s+")temp 
+    where stretch_type = '1' and has_relation='S'
+    having distance < 0.310685596
+    order by distance limit 20;"
+    find_by_sql(sql)
+  end
+
   def self.getRoute(nodes,lat_start,long_start,lat_end,long_end)
     resultado = Array.new
     # Se debe hacer conexion con el punto inicial escogido por el usuario y el primer nodo en el grafo
@@ -98,6 +111,8 @@ class Roadmap < ActiveRecord::Base
 =end
     resultado
   end
+
+  
 
 
 end

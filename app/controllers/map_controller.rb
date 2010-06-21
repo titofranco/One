@@ -20,23 +20,25 @@ class MapController < ApplicationController
         #dijkstra
         puts "parsing..."
         streets = Parser.getGrafo "#{RAILS_ROOT}/lib/dijkstra/listas.txt"
-        @pathDijkstra = Dijkstra.encontrarCamino streets,@closest_init_point.id,@closest_end_point.id
+        pathDijkstra = Dijkstra.encontrarCamino streets,@closest_init_point.id,@closest_end_point.id
         #end dijkstra
 
-        if @pathDijkstra.size == 0
+        if pathDijkstra.size == 0
           res={:success=>false, :content=>"Ruta no encontrada"}
           render :text=>res.to_json
           return nil
         end
         
-        infoPath = getInfoPath(lat_start,long_start,lat_end,long_end)
-       
+        infoPath = getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
         busRoute = findUniqueBus
+        infoBus = nil
         if !busRoute.empty?
           infoBus = parserRouteBus busRoute          
-        end
+        else
+          busRoute = findBuses pathDijkstra
+          infoBus = parserRouteBus busRoute
+        end        
 
-        
         res={:success=>true, :content=>infoPath, :bus=>infoBus}
         render :text=>res.to_json
         
@@ -75,9 +77,29 @@ class MapController < ApplicationController
     puts "rutas en comun: #{rutasComunes.inspect}"
     rutasComunes
   end
+
+  def findBuses path
+    rutas = Array.new
+    for node in path
+      # temp = (Roadmap.find(:all,:select=>"lat_start,long_start",
+      #                      :conditions=>["id = ?",node])).first
+      # closeToNode = 
+      #   Roadmap.get_closest_points(temp.lat_start.to_s,temp.long_start.to_s,20)
+      # puts "cercanos :#{closeToNode.size}"
+      
+      closeToNode = Roadmap.get_closest_point_by_id node
+      for closeNode in closeToNode
+        r = BusesRoute.find(:all,:select=>"bus_id",
+                            :conditions=>["roadmap_id = ?",closeNode.id])
+        rutas.push r if !r.empty?
+      end
+    end
+    rutas = (rutas.flatten.collect { |i| i.bus_id}).uniq
+    rutas
+  end
  
-  def getInfoPath(lat_start,long_start,lat_end,long_end)
-    resultado = Roadmap.getRoute(@pathDijkstra,lat_start,long_start,lat_end,long_end)
+  def getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
+    resultado = Roadmap.getRoute(pathDijkstra,lat_start,long_start,lat_end,long_end)
     resultado
   end
 
