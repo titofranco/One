@@ -10,6 +10,7 @@ var selected_polyline;
 var polyline_metro;
 var polyline_bus;
 
+
 /*Pinta el trayecto seleccionado en sidebar, crea el marker y pinta una flecha
 dependiento hacia donde se debe girar*/
 function focusPoint(id){
@@ -87,9 +88,9 @@ function midArrows(id) {
 //Función que pinta la ruta de buses, la de vias y la del metro
 function drawPolyline(latlng_street,latlng_metro){
   console.debug("el tamaño del array " + latlng_street.length);
-  polyline = new GPolyline(latlng_street,'#FF6633',6,1);
+  polyline = new GPolyline(latlng_street,'#FF6633',7,1);
   map.addOverlay(polyline);
-  polyline_metro = new GPolyline(latlng_metro,'#D0B132',6,1);
+  polyline_metro = new GPolyline(latlng_metro,'#D0B132',4,1);
   map.addOverlay(polyline_metro);
 }
 
@@ -104,7 +105,7 @@ function drawPolyline_bus(buses_hash){
     }
     else {
       var color='#'+Math.floor(Math.random()*16777215).toString(16);
-      var polyline_bus = new GPolyline(array,color,6,0.8);
+      var polyline_bus = new GPolyline(latlng_bus,color,4,0.8);
       map.addOverlay(polyline_bus);
       latlng_bus=[];
     }
@@ -112,27 +113,61 @@ function drawPolyline_bus(buses_hash){
 }
 
 //Función para pintar sólo una ruta de bus
-function drawSelectedPolyline_bus(bus_id){
+function drawSelectedPolyline_bus(checkbox,bus_id){
   var latlng_bus =[];
-  var size=Object.size(buses_hash);
+  var size=Object.size(overlay_buses_hash);
   var color;
-  for (var i=0;i<size-1;i++){
-    if(bus_id == buses_hash[i].bus_id){
-     latlng_bus.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
-     color=buses_hash[i].color;
+  var polyline_bus;
+  for (var i=0;i<size;i++){
+    if(bus_id == overlay_buses_hash[i].bus_id){
+      polyline_bus=overlay_buses_hash[i].polyline_bus;
+      break;
     }
   }
-
-  if(polyline_bus){map.removeOverlay(polyline_bus);}
-  polyline_bus = new GPolyline(latlng_bus,color,6,1);
   map.addOverlay(polyline_bus);
-  // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
-  addClassSidebar('#sidebar-item-',(bus_id+99999));
+  addClassSidebarBus('#sidebar-item-bus',bus_id,checkbox);
+
+}
+
+//Se crean todos los overlays para los buses
+function createBusesOverlays(size){
+var j=0;
+var latlng_bus=[];
+  for(var i=0;i<size;i++){
+    if(buses_hash[i].bus_id == buses_hash[i+1].bus_id){
+      latlng_bus.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
+    }
+    else {
+      latlng_bus.push(new GLatLng(buses_hash[i].lat_start,buses_hash[i].long_start));
+      var color='#'+Math.floor(Math.random()*16777215).toString(16);
+      while(color.length<=6){
+        color='#'+Math.floor(Math.random()*16777215).toString(16);
+      }
+      var polyline_bus = new GPolyline(latlng_bus,color,4,0.8);
+      overlay_buses_hash[j]={bus_id:buses_hash[i].bus_id,polyline_bus:polyline_bus};
+      latlng_bus=[];
+      j++;
+    }
+  }
+}
+
+
+
+//Remueve la polylinea del bus seleccionada
+function removeSelectedPolyline_bus(bus_id){
+  var size=Object.size(overlay_buses_hash);
+  for (var i=0;i<size;i++){
+    if(bus_id == overlay_buses_hash[i].bus_id){
+      polyline_bus=overlay_buses_hash[i].polyline_bus;
+      break;
+    }
+  }
+  map.removeOverlay(polyline_bus);
 }
 
 //Asigna un color aleatorio a ultima posicion relativa del arreglo antes de que
 //encuentre un nuevo bus_id
-function AssignRandomColor(size){
+/*function AssignRandomColor(size){
   for(var i=0; i<size;i++){
     if(buses_hash[i].bus_id != buses_hash[i+1].bus_id){
       var color='#'+Math.floor(Math.random()*16777215).toString(16);
@@ -143,7 +178,7 @@ function AssignRandomColor(size){
       buses_hash[i].color=color;
     }
   }
-}
+}*/
 
 //Cambia el CSS del sidebar-item-id cuando se hace clic sobre este
 function addClassSidebar(element,id){
@@ -151,6 +186,16 @@ function addClassSidebar(element,id){
     $(element+''+current_sb_item).removeClass('current');
   } $(element+''+id).addClass('current');
     current_sb_item=id;
+}
+
+//Cambia el CSS del sidebar-item-bus-id cuando se hace clic sobre el checkbox
+function addClassSidebarBus(element,id,checkbox){
+  if(checkbox.checked==false && $(element+''+id).hasClass('current')){
+    $(element+''+id).removeClass('current');
+    removeSelectedPolyline_bus(id);
+  }else if(checkbox.checked==true){
+    $(element+''+id).addClass('current');
+  }
 }
 
 
@@ -179,10 +224,11 @@ function addBusesSidebar(buses_hash){
             '<b class="header">Indicación de ruta de bus cercana</b></li>';
   for(var i=0;i<size-1;i++){
     if(buses_hash[i].bus_id != buses_hash[i+1].bus_id){
-      // Se agrega 99999 para diferenciarlos de los <li id> de la ruta
-      explain += '<li id=sidebar-item-'+(buses_hash[i].bus_id+99999)+' >'+
-                  '<a href="#" onclick="javascript:drawSelectedPolyline_bus('+buses_hash[i].bus_id+')">'+
-                  "Ruta numero " + buses_hash[i].bus_id + "</a></li>";
+
+      explain += '<span class=buses-checkbox> <li id=sidebar-item-bus'+(buses_hash[i].bus_id)+' >'+
+                  '<input type="checkbox" name="chk'+buses_hash[i].bus_id+'"' +
+                  ' onClick="javascript:drawSelectedPolyline_bus('+"this,"+buses_hash[i].bus_id+')">'+
+                  " Ruta numero " + buses_hash[i].bus_id + "</li></span>";
     }
   }
   var div_sidebar_bus_list = document.getElementById("sidebar-bus-list");
@@ -234,7 +280,7 @@ function explainRoute(infoRouteHash){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'
       +j + ". " + "Dirigete en dirección <b>" + infoRouteHash[i].direction + "</b> hacia la "
       +"<b>"+ infoRouteHash[i].way_type_b +  " "
-      +infoRouteHash[i].street_name_b +  " (metros:" + infoRouteHash[i].distance + ")" + "</b></a></li>";
+      +infoRouteHash[i].street_name_b +  " (metros: " + infoRouteHash[i].distance + ")" + "</b></a></li>";
       first_node=false;
     }
     /*else if((prev_dir==curr_dir) && continueStraight==false && curr_stretch_type=='1'){

@@ -20,6 +20,7 @@ var latlng_metro=[];
 //Guarda todos los datos enviados desde map_controller
 var infoRouteHash={};
 var buses_hash={};
+var overlay_buses_hash={};
 //Variables que guardan la lat-lng inicial-final de los markers
 var init_lat;
 var init_lng;
@@ -254,10 +255,11 @@ function findRoute(){
        }
        if(!success) {alert(content);}
        else{
-         parseContent(content);
-        // parseContentBuses(bus);
-         //Esconde la explicación de la aplicación
          $('#explain').hide();
+         parseContent(content);
+         parseContentBuses(bus);
+         //Esconde la explicación de la aplicación
+
        }
     }
   }
@@ -309,8 +311,7 @@ function parseContentBuses(content){
     id:id,
     bus_id:bus_id,
     lat_start:lat_start,
-    long_start:long_start,
-    color:color
+    long_start:long_start
     };
   }
   //Agrego este ultimo registro falso, ya que debo recorrer el arreglo y comparar el siguiente id del bus
@@ -318,14 +319,15 @@ function parseContentBuses(content){
     id:-1,
     bus_id:99999,
     lat_start:content[size-1].lat_start,
-    long_start:content[size-1].long_start,
-    color:'#FFFFFF'
-    };
-  AssignRandomColor(size);
+    long_start:content[size-1].long_start
+  };
+  //AssignRandomColor(size);
+  createBusesOverlays(size);
   addBusesSidebar(buses_hash);
   //drawPolyline_bus(buses_hash);
 
 }
+
 
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama al metodo
 //drawPolyline para pintar la ruta

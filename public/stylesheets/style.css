@@ -64,10 +64,11 @@ a.normal_text:visited{
 }
 
 /*Si lo pongo así, no me genera el underline*/
-a.normal_text:visited
+a.normal_text:visited, a.normal_text:active
 {
   text-decoration:none
 }
+
 
 /*MAP*/
 #content
@@ -125,7 +126,7 @@ a.normal_text:visited
   margin: 10px;
 }
 
-#sidebar ul#sidebar-list li a,#sidebar ul#sidebar-bus-list li a
+#sidebar ul#sidebar-list li a,.buses-checkbox
 {
   display: block;
   border: 1px solid #ddd;
@@ -139,7 +140,7 @@ a.normal_text:visited
   color: #444;
 }
 
-#sidebar ul#sidebar-list li.current a,#sidebar ul#sidebar-bus-list li.current a
+#sidebar ul#sidebar-list li.current a,#sidebar ul#sidebar-bus-list li.current
 {
   background-color: #4F5D74;
   border: 1px solid white;
@@ -185,7 +186,7 @@ li.route-explain
   background: #F9A910;
   margin-left:2px;
   margin-top:2px;
-  margin-right:5px;
+  margin-right:2px;
   border: 1px solid black
 }
 
