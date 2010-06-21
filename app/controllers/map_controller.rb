@@ -62,15 +62,14 @@ class MapController < ApplicationController
     rutasInicial = (rutasInicial.flatten).collect { |rr| rr.bus_id}
     puts "rutas cerca al inicio #{(rutasInicial).inspect}"
     
-    for i in cercaFin
+    for n in cercaFin
       r = BusesRoute.find(:all,:select=>"bus_id",
                           :conditions=>["roadmap_id = ?",n.id])
-      
       rutasFinal.push r if !r.empty?
     end
     
     rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
-    puts "rutas cerca al inicio #{(rutasFinal).inspect}"
+    puts "rutas cerca al final #{(rutasFinal).inspect}"
     
     rutasComunes = (rutasInicial&rutasFinal)
     puts "rutas en comun: #{rutasComunes.inspect}"
