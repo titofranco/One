@@ -84,8 +84,8 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
   //6.2201673770;-75.6076627160; casa de joan
-  var centerLatitude =  6.27210;
-  var centerLongitude = -75.56512;
+  var centerLatitude =  6.20340;
+  var centerLongitude = -75.57740;
   var startZoom = 17;
   var lat;
   var lng;
@@ -236,6 +236,7 @@ $(document).ready(function(){
 function findRoute(){
   var init_lat_lng = init_lat+","+init_lng;
   var end_lat_lng = end_lat+ "," + end_lng;
+  var bus;
   var getVars = "?initial_point="+init_lat_lng+"&end_point="+end_lat_lng;
 
   var request = GXmlHttp.create();
@@ -253,13 +254,23 @@ function findRoute(){
        }catch (e){
         success=false;
        }
-       if(!success) {alert(content);}
+       if(!success) {
+         alert(content);
+         //Si se hace de nuevo una peticion y hay error entonces esconder panel
+         $('#sidebar').hide();
+         $('#explain').show();
+       }
        else{
+         $('#sidebar').show();
+          //Esconde la explicación de la aplicación
          $('#explain').hide();
          parseContent(content);
-         parseContentBuses(bus);
-         //Esconde la explicación de la aplicación
-
+         if(bus.length == 0){
+           $('#sidebar-bus-list').hide();
+         }else{
+           $('#sidebar-bus-list').show();
+           parseContentBuses(bus);
+         }
        }
     }
   }
