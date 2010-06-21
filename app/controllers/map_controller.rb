@@ -7,20 +7,20 @@ class MapController < ApplicationController
     lat_start,long_start = params_initial_point.split(/,/)
     lat_end,long_end = params_end_point.split(/,/)
 
-    @closest_init_point = Roadmap.get_closest_init_point(lat_start,long_start)
-    if(@closest_init_point.empty?)
+    @closest_init_point = (Roadmap.get_closest_init_point(lat_start,long_start)).first
+    if @closest_init_point.eql?nil
       res={:success=>false, :content=>"Debe de elegir un punto inicial más cercano"}
       render :text=>res.to_json
     else
-      @closest_end_point = Roadmap.get_closest_end_point(lat_end,long_end)
-      if @closest_end_point.empty? 
+      @closest_end_point = (Roadmap.get_closest_end_point(lat_end,long_end)).first
+      if @closest_end_point.eql?nil
         res={:success=>false, :content=>"Debe de elegir un punto final más cercano"}
         render :text=>res.to_json
       else        
         #dijkstra
         puts "parsing..."
         streets = Parser.getGrafo "#{RAILS_ROOT}/lib/dijkstra/listas.txt"
-        @pathDijkstra = Dijkstra.encontrarCamino streets,@closest_init_point.first.id,@closest_end_point.first.id
+        @pathDijkstra = Dijkstra.encontrarCamino streets,@closest_init_point.id,@closest_end_point.id
         #end dijkstra
 
         if @pathDijkstra.size == 0
@@ -32,7 +32,10 @@ class MapController < ApplicationController
         infoPath = getInfoPath(lat_start,long_start,lat_end,long_end)
        
         busRoute = findUniqueBus
-        infoBus = parserRouteBus busRoute
+        if !busRoute.empty?
+          infoBus = parserRouteBus busRoute          
+        end
+
         
         res={:success=>true, :content=>infoPath, :bus=>infoBus}
         render :text=>res.to_json
@@ -40,63 +43,58 @@ class MapController < ApplicationController
       end
     end
   end
-  
-  def parserRouteBus busRoute
-    puts "oh hai, estoy en omgRuta"
-    resultado = Array.new
-    puts busRoute == nil
-    puts "tamano de @ruta: #{busRoute.size}"
-    for bus in busRoute
-      #puts "bus: #{bus.inspect}"
-      resultado.push(:id=>bus.id,
-                     :bus_id=>bus.bus_id,
-                     :lat_start=>bus.lat_start,
-                     :long_start=>bus.long_start)
-    end
-    puts "tan tan taaaaan"
-    puts resultado.inspect
-    resultado
-  end
-  
-  def findUniqueBus 
-    nodoInicial = Roadmap.find(:all,:select=>"lat_start,long_start",
-                               :conditions=>["lat_start = ? and long_start = ?",
-                                             @closest_init_point.first.lat_start,
-                                             @closest_init_point.first.long_start])
-    
-    nodoFinal = Roadmap.find(:all,:select=>"lat_start,long_start",
-                             :conditions=>["lat_start = ? and long_start = ?",
-                                           @closest_end_point.first.lat_start,
-                                           @closest_end_point.first.long_start])
+
+  def findUniqueBus
     rutasInicial = Array.new
     rutasFinal = Array.new
-    # puts "Inicio"
-    for n in nodoInicial 
-      nn = Roadmap.get_closest_points(n.lat_start.to_s,n.long_start.to_s,20)
-      for i in nn
-        r = BusesRoute.find(:all,:select=>"bus_id,id,lat_start,long_start",
-                            :conditions=>["roadmap_id = ?",i.id])
-        rutasInicial.push r if !r.empty?
-      end
+
+    cercaInicio =
+      Roadmap.get_closest_points(@closest_init_point.lat_start.to_s,@closest_init_point.long_start.to_s,20)
+    cercaFin =
+      Roadmap.get_closest_points(@closest_end_point.lat_start.to_s,@closest_end_point.long_start.to_s,20)
+    
+    for n in cercaInicio
+      r = BusesRoute.find(:all,:select=>"bus_id",
+                          :conditions=>["roadmap_id = ?",n.id])
+      rutasInicial.push r if !r.empty?
+    end
+
+    rutasInicial = (rutasInicial.flatten).collect { |rr| rr.bus_id}
+    puts "rutas cerca al inicio #{(rutasInicial).inspect}"
+    
+    for i in cercaFin
+      r = BusesRoute.find(:all,:select=>"bus_id",
+                          :conditions=>["roadmap_id = ?",n.id])
+      
+      rutasFinal.push r if !r.empty?
     end
     
-    # puts "Final"        
-    for n in nodoFinal
-      nn = Roadmap.get_closest_points(n.lat_start.to_s,n.long_start.to_s,20)
-      for i in nn
-        r = BusesRoute.find(:all,:select=>"bus_id,id,lat_start,long_start",
-                            :conditions=>["roadmap_id = ?",i.id])
-        
-        rutasFinal.push r if !r.empty?
-      end
-    end
-    rutasComunes = (rutasInicial&rutasFinal).compact
+    rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
+    puts "rutas cerca al inicio #{(rutasFinal).inspect}"
+    
+    rutasComunes = (rutasInicial&rutasFinal)
     puts "rutas en comun: #{rutasComunes.inspect}"
-    rutasComunes.flatten
+    rutasComunes
   end
-  
+ 
   def getInfoPath(lat_start,long_start,lat_end,long_end)
     resultado = Roadmap.getRoute(@pathDijkstra,lat_start,long_start,lat_end,long_end)
+    resultado
+  end
+
+  
+  def parserRouteBus busRoute
+    resultado = Array.new
+    for idBus in busRoute
+      buses = BusesRoute.find(:all,:select=>"id,bus_id,lat_start,long_start",
+                            :conditions=>["bus_id = ?",idBus])
+      for bus in buses
+        resultado.push(:id=>bus.id,
+                       :bus_id=>bus.bus_id,
+                       :lat_start=>bus.lat_start,
+                       :long_start=>bus.long_start)
+      end      
+    end
     resultado
   end
 
