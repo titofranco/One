@@ -84,9 +84,9 @@ $(document).ready(function(){
  handleResize();
  if(GBrowserIsCompatible){
   //6.2201673770;-75.6076627160; casa de joan
-  var centerLatitude =  6.20340;
-  var centerLongitude = -75.57740;
-  var startZoom = 17;
+  var centerLatitude =  6.27488;
+  var centerLongitude = -75.56817;
+  var startZoom = 14;
   var lat;
   var lng;
   //Variables utilizadas para limitar a que se cree sólo un marker
