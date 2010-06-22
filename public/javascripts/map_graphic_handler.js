@@ -24,9 +24,10 @@ function focusPoint(id){
   map.addOverlay(selected_polyline);
 
   //Pinta una flecha verde, para indicar la posición elegida en sidebar
+  //Url para arrow: http://maps.google.com/mapfiles/arrow.png  http://maps.google.com/mapfiles/arrowshadow.png
   var current_loc_icon = new GIcon();
-  current_loc_icon.image = "http://maps.google.com/mapfiles/arrow.png";
-  current_loc_icon.shadow = "http://maps.google.com/mapfiles/arrowshadow.png";
+  current_loc_icon.image = "http://www.google.com/mapfiles/ms/micons/blue-pushpin.png";
+  current_loc_icon.shadow = "http://www.google.com/mapfiles/ms/micons/pushpin_shadow .png";
   current_loc_icon.iconAnchor = new GPoint(9,34);
   current_loc_icon.shadowSize = new GSize(37,34);
 
@@ -87,10 +88,9 @@ function midArrows(id) {
 
 //Función que pinta la ruta de buses, la de vias y la del metro
 function drawPolyline(latlng_street,latlng_metro){
-  console.debug("el tamaño del array " + latlng_street.length);
   polyline = new GPolyline(latlng_street,'#FF6633',7,1);
   map.addOverlay(polyline);
-  polyline_metro = new GPolyline(latlng_metro,'#D0B132',4,1);
+  polyline_metro = new GPolyline(latlng_metro,'#FF6633',4,1);
   map.addOverlay(polyline_metro);
 }
 
@@ -149,7 +149,7 @@ var latlng_bus=[];
       while(color.length<=6){
         color='#'+Math.floor(Math.random()*16777215).toString(16);
       }
-      var polyline_bus = new GPolyline(latlng_bus,color,4,0.8);
+      var polyline_bus = new GPolyline(latlng_bus,color,5,1);
       var infoMarkers=createMarkersBuses(buses_hash[i].bus_id);
       overlay_buses_hash[j]={
       bus_id          :buses_hash[i].bus_id,
@@ -324,7 +324,6 @@ function explainRoute(infoRouteHash){
   var total_time = getTimeAprox(total_distance);
   //La variable j indica el número de pasos que requiere el algoritmo
   var j=1;
-  console.debug("el tamaño del hash " + size);
   //Estas son las estadisticas de la ruta
   explain = '<li class="route-explain">'
   +'<b class="header">Indicaciones de ruta a pie para llegar a tu lugar de destino</b>'
