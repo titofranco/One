@@ -31,13 +31,18 @@ html,body
 {
   top:10px;
   position: relative;
-  background: #4F5D74;;
+  background: #f29400;;
   width: 100%;
   right: 20px;
   left: 10px;
   height: 90px;
   border: 1px solid black;
 
+}
+
+#toolbar{
+background-image:url('/images/mederutas.jpg');
+background-repeat:repeat-x ;
 }
 
 /*Ayuda inicial al usuario para el manejo de la aplicación*/
