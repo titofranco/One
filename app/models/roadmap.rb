@@ -11,6 +11,7 @@ class Roadmap < ActiveRecord::Base
   end
 
   #Ambos queries tienen un radio equivalente a 500 metros equivalente a 0.310685596 millas
+=begin
   def self.get_closest_points(lat_start,long_start,numNodos)
     sql = "select id, dest.lat_start,dest.long_start,3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start+
           "-abs(dest.lat_start)) * pi()/180 / 2), 2) +  COS("+lat_start+" * pi()/180 ) *
@@ -23,7 +24,29 @@ class Roadmap < ActiveRecord::Base
     @init_point = find_by_sql(sql)
     @init_point
   end
+=end
 
+def self.get_closest_points (lat_start,long_start,numNodos)
+  dist = 0.310685596
+  to_rad=(Math::PI/180)
+  lon1 = long_start.to_f - dist/(Math.cos(to_rad*lat_start.to_f)*69).abs
+  lon2 = long_start.to_f + dist/(Math.cos(to_rad*lat_start.to_f)*69).abs
+  lat1 = lat_start.to_f - (dist/69)
+  lat2 = lat_start.to_f + (dist/69)
+  sql  ="select id, dest.lat_start,dest.long_start,
+        3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start+" - dest.lat_start) * pi()/180 / 2), 2) +
+        COS("+lat_start+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
+        POWER(SIN(("+long_start+ "- dest.long_start) * pi()/180 / 2), 2) )) as  distance
+        FROM roadmaps dest
+        where stretch_type = '1' and has_relation='S'
+        and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
+        " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
+        " order by distance limit "+numNodos.to_s
+  @init_point = find_by_sql(sql)
+  @init_point
+end
+
+=begin
   #Ambos queries tienen un radio equivalente a 500 metros equivalente a 0.310685596 millas
   def self.get_closest_end_point(lat_end,long_end)
     sql = "select id,lat_start,long_start,3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_end+ "-abs(dest.lat_start)) *
@@ -38,7 +61,30 @@ class Roadmap < ActiveRecord::Base
     @end_point = find_by_sql(sql)
     @end_point
   end
+=end
 
+def self.get_closest_end_point(lat_end,long_end)
+  dist = 0.310685596
+  to_rad=(Math::PI/180)
+  lon1 = long_end.to_f - dist/(Math.cos(to_rad*lat_end.to_f)*69).abs
+  lon2 = long_end.to_f + dist/(Math.cos(to_rad*lat_end.to_f)*69).abs
+  lat1 = lat_end.to_f - (dist/69)
+  lat2 = lat_end.to_f + (dist/69)
+  sql  ="select id, dest.lat_start,dest.long_start,
+        3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_end+" - dest.lat_start) * pi()/180 / 2), 2) +
+        COS("+lat_end+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
+        POWER(SIN(("+long_end+ "- dest.long_start) * pi()/180 / 2), 2) )) as  distance
+        FROM roadmaps dest
+        where stretch_type = '1' and has_relation='S'
+        and dest.lat_start not in("+@init_point[0].lat_start.to_s+") and dest.long_start not in ("+@init_point[0].long_start.to_s+")
+        and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
+        " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
+        " order by distance limit 1"
+    @end_point = find_by_sql(sql)
+    @end_point
+end
+
+=begin
   def self.get_closest_point_by_id(roadmapId)
     sql = "select id, dest.lat_start,dest.long_start,3956 * 2 *
           ASIN(SQRT(POWER(SIN((temp.lat_start-abs(dest.lat_start))
@@ -49,6 +95,30 @@ class Roadmap < ActiveRecord::Base
           where stretch_type = '1' and has_relation='S'
           having distance < 0.310685596
           order by distance limit 20;"
+    find_by_sql(sql)
+  end
+=end
+
+
+  def self.get_closest_point_by_id(roadmapId)
+    r = Roadmap.find(roadmapId.to_i,:select=>"lat_start,long_start");
+    lat_start = r.lat_start
+    long_start = r.long_start
+    dist = 0.310685596
+    to_rad=(Math::PI/180)
+    lon1 = long_start.to_f - dist/(Math.cos(to_rad*lat_start.to_f)*69).abs
+    lon2 = long_start.to_f + dist/(Math.cos(to_rad*lat_start.to_f)*69).abs
+    lat1 = lat_start.to_f - (dist/69)
+    lat2 = lat_start.to_f + (dist/69)
+    sql  ="select id, dest.lat_start,dest.long_start,
+          3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start.to_s+" - dest.lat_start) * pi()/180 / 2), 2) +
+          COS("+lat_start.to_s+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
+          POWER(SIN(("+long_start.to_s+ "- dest.long_start) * pi()/180 / 2), 2) )) as  distance
+          FROM roadmaps dest
+          where stretch_type = '1' and has_relation='S'
+          and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
+          " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
+          " order by distance limit 20"
     find_by_sql(sql)
   end
 
