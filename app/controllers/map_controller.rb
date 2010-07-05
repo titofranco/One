@@ -103,7 +103,7 @@ class MapController < ApplicationController
     
     for i in 1..rutas.size
       if rutas[i-1]!=rutas[i]
-        rutas.delete rutas[i]
+        rutas.delete rutas[i-1]
       end
     end
     
