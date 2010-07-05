@@ -100,6 +100,13 @@ class MapController < ApplicationController
                           :conditions=>["roadmap_id = ?",closeToNode[i]])
       rutas.push r if !r.empty?
     end
+    
+    for i in 1..rutas.size
+      if rutas[i-1]!=rutas[i]
+        rutas.delete rutas[i]
+      end
+    end
+    
     rutas = (rutas.flatten.collect { |i| i.bus_id}).uniq
     rutas
   end
