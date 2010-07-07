@@ -251,6 +251,7 @@ function findRoute(){
            content=res.content;
            success=res.success;
            bus = res.bus;
+           alert("el bus " + bus);
        }catch (e){
         success=false;
        }
@@ -265,7 +266,7 @@ function findRoute(){
           //Esconde la explicación de la aplicación
          $('#explain').hide();
          parseContent(content);
-         if(bus.length == 0){
+         if(bus == null){
            $('#sidebar-bus-list').hide();
          }else{
            $('#sidebar-bus-list').show();
