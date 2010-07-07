@@ -1,7 +1,6 @@
 class MapController < ApplicationController
 
   def calcular
-    puts "Tiempo inicial #{initTime}"
     params_initial_point = params[:initial_point]
     params_end_point = params[:end_point]
     lat_start,long_start = params_initial_point.split(/,/)
@@ -99,12 +98,6 @@ class MapController < ApplicationController
       r = BusesRoute.find(:all,:select=>"bus_id",
                           :conditions=>["roadmap_id = ?",closeToNode[i]])
       rutas.push r if !r.empty?
-    end
-    
-    for i in 1..rutas.size
-      if rutas[i-1]!=rutas[i]
-        rutas.delete rutas[i-1]
-      end
     end
     
     rutas = (rutas.flatten.collect { |i| i.bus_id}).uniq
