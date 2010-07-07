@@ -31,11 +31,13 @@ class MapController < ApplicationController
         infoPath = getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
         busRoute = findUniqueBus
         infoBus = nil
-        if !busRoute.empty?
-          infoBus = parserRouteBus busRoute
-        else
+        if !busRoute.nil? 
+          if busRoute.empty?
           busRoute = findBuses pathDijkstra
           infoBus = parserRouteBus busRoute
+          elsif !busRoute.empty?
+            infoBus = parserRouteBus busRoute          
+          end
         end
         res={:success=>true, :content=>infoPath, :bus=>infoBus}
         render :text=>res.to_json
@@ -69,9 +71,11 @@ class MapController < ApplicationController
 
     rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
     puts "rutas cerca al final #{(rutasFinal).inspect}"
-
-    rutasComunes = (rutasInicial&rutasFinal)
-    puts "rutas en comun: #{rutasComunes.inspect}"
+    rutasComunes = nil
+    if !rutasInicial.empty? && !rutasFinal.empty?
+      rutasComunes = (rutasInicial&rutasFinal)
+      puts "rutas en comun: #{rutasComunes.inspect}"
+    end
     rutasComunes
   end
 
@@ -79,13 +83,6 @@ class MapController < ApplicationController
     rutas = Array.new
     closeToNode = Array.new
     for node in path
-      # temp = (Roadmap.find(:all,:select=>"lat_start,long_start",
-      #                      :conditions=>["id = ?",node])).first
-      # closeToNode =
-      #   Roadmap.get_closest_points(temp.lat_start.to_s,temp.long_start.to_s,20)
-      # puts "cercanos :#{closeToNode.size}"
-
-      #closeToNode = Roadmap.get_closest_point_by_id node
       n = Roadmap.get_closest_point_by_id node
       for a in n
         closeToNode.push(a.id)
