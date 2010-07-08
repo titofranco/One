@@ -26,7 +26,7 @@ var init_lat;
 var init_lng;
 var end_lat;
 var end_lng;
-
+var size_infoHash;
 /*Funcion para obtener el tamaño de la ventana*/
 function windowHeight(){
   //Standard browsers (Mozilla,Safari,etc.)
@@ -86,7 +86,7 @@ $(document).ready(function(){
   //6.2201673770;-75.6076627160; casa de joan
   var centerLatitude =  6.27488;
   var centerLongitude = -75.56817;
-  var startZoom = 14;
+  var startZoom = 16;
   var lat;
   var lng;
   //Variables utilizadas para limitar a que se cree sólo un marker
@@ -341,6 +341,16 @@ function parseContentBuses(content){
 
 }
 
+//En base la cardinalidad del tramo actual y el siguiente, los va relacionando para
+//que cuando se pinten se pinte un conjunto de tramos y no por separado cada uno.
+function assignRelated(infoRouteHash,size){
+  for (var i=0;i<size-2;i++){
+    if(infoRouteHash[i].new_direction == infoRouteHash[i+1].new_direction){
+      infoRouteHash[i+1].related_id = infoRouteHash[i].related_id
+     // console.debug(" el infoRouteHash " + (i+1) + " con el nuevo related " + infoRouteHash[i+1].related_id)
+    }
+  }
+}
 
 //Obtiene el resultado enviado por el controlador, lo pone en un hash, luego llama al metodo
 //drawPolyline para pintar la ruta
@@ -349,9 +359,9 @@ function parseContent(content){
   infoRouteHash={};
   latlng_street=[];
   latlng_metro=[];
-  last=content.length;
+  size=content.length;
 
-  for(var i=0;i<content.length;i++){
+  for(var i=0;i<size;i++){
     var id            = content[i].id;
     var lat_start     = content[i].lat_start;
     var long_start    = content[i].long_start;
@@ -392,7 +402,8 @@ function parseContent(content){
       common_name_b : common_name_b,
       bearing       : bearing,
       direction     : direction,
-      related_id    : '0'
+      related_id    : id,
+      new_direction : direction
     };
 
     if(stretch_type=='3'){
@@ -413,14 +424,17 @@ function parseContent(content){
   }
   //Se adiciona el ulitmo trayecto
   latlng_street.push(new GLatLng(lat_end,long_end));
+  reAssingDirection(infoRouteHash,size);
+  assignRelated(infoRouteHash,size);
 
   document.getElementById("initial_point").value=infoRouteHash[0].way_type_a +' '+infoRouteHash[0].street_name_a;
   document.getElementById("end_point").value=way_type_b+' '+street_name_b;
   //Se eliminar los overlays existentes, en caso tal se haga otro llamado al controlador
   clearExistingOverlays();
-
-  setLatLngMarkers(infoRouteHash[0].lat_start,infoRouteHash[0].long_start, infoRouteHash[last-1].lat_end, infoRouteHash[last-1].long_end);
+  //Posiciona el init_marker y el end_marker en base a la coordenada más cercana que se encontró
+  setLatLngMarkers(infoRouteHash[0].lat_start,infoRouteHash[0].long_start, infoRouteHash[size-1].lat_end, infoRouteHash[size-1].long_end);
   drawPolyline(latlng_street,latlng_metro);
+  size_infoHash = Object.size(infoRouteHash);
   explainRoute(infoRouteHash);
 }
 

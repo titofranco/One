@@ -17,10 +17,7 @@ function focusPoint(id){
   //Pinta de nuevo toda la ruta y el trayecto seleccionado en sidebar
   map.addOverlay(polyline);
   if(selected_polyline){map.removeOverlay(selected_polyline);}
-  selected_polyline = new GPolyline(
-                     [new GLatLng(infoRouteHash[id].lat_start,infoRouteHash[id].long_start),
-                      new GLatLng(infoRouteHash[id].lat_end,infoRouteHash[id].long_end)]
-                      ,'#FFFFFF',4,0.8);
+  selected_polyline = getSelectedPolyline(id);
   map.addOverlay(selected_polyline);
 
   //Pinta una flecha verde, para indicar la posición elegida en sidebar
@@ -35,23 +32,26 @@ function focusPoint(id){
   if(route_marker != null){
     map.removeOverlay(route_marker);
   }
+  //Obtiene la posición lat-lng y pinta el pin marker y una flecha indicando hacia donde debe girar, l
+  //Luego enfoca el mapa hacia ese punto
   var latlng_current_loc = new GLatLng(infoRouteHash[id].lat_start,infoRouteHash[id].long_start);
   route_marker = new GMarker(latlng_current_loc,{icon:current_loc_icon});
   map.panTo(latlng_current_loc);
   map.addOverlay(route_marker);
-
-  addClassSidebar('#sidebar-item-',id);
   midArrows(id);
+  //Se cambia el CSS del sidebar-item-id
+  addClassSidebar('#sidebar-item-',id);
+
 
 }
 
+
 //Enfoca la linea del metro cuando se hace clic sobre el sidebar-item-id correspondiente
 function focusMetro(id_metro_related){
-  var size = Object.size(infoRouteHash);
   var selected_station=[];
   map.addOverlay(polyline);
 
-  for(var i=0;i<size;i++){
+  for(var i=0;i<size_infoHash;i++){
     if(infoRouteHash[i].related_id==id_metro_related){
        selected_station.push(new GLatLng(infoRouteHash[i].lat_start,infoRouteHash[i].long_start));
        selected_station.push(new GLatLng(infoRouteHash[i].lat_end,infoRouteHash[i].long_end));
@@ -62,8 +62,27 @@ function focusMetro(id_metro_related){
   map.addOverlay(polyline_metro);
 }
 
+
+//Obtiene la polilinea conformada por un conjunto de trayectos, basada en el id_related
+function getSelectedPolyline(id){
+  var pointSelectedPolyline=[];
+  var id_related;
+  for(var i=0;i<size_infoHash;i++){
+    id_related=infoRouteHash[id].related_id;
+    if(infoRouteHash[i].related_id==id_related){
+       pointSelectedPolyline.push(new GLatLng(infoRouteHash[i].lat_start,infoRouteHash[i].long_start));
+       pointSelectedPolyline.push(new GLatLng(infoRouteHash[i].lat_end,infoRouteHash[i].long_end));
+    }
+  }
+  var selectedPolyline = new GPolyline(pointSelectedPolyline,'#FFFFFF',4,0.8);
+  return selectedPolyline;
+}
+
+
 //Funcion que dibuja triangulos hacia la dirección que se va.
 function midArrows(id) {
+  var last_id;
+  var related_id = infoRouteHash[id].related_id;
   if(arrow_marker){
     map.removeOverlay(arrow_marker);
   }
@@ -73,16 +92,21 @@ function midArrows(id) {
   arrowIcon.iconAnchor = new GPoint(12,12);
   arrowIcon.infoWindowAnchor = new GPoint(0,0);
 
+  for(var i=0;i<size_infoHash;i++){
+    if(related_id == infoRouteHash[i].related_id){
+      last_id=i;
+    }
+  }
   //Pintar la flecha de la próxima dirección
-  if(infoRouteHash[id+1]){
+  if(infoRouteHash[last_id+1]){
     // == round it to a multiple of 3 and cast out 120s
-    var dir = Math.round(infoRouteHash[id+1].bearing/3) * 3;
+    var dir = Math.round(infoRouteHash[last_id+1].bearing/3) * 3;
     while (dir >= 120) {dir -= 120;}
   }
   // == use the corresponding triangle marker
   arrowIcon.image = "http://www.google.com/intl/en_ALL/mapfiles/dir_"+dir+".png";
   arrow_marker= new GMarker(
-  new GLatLng(infoRouteHash[id].lat_end,infoRouteHash[id].long_end),arrowIcon)
+  new GLatLng(infoRouteHash[last_id].lat_end,infoRouteHash[last_id].long_end),arrowIcon)
   map.addOverlay(arrow_marker);
 }
 
@@ -114,9 +138,12 @@ function drawPolyline(latlng_street,latlng_metro){
 
 //Función para pintar sólo una ruta de bus
 function drawSelectedPolyline_bus(checkbox,bus_id){
-  var pos = getOverlayBusesHashPos(bus_id);
+
+  //Obtiene el objeto GPolyline para un bus_id especifico y pone su estado en activo
   var polyline_bus = getSingleBusPolyline(bus_id,"active");
   map.addOverlay(polyline_bus);
+  //Obtiene la posicion del overlay_buses_hash para saber donde pintar los iconos de los buses
+  var pos = getOverlayBusesHashPos(bus_id);
   map.addOverlay(overlay_buses_hash[pos].init_bus_marker);
   map.addOverlay(overlay_buses_hash[pos].end_bus_marker);
   addClassSidebarBus('#sidebar-item-bus',bus_id,checkbox,pos);
@@ -135,7 +162,10 @@ function addClassSidebarBus(element,bus_id,checkbox,pos){
   }
 }
 
-//Se crean todos los overlays para los buses
+//Se crean todos los overlays para los buses y se crean datos especificos de cada
+//ruta de bus. init_point_bus y end_point_bus es la lat-lng inicial y final de la poliline
+//init_bus_marker y end_bus_marker  son los iconos de los buses que indican el inicio
+//y el fin de la ruta de bus
 function createBusesOverlays(size){
 var j=0;
 var latlng_bus=[];
@@ -199,7 +229,8 @@ function createMarkersBuses(bus_id){
          init_bus_marker:init_bus_marker,end_bus_marker:end_bus_marker};
 }
 
-
+//Obtiene toda la polilinea de un bus en especifico, además pone su estado en
+//activo o inactivo dependiendo si se pinta o si se elimina del mapa
 function getSingleBusPolyline(bus_id,status){
   var size=Object.size(overlay_buses_hash);
   var polyline_bus;
@@ -307,7 +338,7 @@ function addBusesSidebar(buses_hash){
 }
 
 //Explica la ruta a tomar y la pone en el panel derecho (sidebar)
-function explainRoute(infoRouteHash){
+/*function explainRoute(infoRouteHash){
   var continueStraight=false;
   var size = Object.size(infoRouteHash);
   var explain;
@@ -363,7 +394,7 @@ function explainRoute(infoRouteHash){
       continueStraight=true;
     }*/
 
-    else if(continueStraight==true && (prev_dir==curr_dir) && curr_stretch_type=='1'){
+  /*  else if(continueStraight==true && (prev_dir==curr_dir) && curr_stretch_type=='1'){
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+(i)+')">'
       +j + ". Continúa por: " + "<b>"+ infoRouteHash[i].way_type_b +  " "
       +infoRouteHash[i].street_name_b + " (metros: " + infoRouteHash[i].distance + ")</b></a></li>";
@@ -385,7 +416,7 @@ function explainRoute(infoRouteHash){
     }*/
     //Si va en un trayecto o puente y se encuentre con el inicio de una estación entonces
     //indica que el algoritmo cogió por el metro
-    else if(prev_stretch_type=='4' && curr_stretch_type=='3'){
+ /*   else if(prev_stretch_type=='4' && curr_stretch_type=='3'){
       estacion_metro=true;
     }
     //El stretch_type 2 indica que está en un tramo del metro
@@ -439,8 +470,134 @@ function explainRoute(infoRouteHash){
   var div_sidebar_list = document.getElementById("sidebar-list");
   div_sidebar_list.innerHTML=explain;
 
+}*/
+
+function explainRoute(infoRouteHash){
+  var continueStraight=false;
+  var explain;
+  var turn;
+  var first_node=true;
+  var estacion_metro=false;
+  var curr_dir;
+  var prev_dir;
+  var curr_stretch_type;
+  var prev_stretch_type;
+  var curr_bearing;
+  var prev_bearing;
+  var total_distance = getTotalDistanceRoute(infoRouteHash,size);
+  var total_time = getTimeAprox(total_distance);
+  //La variable j indica el número de pasos que requiere el algoritmo
+  var j=1;
+  //Estas son las estadisticas de la ruta
+  explain = '<li class="route-explain">'
+  +'<b class="header">Indicaciones de ruta a pie para llegar a tu lugar de destino</b>'
+  +'<table><br><tr><td><b>Distancia aproximada: </b></td><td>' + total_distance + ' metros</td></tr>'
+  +'<tr><td><b>Tiempo aproximado caminando a 3km/h: </b></td><td>' + total_time + ' minutos</td></tr>'
+  +'</table></li>';
+  for(var i=0;i<size_infoHash-1;i++){
+    //Asigno (direccion y stretch_type) actual y anterior
+    if(i>0){
+      prev_stretch_type = infoRouteHash[i-1].stretch_type;
+      curr_stretch_type = infoRouteHash[i].stretch_type;
+      prev_dir = infoRouteHash[i-1].new_direction;
+      curr_dir = infoRouteHash[i].new_direction;
+    }
+
+    if(first_node){
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'
+      +j + ". " + "Dirigete en dirección <b>" + infoRouteHash[i].direction + "</b> hacia la "
+      +"<b>"+ infoRouteHash[i].way_type_b +  " "
+      +infoRouteHash[i].street_name_b +  " (metros: " + getDistance(i) + ")" + "</b></a></li>";
+      first_node=false;
+      j++;
+    }
+
+    else if ( (prev_dir != curr_dir) && curr_stretch_type=='1'){
+      turn = eval_direction(prev_dir,curr_dir);
+
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'
+      +j + ". Voltear " + "<b>"+ turn+"</b> por <b>"+ infoRouteHash[i].way_type_b +  " "
+      +infoRouteHash[i].street_name_b + " (metros: " + getDistance(i) + ")</b></a></li>";
+      j++;
+    }
+
+    //SE EXPLICA RUTA PARA ESTACION DEL METRO
+    //Si va en un trayecto o puente y se encuentre con el inicio de una estación entonces
+    //indica que el algoritmo cogió por el metro
+    else if(prev_stretch_type=='4' && curr_stretch_type=='3'){
+      estacion_metro=true;
+    }
+    //El stretch_type 2 indica que está en un tramo del metro
+    else if((prev_stretch_type=='3' && curr_stretch_type=='2') && estacion_metro==true){
+      explain += '<li id=sidebar-item-'+i+' >'
+      +'<a href="#" onclick="javascript:focusMetro('+infoRouteHash[i-1].related_id+')">'
+      +j + ". Ve de la estación <b> " + infoRouteHash[i-1].common_name_a;
+      j++;
+    }
+    //Si encuentró un stretch_type 3 quiere decir que llegó al final de una estación
+    else if(estacion_metro==true && (prev_stretch_type=='2' && curr_stretch_type=='3')) {
+      explain += ' hasta la estación <b>'+infoRouteHash[i].common_name_a+'</b></a></li>';
+    }
+    //Si encontró un stretch_type 4 es porque se bajó del metro y va hacia alguna calle
+    else if(prev_stretch_type=='3' && curr_stretch_type=='4'){
+      explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'+
+      j + ". Baja de la estación " + infoRouteHash[i-1].common_name_a +
+      " dirigete por el <b>"+ infoRouteHash[i].common_name_b +  " " +
+      infoRouteHash[i].street_name_a + " (metros:" + infoRouteHash[i].distance + ")</b></a></li>";
+      estacion_metro=false;
+      j++;
+    }
+
+  }
+ //Si se tiene mas de 2 nodos entonces se procede a finalizar la explicacion
+ //de la ruta
+ if(size>1){
+  var end;
+  if(infoRouteHash[size-2].direction==infoRouteHash[size-1].direction){
+    end = j + ". " +'Continúa hasta encontrar tu lugar de destino' +
+          "<b> (metros: " + getDistance(i) + ")</b>";
+  }
+  else {
+    turn = eval_direction(infoRouteHash[size-2].direction,infoRouteHash[size-1].direction);
+    end = j + ". " + 'Voltea <b> '+ turn +'</b> hasta llegar a tu lugar destino </b>' +
+    "<b> (metros: " + getDistance(i) + ")</b>" ;
+  }
+  explain += '<li id=sidebar-item-'+i+' >'+
+             '<a href="#" onclick="javascript:focusPoint('+(i)+')">'+
+             end+'</a></li>';
+  }
+  //En caso tal la ruta sólo tenga una arista
+  else{
+    explain += '<li id=sidebar-item-'+0+' >'+
+               '<a href="#" onclick="javascript:focusPoint('+0+')">'+
+               "1. Dirigete en dirección <b>" + infoRouteHash[i].direction +
+               "</b> hacia la <b>" + infoRouteHash[i].way_type_b +  " " +
+                infoRouteHash[i].street_name_b + "</b> hasta llegar a tu lugar de destino (metros: "
+                + getDistance(i) + ")</b></a></li>";
+  }
+
+  //Se adiciona el HTML al panel derecho
+  var div_sidebar_list = document.getElementById("sidebar-list");
+  div_sidebar_list.innerHTML=explain;
+
 }
 
+
+//Obtiene la distancia para un conjunto de trayectos que tengan un mismo related_id
+function getDistance(id){
+  var total_distance=0;
+  var id_related;
+  for (var i=0;i<size_infoHash;i++){
+    id_related=infoRouteHash[id].related_id;
+    if(infoRouteHash[i].related_id == id_related ){
+      total_distance += infoRouteHash[i].distance;
+    }
+  }
+  //console.debug("Para el id " + id + " el related " + id_related + " la distancia " + total_distance);
+  return Math.round(total_distance*100)/100;
+}
+
+//Obtiene la distancia total de la ruta
 function getTotalDistanceRoute(infoRouteHash,size){
   var total_distance=0;
   for (var i=0;i<size;i++){
@@ -449,6 +606,8 @@ function getTotalDistanceRoute(infoRouteHash,size){
   return Math.round(total_distance*100)/100;
 }
 
+//Obtiene el tiempo aproximado en minutos que se demora una persona en recorrer
+//la ruta
 function getTimeAprox(total_distance){
   var time_aprox;
   time_aprox=(total_distance*60)/3000;

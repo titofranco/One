@@ -35,7 +35,7 @@ function getDirection(bearing){
 //Se hace esto porque por ejemplo si el registro i tiene 22.5 grados y el registro
 //(i-1) tiene 22 grados entonces a la hora de explicar va a decir que hay que voltear
 //cuando en realidad debe seguir es derecho, se va tomar un valor base de +- 15 grados
-function reAssingDirection(prev_dir,curr_dir,prev_bearing,curr_bearing){
+function getNewDirection(prev_dir,curr_dir,prev_bearing,curr_bearing){
   var bearing_dif;
   var new_direction;
 
@@ -52,6 +52,22 @@ function reAssingDirection(prev_dir,curr_dir,prev_bearing,curr_bearing){
   }
   //console.debug("dir actual " + curr_dir+ " la direccion retornada " + new_direction);
   return new_direction;
+}
+
+//Reasigna la nueva dirección al trayecto en base al metodo getNewDirection
+function reAssingDirection(infoRouteHash,size){
+  var prev_bearing;
+  var curr_bearing;
+  var prev_dir;
+  var curr_dir;
+
+  for (var i=1;i<size-1;i++){
+      prev_dir = infoRouteHash[i-1].new_direction;
+      prev_bearing = infoRouteHash[i-1].bearing;
+      curr_bearing = infoRouteHash[i].bearing;
+      curr_dir = getNewDirection(prev_dir,infoRouteHash[i].direction,prev_bearing,curr_bearing);
+      infoRouteHash[i].new_direction=curr_dir;
+  }
 }
 
 
@@ -103,7 +119,7 @@ function where_to_turn_n(goes_to){
     turn = "a la izquierda";
   }
   else if(goes_to=="Sur"){
-    turn = "ALGO RARO PASA EN DIRECCION NORTE SUR";
+    turn = "en giro en U";
   }
   return turn;
 }
@@ -125,7 +141,7 @@ function where_to_turn_w(goes_to){
     turn = "ligeramente a la izquierda en dirección " + goes_to;
   }
   else if(goes_to=="Oriente"){
-    turn = "ALGO RARO PASA EN DIRECCION OESTE ESTE";
+    turn = "en giro en U";
   }
 return turn;
 }
@@ -147,7 +163,7 @@ function where_to_turn_e(goes_to){
     turn = "ligeramente a la derecha en dirección " + goes_to;
   }
   else if(goes_to=="Occidente"){
-    turn = "ALGO RARO PASA EN DIRECCION ESTE OESTE";
+    turn = "en giro en U";
   }
   return turn;
 }
@@ -169,7 +185,7 @@ function where_to_turn_s(goes_to){
     turn = "a la derecha";
   }
   else if(goes_to=="Norte"){
-    turn = "ALGO RARO PASA EN DIRECCION SUR NORTE";
+    turn = "en giro en U";
   }
   return turn;
 }
@@ -191,7 +207,7 @@ function where_to_turn_sw(goes_to){
     turn = "a la izquierda";
   }
   else if(goes_to=="Nororiente"){
-    turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
+    turn = "en giro en U";
   }
   return turn;
 }
@@ -212,7 +228,7 @@ function where_to_turn_se(goes_to){
     turn = "a la derecha";
   }
   else if(goes_to=="Noroccidente"){
-    turn = "ALGO RARO PASA EN DIRECCION ESTE SUROESTE, NORESTE";
+    turn = "en giro en U";
   }
   return turn;
 }
@@ -234,7 +250,7 @@ function where_to_turn_nw(goes_to){
     turn = "a la izquierda";
   }
   else if(goes_to=="Suroriente"){
-    turn = "ALGO RARO PASA EN DIRECCION NOROESTE SURESTE ";
+    turn = "en giro en U";
   }
   return turn;
 }
@@ -256,7 +272,7 @@ function where_to_turn_ne(goes_to){
     turn = "a la izquierda";
   }
   else if(goes_to=="Suroccidente"){
-    turn = "ALGO RARO PASA EN DIRECCION NORESTE SURESTE ";
+    turn = "en giro en U";
   }
   return turn;
 }
