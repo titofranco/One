@@ -27,14 +27,16 @@ class MapController < ApplicationController
           render :text=>res.to_json
           return nil
         end
-
-        infoPath = getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
+        
+        infoPath =
+          getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
         busRoute = findUniqueBus
+        # busRoute = []
         infoBus = nil
         if !busRoute.nil?
           if busRoute.empty?
-          busRoute = findBuses pathDijkstra
-          infoBus = parserRouteBus busRoute
+            busRoute = findBuses pathDijkstra
+            infoBus = parserRouteBus busRoute
           elsif !busRoute.empty?
             infoBus = parserRouteBus busRoute
           end
@@ -89,43 +91,50 @@ class MapController < ApplicationController
     rutasD = BusesRoute.find(:all,:select=>"bus_id",
                              :conditions=>["roadmap_id = ?",nodoD])
     #string de los buses ID
+    rutasI = (rutasI.flatten.collect { |i| i.bus_id}).uniq
+    rutasD = (rutasD.flatten.collect { |i| i.bus_id}).uniq
+  
     sRutasI =rutasI.flatten.uniq.join(",")
     sRutasD =rutasD.flatten.uniq.join(",")
-    
-    conexiones = BusesRoute.get_common_bus(sRutasI,sRutasD)
 
-    conexiones = conexiones.sort{ |a,b| a.bus_id_A <=> b.bus_id_A}
+    puts "rutas Inicio #{sRutasI}"
+    puts "rutas Dstino #{sRutasD}"
+       
+    conexiones = BusesRoute.get_common_bus(sRutasI,sRutasD)
     
+    puts "test #{conexiones.first.inspect}"
+    temp = Array.new
     if !conexiones.empty?
       for c in conexiones
         conexiones.delete_if{ 
           |i| i.bus_id_A == c.bus_id_B && i.bus_id_B == c.bus_id_A
         }
+        temp << c.bus_id_A
+        temp << c.bus_id_B
       end
       
-      resultado = parserRouteBus conexiones
-      return resultado
+      return temp
     end
     
 
-    rutas = Array.new
-    closeToNode = Array.new
-    for node in path
-      n = Roadmap.get_closest_point_by_id node
-      for a in n
-        closeToNode.push(a.id)
-      end
-    end
+    # rutas = Array.new
+    # closeToNode = Array.new
+    # for node in path
+    #   n = Roadmap.get_closest_point_by_id node
+    #   for a in n
+    #     closeToNode.push(a.id)
+    #   end
+    # end
 
-    closeToNode = closeToNode.flatten.uniq
-    for i in 0 ... closeToNode.size
-      r = BusesRoute.find(:all,:select=>"bus_id",
-                          :conditions=>["roadmap_id = ?",closeToNode[i]])
-      rutas.push r if !r.empty?
-    end
+    # closeToNode = closeToNode.flatten.uniq
+    # for i in 0 ... closeToNode.size
+    #   r = BusesRoute.find(:all,:select=>"bus_id",
+    #                       :conditions=>["roadmap_id = ?",closeToNode[i]])
+    #   rutas.push r if !r.empty?
+    # end
 
-    rutas = (rutas.flatten.collect { |i| i.bus_id}).uniq
-    rutas
+    # rutas = (rutas.flatten.collect { |i| i.bus_id}).uniq
+    # rutas
   end
 
   def getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
