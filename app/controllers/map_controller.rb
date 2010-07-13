@@ -113,7 +113,7 @@ class MapController < ApplicationController
         temp << c.bus_id_B
       end
       
-      return temp
+      return temp.uniq
     end
     
 
