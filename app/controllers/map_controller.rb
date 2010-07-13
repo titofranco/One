@@ -80,6 +80,34 @@ class MapController < ApplicationController
   end
 
   def findBuses path
+    nodoI = path.shift
+    nodoD = path.pop
+
+    rutasI = BusesRoute.find(:all,:select=>"bus_id",
+                             :conditions=>["roadmap_id = ?",nodoI])
+    
+    rutasD = BusesRoute.find(:all,:select=>"bus_id",
+                             :conditions=>["roadmap_id = ?",nodoD])
+    #string de los buses ID
+    sRutasI =rutasI.flatten.uniq.join(",")
+    sRutasD =rutasD.flatten.uniq.join(",")
+    
+    conexiones = BusesRoute.get_common_bus(sRutasI,sRutasD)
+
+    conexiones = conexiones.sort{ |a,b| a.bus_id_A <=> b.bus_id_A}
+    
+    if !conexiones.empty?
+      for c in conexiones
+        conexiones.delete_if{ 
+          |i| i.bus_id_A == c.bus_id_B && i.bus_id_B == c.bus_id_A
+        }
+      end
+      
+      resultado = parserRouteBus conexiones
+      return resultado
+    end
+    
+
     rutas = Array.new
     closeToNode = Array.new
     for node in path
@@ -90,7 +118,6 @@ class MapController < ApplicationController
     end
 
     closeToNode = closeToNode.flatten.uniq
-    puts "close node #{closeToNode.join(",")}"
     for i in 0 ... closeToNode.size
       r = BusesRoute.find(:all,:select=>"bus_id",
                           :conditions=>["roadmap_id = ?",closeToNode[i]])
