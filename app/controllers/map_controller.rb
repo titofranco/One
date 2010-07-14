@@ -27,28 +27,29 @@ class MapController < ApplicationController
           render :text=>res.to_json
           return nil
         end
-        
+
         infoPath =
           getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
         infoBus = nil
         busRoute = findUniqueBusNoWalk
+        hi = nil
         if !busRoute.empty?
           infoBus = parserRouteBus busRoute
           # res={:success=>true, :content=>infoPath, :bus=>infoBus}
           # render :text=>res.to_json
         else
-          busRoute = findUniqueBusWalking pathDijkstra
+          busRoute = findUniqueBusWalking
           if !busRoute.empty?
             infoBus = parserRouteBus busRoute
+            hi = busRoute.join('-')
             # res={:success=>true, :content=>infoPath, :bus=>infoBus}
             # render :text=>res.to_json
           end
         end
-           
-        res={:success=>true, :content=>infoPath, :bus=>infoBus}
+        #infoBus = BusesRoute.getOneBus
+        #BusesRoute.get_closest_bus_id(44197)
+        res={:success=>true, :content=>infoPath, :bus=>infoBus, :hi=>hi}
         render :text=>res.to_json
-        
-        
         # infoBus = nil
         # if !busRoute.nil?
         #   if busRoute.empty?
@@ -69,27 +70,27 @@ class MapController < ApplicationController
 
     rutasI = BusesRoute.find(:all,:select=>"bus_id",
                              :conditions=>["roadmap_id = ?",nodoI])
-    
+
     rutasD = BusesRoute.find(:all,:select=>"bus_id",
                              :conditions=>["roadmap_id = ?",nodoD])
     #string de los buses ID
     rutasI = (rutasI.flatten.collect { |i| i.bus_id}).uniq
     rutasD = (rutasD.flatten.collect { |i| i.bus_id}).uniq
     idBuses = Array.new
-  
+
     if !rutasI.empty? && !rutasD.empty?
       sRutasI =rutasI.flatten.uniq.join(",")
       sRutasD =rutasD.flatten.uniq.join(",")
-      
+
       puts "rutas Inicio #{sRutasI}"
       puts "rutas Dstino #{sRutasD}"
-      
+
       conexiones = BusesRoute.get_common_bus(sRutasI,sRutasD)
-      
+
       puts "test #{conexiones.first.inspect}"
       if !conexiones.empty?
         for c in conexiones
-          conexiones.delete_if{ 
+          conexiones.delete_if{
             |i| i.bus_id_A == c.bus_id_B && i.bus_id_B == c.bus_id_A
           }
           idBuses << c.bus_id_A
@@ -99,112 +100,45 @@ class MapController < ApplicationController
     end
     return idBuses.uniq
   end
-  
-  def findUniqueBusWalking path
+
+  #Busca si entre dos rutas de buses cercanas a el puntoInicial y Final
+  #se debe caminar para coger una u otra
+  def findUniqueBusWalking
     # #metodo de carlos
-    
-    # rutasInicial = Array.new
-    # rutasFinal = Array.new
+    collectionB = Array.new
+    common_buses = Array.new
+    rutas = Array.new
 
     # #se encuentra los nodos cercanos al inicio y al final. Se guardan en
-    # #cercaInicio y cercaFin respectivamente
-    # cercaInicio =
-    #   Roadmap.get_closest_points(@closest_init_point.lat_start.to_s,@closest_init_point.long_start.to_s,20)
-    # cercaFin =
-    #   Roadmap.get_closest_points(@closest_end_point.lat_start.to_s,@closest_end_point.long_start.to_s,20)
+    # #closeInitBuses y closeEndBuses respectivamente
+     closeInitBuses = BusesRoute.get_closest_bus_id(@closest_init_point.id)
+     if closeInitBuses
+       closeEndBuses  = BusesRoute.get_closest_bus_id(@closest_end_point.id)
+       if closeEndBuses
+       end
 
-    # #Como los buses del final es estatico, se hace primero
-    # #se encuentran los buses cercanos al final y se pasa a string
-    # for n in cercaFin
-    #   r = BusesRoute.find(:all,:select=>"bus_id",
-    #                       :conditions=>["roadmap_id = ?",n.id])
-    #   rutasFinal.push r if !r.empty?
-    # end
-
-    # rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
-    # idRutasFinal = rutasFinal.uniq.join(",")    
-    # puts "rutas cerca al final #{idRutasFinal}"
-    
-    # #se encuentra las rutas cercanas al inicio
-    # rutas = Array.new
-    # for n in cercaInicio
-    #   ruta = BusesRoute.find(:all,:select=>"bus_id",
-    #                       :conditions=>["roadmap_id = ?",n.id])
-    #   # para cada ruta cercana al nodo qe se mira, se hace el query qe nos
-    #   # dice si esta ruta empata con un nodo al final
-    #   # en mi opinion, este for sobra por qe se puede comparar los id y ya.
-    #   for r in ruta
-    #     puts "n: #{n.id} r: #{r.bus_id} busesFinal: #{idRutasFinal}"
-    #     #ademas de eso, el metodo get_closest_common_bus va 2 veces a base de
-    #     #datos :)
-    #     temp =
-    #       BusesRoute.get_closest_common_bus(n.id,r.bus_id.to_s,idRutasFinal)
-
-    #     #todavia no funciona, por qe si miras en consola, no encuentra nada
-    #     #por eso las dos lineas siguientes estan comentariadas
-
-    #     #rutas << temp[:bus_A]
-    #     #rutas << temp[:bus_B]
-    #   end
-    # end
-
-    # return rutas.uniq
-    # fin metodo de carlos
-    #--------------------------------------------------------
-
-    #metodo de Joan
-    puts Time.now
-    rutasInicial = Array.new
-    rutasFinal = Array.new
-    
-    #se encuentra los nodos cercanos al inicio y al final. Se guardan en
-    #cercaInicio y cercaFin respectivamente
-
-    cercaInicio =
-      Roadmap.get_closest_points(@closest_init_point.lat_start.to_s,@closest_init_point.long_start.to_s,20)
-    cercaFin =
-      Roadmap.get_closest_points(@closest_end_point.lat_start.to_s,@closest_end_point.long_start.to_s,20)
-    
-    #se encuentra los buses cercanos al inicio
-
-    for n in cercaInicio
-      r = BusesRoute.find(:all,:select=>"bus_id",
-                          :conditions=>["roadmap_id = ?",n.id])
-      rutasInicial.push r if !r.empty?
-    end
-
-    rutasInicial = (rutasInicial.flatten).collect { |rr| rr.bus_id}
-    puts "rutas cerca al inicio #{(rutasInicial).inspect}"
-
-    #se encuentra los buses cercanos al final
-
-    for n in cercaFin
-      r = BusesRoute.find(:all,:select=>"bus_id",
-                          :conditions=>["roadmap_id = ?",n.id])
-      rutasFinal.push r if !r.empty?
-    end
-
-    rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
-    puts "rutas cerca al final #{(rutasFinal).inspect}"    
-    
-    #se compara por id. si el bus x pasa cerca al inicio y al final, sirve
-    rutasComunes = Array.new
-    if !rutasInicial.empty? && !rutasFinal.empty?
-      rutasComunes = rutasInicial & rutasFinal
-      if rutasComunes.empty?
-        temp = BusesRoute.get_common_bus(rutasInicial.join(","),rutasFinal.join(","))
-        for k in temp 
-          rutasComunes << k.bus_id_A
-          rutasComunes << k.bus_id_B
-        end
-      end
-    end
-    puts Time.now
-    rutasComunes.uniq
+       for reg in closeEndBuses
+         collectionB.push(reg[:bus_id])
+       end
+       collectionA = closeInitBuses.collect{|t| t.attributes}
+       puts "El conjunto A es #{collectionA}"
+       puts "El conjunto B es #{collectionB.join(',')}"
+       for reg in closeInitBuses
+         r = BusesRoute.get_closest_common_bus(reg[:busRouteId],reg[:bus_id],collectionB.join(','))
+         common_buses.push(r) if !r.empty?
+       end
+       common_buses = common_buses.flatten.uniq
+       for reg in common_buses
+         rutas << reg[:bus_A]
+         rutas << reg[:bus_B]
+       end
+     end
+    return rutas.uniq
   end
 
+
   def findBuses path
-    
+
   end
 
   def getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
@@ -237,3 +171,4 @@ class MapController < ApplicationController
     render :text=>res.to_json
   end
 end
+
