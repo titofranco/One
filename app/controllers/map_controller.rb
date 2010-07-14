@@ -192,14 +192,10 @@ class MapController < ApplicationController
     if !rutasInicial.empty? && !rutasFinal.empty?
       rutasComunes = rutasInicial & rutasFinal
       if rutasComunes.empty?
-        for i in rutasInicial
-          for f in rutasFinal
-            temp = BusesRoute.get_common_bus(i.to_s,f.to_s)
-            for k in temp 
-              rutasComunes << k.bus_id_A
-              rutasComunes << k.bus_id_B
-            end
-          end
+        temp = BusesRoute.get_common_bus(rutasInicial.join(","),rutasFinal.join(","))
+        for k in temp 
+          rutasComunes << k.bus_id_A
+          rutasComunes << k.bus_id_B
         end
       end
     end
