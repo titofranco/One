@@ -44,7 +44,7 @@ class MapController < ApplicationController
             # render :text=>res.to_json
           end
         end
-          
+           
         res={:success=>true, :content=>infoPath, :bus=>infoBus}
         render :text=>res.to_json
         
