@@ -98,81 +98,20 @@ class MapController < ApplicationController
   end
   
   def findUniqueBusWalking path
-    #metodo de carlos
+    # #metodo de carlos
     
-    rutasInicial = Array.new
-    rutasFinal = Array.new
-
-    #se encuentra los nodos cercanos al inicio y al final. Se guardan en
-    #cercaInicio y cercaFin respectivamente
-    cercaInicio =
-      Roadmap.get_closest_points(@closest_init_point.lat_start.to_s,@closest_init_point.long_start.to_s,20)
-    cercaFin =
-      Roadmap.get_closest_points(@closest_end_point.lat_start.to_s,@closest_end_point.long_start.to_s,20)
-
-    #Como los buses del final es estatico, se hace primero
-    #se encuentran los buses cercanos al final y se pasa a string
-    for n in cercaFin
-      r = BusesRoute.find(:all,:select=>"bus_id",
-                          :conditions=>["roadmap_id = ?",n.id])
-      rutasFinal.push r if !r.empty?
-    end
-
-    rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
-    idRutasFinal = rutasFinal.uniq.join(",")    
-    puts "rutas cerca al final #{idRutasFinal}"
-    
-    #se encuentra las rutas cercanas al inicio
-    rutas = Array.new
-    for n in cercaInicio
-      ruta = BusesRoute.find(:all,:select=>"bus_id",
-                          :conditions=>["roadmap_id = ?",n.id])
-      # para cada ruta cercana al nodo qe se mira, se hace el query qe nos
-      # dice si esta ruta empata con un nodo al final
-      # en mi opinion, este for sobra por qe se puede comparar los id y ya.
-      for r in ruta
-        puts "n: #{n.id} r: #{r.bus_id} busesFinal: #{idRutasFinal}"
-        #ademas de eso, el metodo get_closest_common_bus va 2 veces a base de
-        #datos :)
-        temp =
-          BusesRoute.get_closest_common_bus(n.id,r.bus_id.to_s,idRutasFinal)
-
-        #todavia no funciona, por qe si miras en consola, no encuentra nada
-        #por eso las dos lineas siguientes estan comentariadas
-
-        #rutas << temp[:bus_A]
-        #rutas << temp[:bus_B]
-      end
-    end
-
-    return rutas.uniq
-    # fin metodo de carlos
-    
-    #metodo de Joan
     # rutasInicial = Array.new
     # rutasFinal = Array.new
-    
+
     # #se encuentra los nodos cercanos al inicio y al final. Se guardan en
     # #cercaInicio y cercaFin respectivamente
-
     # cercaInicio =
     #   Roadmap.get_closest_points(@closest_init_point.lat_start.to_s,@closest_init_point.long_start.to_s,20)
     # cercaFin =
     #   Roadmap.get_closest_points(@closest_end_point.lat_start.to_s,@closest_end_point.long_start.to_s,20)
-    
-    # #se encuentra los buses cercanos al inicio
 
-    # for n in cercaInicio
-    #   r = BusesRoute.find(:all,:select=>"bus_id",
-    #                       :conditions=>["roadmap_id = ?",n.id])
-    #   rutasInicial.push r if !r.empty?
-    # end
-
-    # rutasInicial = (rutasInicial.flatten).collect { |rr| rr.bus_id}
-    # puts "rutas cerca al inicio #{(rutasInicial).inspect}"
-
-    # #se encuentra los buses cercanos al final
-
+    # #Como los buses del final es estatico, se hace primero
+    # #se encuentran los buses cercanos al final y se pasa a string
     # for n in cercaFin
     #   r = BusesRoute.find(:all,:select=>"bus_id",
     #                       :conditions=>["roadmap_id = ?",n.id])
@@ -180,15 +119,79 @@ class MapController < ApplicationController
     # end
 
     # rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
-    # puts "rutas cerca al inicio #{(rutasInicial).inspect}"    
+    # idRutasFinal = rutasFinal.uniq.join(",")    
+    # puts "rutas cerca al final #{idRutasFinal}"
     
-    # #se compara por id. si el bus x pasa cerca al inicio y al final, sirve
-    # rutasComunes = Array.new
-    # if !rutasInicial.empty? && !rutasFinal.empty?
-    #   rutasComunes = (rutasInicial&rutasFinal)
-    #   puts "rutas en comun: #{rutasComunes.inspect}"
+    # #se encuentra las rutas cercanas al inicio
+    # rutas = Array.new
+    # for n in cercaInicio
+    #   ruta = BusesRoute.find(:all,:select=>"bus_id",
+    #                       :conditions=>["roadmap_id = ?",n.id])
+    #   # para cada ruta cercana al nodo qe se mira, se hace el query qe nos
+    #   # dice si esta ruta empata con un nodo al final
+    #   # en mi opinion, este for sobra por qe se puede comparar los id y ya.
+    #   for r in ruta
+    #     puts "n: #{n.id} r: #{r.bus_id} busesFinal: #{idRutasFinal}"
+    #     #ademas de eso, el metodo get_closest_common_bus va 2 veces a base de
+    #     #datos :)
+    #     temp =
+    #       BusesRoute.get_closest_common_bus(n.id,r.bus_id.to_s,idRutasFinal)
+
+    #     #todavia no funciona, por qe si miras en consola, no encuentra nada
+    #     #por eso las dos lineas siguientes estan comentariadas
+
+    #     #rutas << temp[:bus_A]
+    #     #rutas << temp[:bus_B]
+    #   end
     # end
-    # rutasComunes
+
+    # return rutas.uniq
+    # fin metodo de carlos
+    #--------------------------------------------------------
+
+    #metodo de Joan
+    puts Time.now
+    rutasInicial = Array.new
+    rutasFinal = Array.new
+    
+    #se encuentra los nodos cercanos al inicio y al final. Se guardan en
+    #cercaInicio y cercaFin respectivamente
+
+    cercaInicio =
+      Roadmap.get_closest_points(@closest_init_point.lat_start.to_s,@closest_init_point.long_start.to_s,20)
+    cercaFin =
+      Roadmap.get_closest_points(@closest_end_point.lat_start.to_s,@closest_end_point.long_start.to_s,20)
+    
+    #se encuentra los buses cercanos al inicio
+
+    for n in cercaInicio
+      r = BusesRoute.find(:all,:select=>"bus_id",
+                          :conditions=>["roadmap_id = ?",n.id])
+      rutasInicial.push r if !r.empty?
+    end
+
+    rutasInicial = (rutasInicial.flatten).collect { |rr| rr.bus_id}
+    puts "rutas cerca al inicio #{(rutasInicial).inspect}"
+
+    #se encuentra los buses cercanos al final
+
+    for n in cercaFin
+      r = BusesRoute.find(:all,:select=>"bus_id",
+                          :conditions=>["roadmap_id = ?",n.id])
+      rutasFinal.push r if !r.empty?
+    end
+
+    rutasFinal = (rutasFinal.flatten).collect { |rr| rr.bus_id}
+    puts "rutas cerca al final #{(rutasFinal).inspect}"    
+    
+    #se compara por id. si el bus x pasa cerca al inicio y al final, sirve
+    rutasComunes = Array.new
+    if !rutasInicial.empty? && !rutasFinal.empty?
+      rutasComunes = (rutasInicial&rutasFinal)
+      puts "rutas en comun: #{rutasComunes.inspect}"
+    end
+    puts Time.now
+    rutasComunes
   end
 
   def findBuses path
@@ -225,4 +228,3 @@ class MapController < ApplicationController
     render :text=>res.to_json
   end
 end
-
