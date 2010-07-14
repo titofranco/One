@@ -190,12 +190,15 @@ class MapController < ApplicationController
     #se compara por id. si el bus x pasa cerca al inicio y al final, sirve
     rutasComunes = Array.new
     if !rutasInicial.empty? && !rutasFinal.empty?
-      for i in rutasInicial
-        for f in rutasFinal
-          temp = BusesRoute.get_common_bus(i.to_s,f.to_s)
-          for k in temp 
-            rutasComunes << k.bus_id_A
-            rutasComunes << k.bus_id_B
+      rutasComunes = rutasInicial & rutasFinal
+      if rutasComunes.empty?
+        for i in rutasInicial
+          for f in rutasFinal
+            temp = BusesRoute.get_common_bus(i.to_s,f.to_s)
+            for k in temp 
+              rutasComunes << k.bus_id_A
+              rutasComunes << k.bus_id_B
+            end
           end
         end
       end
