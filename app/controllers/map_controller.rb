@@ -30,20 +30,23 @@ class MapController < ApplicationController
         
         infoPath =
           getInfoPath(pathDijkstra,lat_start,long_start,lat_end,long_end)
+        infoBus = nil
         busRoute = findUniqueBusNoWalk
         if !busRoute.empty?
           infoBus = parserRouteBus busRoute
-          res={:success=>true, :content=>infoPath, :bus=>infoBus}
-          render :text=>res.to_json
+          # res={:success=>true, :content=>infoPath, :bus=>infoBus}
+          # render :text=>res.to_json
         else
           busRoute = findUniqueBusWalking pathDijkstra
           if !busRoute.empty?
             infoBus = parserRouteBus busRoute
-            res={:success=>true, :content=>infoPath, :bus=>infoBus}
-            render :text=>res.to_json
+            # res={:success=>true, :content=>infoPath, :bus=>infoBus}
+            # render :text=>res.to_json
           end
         end
           
+        res={:success=>true, :content=>infoPath, :bus=>infoBus}
+        render :text=>res.to_json
         
         
         # infoBus = nil
