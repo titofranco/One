@@ -74,7 +74,7 @@ function getSelectedPolyline(id){
        pointSelectedPolyline.push(new GLatLng(infoRouteHash[i].lat_end,infoRouteHash[i].long_end));
     }
   }
-  var selectedPolyline = new GPolyline(pointSelectedPolyline,'#FFFFFF',4,0.8);
+  var selectedPolyline = new GPolyline(pointSelectedPolyline,'#FFFFFF',3,0.8);
   return selectedPolyline;
 }
 
@@ -112,7 +112,7 @@ function midArrows(id) {
 
 //Función que pinta la ruta de buses, la de vias y la del metro
 function drawPolyline(latlng_street,latlng_metro){
-  polyline = new GPolyline(latlng_street,'#FF6633',7,1);
+  polyline = new GPolyline(latlng_street,'#FF6633',7,0.8);
   map.addOverlay(polyline);
   polyline_metro = new GPolyline(latlng_metro,'#FF6633',4,1);
   map.addOverlay(polyline_metro);
@@ -179,7 +179,7 @@ var latlng_bus=[];
       while(color.length<=6){
         color='#'+Math.floor(Math.random()*16777215).toString(16);
       }
-      var polyline_bus = new GPolyline(latlng_bus,color,5,1);
+      var polyline_bus = new GPolyline(latlng_bus,color,4,1);
       var infoMarkers=createMarkersBuses(buses_hash[i].bus_id);
       overlay_buses_hash[j]={
       bus_id          :buses_hash[i].bus_id,
@@ -516,8 +516,14 @@ function explainRoute(infoRouteHash){
       turn = eval_direction(prev_dir,curr_dir);
 
       explain += '<li id=sidebar-item-'+i+' >'+'<a href="#" onclick="javascript:focusPoint('+i+')">'
-      +j + ". Voltear " + "<b>"+ turn+"</b> por <b>"+ infoRouteHash[i].way_type_b +  " "
-      +infoRouteHash[i].street_name_b + " (metros: " + getDistance(i) + ")</b></a></li>";
+      +j + ". Voltear " + "<b>"+ turn+"</b> por <b>"+ infoRouteHash[i].way_type_b +  " " + infoRouteHash[i].street_name_b;
+      if (infoRouteHash[i].has_relation){
+        var index = infoRouteHash[i].street_name_b.indexOf("-");
+        if(index != -1){
+          explain += '</b> y continúa por <b>' + infoRouteHash[i].way_type_b + ' ' + infoRouteHash[i].street_name_b.substring(0,index);
+        }
+      }
+      explain +=  " (metros: " + getDistance(i) + ")</b></a></li>";
       j++;
     }
 
