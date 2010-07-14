@@ -346,7 +346,9 @@ function parseContentBuses(content){
 function assignRelated(infoRouteHash,size){
   for (var i=0;i<size-2;i++){
     if(infoRouteHash[i].new_direction == infoRouteHash[i+1].new_direction){
-      infoRouteHash[i+1].related_id = infoRouteHash[i].related_id
+      infoRouteHash[i+1].related_id = infoRouteHash[i].related_id;
+      infoRouteHash[i].has_relation = true;
+      infoRouteHash[i+1].has_relation = true;
      // console.debug(" el infoRouteHash " + (i+1) + " con el nuevo related " + infoRouteHash[i+1].related_id)
     }
   }
@@ -403,7 +405,8 @@ function parseContent(content){
       bearing       : bearing,
       direction     : direction,
       related_id    : id,
-      new_direction : direction
+      new_direction : direction,
+      has_relation  : false
     };
 
     if(stretch_type=='3'){
