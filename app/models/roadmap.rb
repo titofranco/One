@@ -26,7 +26,7 @@ class Roadmap < ActiveRecord::Base
   end
 =end
 
-def self.get_closest_points (lat_start,long_start,numNodos)
+def self.get_closest_points(lat_start,long_start,numNodos)
   dist = 0.310685596
   to_rad=(Math::PI/180)
   lon1 = long_start.to_f - dist/(Math.cos(to_rad*lat_start.to_f)*69).abs
@@ -41,7 +41,7 @@ def self.get_closest_points (lat_start,long_start,numNodos)
         where stretch_type = '1' and has_relation='S'
         and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
         " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
-        "having distance < "+dist.to_s+
+        " having distance < "+dist.to_s+
         " order by distance limit "+numNodos.to_s
   @init_point = find_by_sql(sql)
   @init_point
@@ -80,7 +80,7 @@ def self.get_closest_end_point(lat_end,long_end)
         and dest.lat_start not in("+@init_point[0].lat_start.to_s+") and dest.long_start not in ("+@init_point[0].long_start.to_s+")
         and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
         " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
-        "having distance < "+dist.to_s+
+        " having distance < "+dist.to_s+
         " order by distance limit 1"
     @end_point = find_by_sql(sql)
     @end_point
@@ -120,7 +120,7 @@ end
           where stretch_type = '1' and has_relation='S'
           and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
           " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
-          "having distance < "+dist.to_s+
+          " having distance < "+dist.to_s+
           " order by distance limit 20"
     find_by_sql(sql)
   end
