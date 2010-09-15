@@ -18,12 +18,13 @@ class BusesRoute < ActiveRecord::Base
   #Dado un conjunto de buses, examina si estos tienen una conexion directa por un roadmap_id
   def self.get_common_bus(bus_id_A, bus_id_B)
 
-    sql = "Select distinct br.bus_id AS bus_id_A, br2.bus_id AS bus_id_B
+    sql = "Select  br.bus_id AS bus_id_A, br2.bus_id AS bus_id_B
           from buses_routes br
           inner join buses_routes br2
           On (br.roadmap_id = br2.roadmap_id)
           where br.bus_id in (" + bus_id_A.to_s + ") and br2.bus_id in (" + bus_id_B + ")" +
-          " having br.bus_id <> br2.bus_id "
+          "HAVING br.bus_id <> br2.bus_id 
+          GROUP BY br.bus_id , br2.bus_id "
     r = find_by_sql(sql)
   end
 
@@ -65,7 +66,8 @@ class BusesRoute < ActiveRecord::Base
             where dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
             " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
             " and dest.bus_id in ("+ bus_id_B +") ) temp
-            where distance < "+dist.to_s+ " order by distance limit 10 "            
+            where distance < "+dist.to_s+ 
+            "order by distance limit 10 "            
             
       r = find_by_sql(sql)
 
@@ -85,7 +87,7 @@ class BusesRoute < ActiveRecord::Base
 
   def self.get_closest_bus_id(roadmapId)
     result = Array.new
-    r = Roadmap.find(roadmapId.to_i,:select=>"lat_start,long_start");
+    r = Roadmap.find(roadmapId.to_i,:select=>"lat_start,long_start")
     lat_start = r.lat_start
     long_start = r.long_start
     dist = 0.310685596
@@ -110,7 +112,7 @@ class BusesRoute < ActiveRecord::Base
           GROUP BY 1"
 =end
 #POSTGRESQL          
-    sql  ="SELECT bus_id, min(id) as busRouteId,min(distance) as distance
+    sql  ="SELECT bus_id, min(id) AS busRouteId, min(distance) AS distance
           FROM(
             SELECT * FROM (
             Select id,bus_id,roadmap_id, dest.lat_start,dest.long_start,
@@ -123,7 +125,7 @@ class BusesRoute < ActiveRecord::Base
             ") AS dest 
              WHERE distance < "+dist.to_s+ " order by distance  limit 20
           ) TEMP     
-          GROUP BY 1"         
+          GROUP BY bus_id"         
                     
     r = find_by_sql(sql)
     if r
