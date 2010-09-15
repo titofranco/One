@@ -17,14 +17,24 @@ class BusesRoute < ActiveRecord::Base
 
   #Dado un conjunto de buses, examina si estos tienen una conexion directa por un roadmap_id
   def self.get_common_bus(bus_id_A, bus_id_B)
-
+#MYSQL  
+=begin
     sql = "Select  br.bus_id AS bus_id_A, br2.bus_id AS bus_id_B
           from buses_routes br
           inner join buses_routes br2
           On (br.roadmap_id = br2.roadmap_id)
           where br.bus_id in (" + bus_id_A.to_s + ") and br2.bus_id in (" + bus_id_B + ")" +
-          "HAVING br.bus_id <> br2.bus_id 
+          " HAVING br.bus_id <> br2.bus_id 
           GROUP BY br.bus_id , br2.bus_id "
+=end
+#POSTGRESQL
+    sql = "Select  br.bus_id AS bus_id_A, br2.bus_id AS bus_id_B
+          from buses_routes br
+          inner join buses_routes br2
+          On (br.roadmap_id = br2.roadmap_id)
+          where br.bus_id in (" + bus_id_A.to_s + ") and br2.bus_id in (" + bus_id_B + ")" +
+          " GROUP BY br.bus_id , br2.bus_id HAVING br.bus_id <> br2.bus_id "          
+          
     r = find_by_sql(sql)
   end
 
@@ -56,7 +66,7 @@ class BusesRoute < ActiveRecord::Base
 =end
 
 #POSTGRESQL
-      sql  = "Select distinct "+bus_id_A.to_s+" as bus_A, temp.bus_id as bus_B
+      sql  = "Select distinct "+bus_id_A.to_s+" as bus_a, temp.bus_id as bus_b
             FROM(            
             select bus_id,roadmap_id, dest.lat_start,dest.long_start,
             3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start.to_s+" - dest.lat_start) * pi()/180 / 2), 2) +
@@ -65,14 +75,15 @@ class BusesRoute < ActiveRecord::Base
             FROM buses_routes dest 
             where dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
             " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
-            " and dest.bus_id in ("+ bus_id_B +") ) temp
+            " and dest.bus_id in ("+ bus_id_B +") 
+            ) temp
             where distance < "+dist.to_s+ 
-            "order by distance limit 10 "            
+            " limit 10 "            
             
       r = find_by_sql(sql)
 
       for reg in r
-        result.push(:bus_A => reg.bus_A, :bus_B => reg.bus_B)
+        result.push(:bus_A => reg.bus_a, :bus_B => reg.bus_b)
       end
     end
 =begin
@@ -111,10 +122,8 @@ class BusesRoute < ActiveRecord::Base
           " HAVING distance < "+dist.to_s+ " order by distance  limit 20) TEMP     
           GROUP BY 1"
 =end
-#POSTGRESQL          
-    sql  ="SELECT bus_id, min(id) AS busRouteId, min(distance) AS distance
-          FROM(
-            SELECT * FROM (
+#POSTGRESQL  aliases always in lowercase        
+    sql  =" SELECT min(id) AS busrouteid,bus_id, min(distance) as distance FROM (
             Select id,bus_id,roadmap_id, dest.lat_start,dest.long_start,
             3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start.to_s+" - dest.lat_start) * pi()/180 / 2), 2) +
             COS("+lat_start.to_s+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
@@ -122,15 +131,14 @@ class BusesRoute < ActiveRecord::Base
             FROM buses_routes dest
             where dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
             " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
-            ") AS dest 
-             WHERE distance < "+dist.to_s+ " order by distance  limit 20
-          ) TEMP     
-          GROUP BY bus_id"         
-                    
-    r = find_by_sql(sql)
+            ") AS TEMP 
+             WHERE distance < "+dist.to_s+ "
+             GROUP BY bus_id limit 20"     
+                                     
+    r = find_by_sql(sql)   
     if r
-      for reg in r
-        result.push(:bus_id => reg.bus_id , :busRouteId => reg.busRouteId)
+      r.each do |reg|
+        result.push(:bus_id => reg.bus_id , :busRouteId=> reg.busrouteid)
       end
     end
   end

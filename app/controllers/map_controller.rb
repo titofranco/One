@@ -124,7 +124,7 @@ class MapController < ApplicationController
        puts "El conjunto A es #{collectionA}"
        puts "El conjunto B es #{collectionB.join(',')}"
        for reg in closeInitBuses
-         r = BusesRoute.get_closest_common_bus(reg[:busRouteId],reg[:bus_id],collectionB.join(','))
+         r = BusesRoute.get_closest_common_bus(reg[:busrouteid],reg[:bus_id],collectionB.join(','))
          common_buses.push(r) if !r.empty?
        end
        common_buses = common_buses.flatten.uniq
