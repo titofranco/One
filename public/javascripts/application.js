@@ -240,7 +240,7 @@ function findRoute(){
   var getVars = "?initial_point="+init_lat_lng+"&end_point="+end_lat_lng;
 
   var request = GXmlHttp.create();
-  request.open('GET', 'calcular'+getVars,true);
+  request.open('GET', 'map/find_route'+getVars,true);
   request.onreadystatechange = function() {
     if(request.readyState == 4){
 
