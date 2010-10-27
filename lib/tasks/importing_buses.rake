@@ -1,11 +1,13 @@
 require 'csv'
 
 task :importing_buses => :environment do
+
   begin
-    csv = CSV.open "#{RAILS_ROOT}/lib/Text_Files/rutas_buses.csv","r"
+    csv = CSV.open "#{RAILS_ROOT}/lib/Text_Files/buses_routes.csv","r"
+    
     csv.each_with_index do |row,i|
       id_bus,lat,long = row
-      roadmap = Roadmap.find(:all,:select=>"id",:conditions =>["lat_start = ? and long_start  =  ? and has_relation = 'S'",lat,long])
+      roadmap = Roadmap.find(:all,:select=>"id",:conditions =>["lat_start = ? and long_start  =  ? ",lat,long])     
       for reg in roadmap
         busRoute = BusesRoute.create(
                            :roadmap_id => reg.id,
@@ -13,7 +15,7 @@ task :importing_buses => :environment do
                             :long_start => long,
                             :bus_id => id_bus
                             )
-        busRoute.save
+        busRoute.save!
       end
     end
   ensure
