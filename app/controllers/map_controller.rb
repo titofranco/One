@@ -117,24 +117,26 @@ protected
      closeInitBuses = BusesRoute.get_closest_bus_id(@closest_init_point.id)
      if closeInitBuses
        closeEndBuses  = BusesRoute.get_closest_bus_id(@closest_end_point.id)
-       if closeEndBuses
-       end
-
-       for reg in closeEndBuses
-         collectionB.push(reg[:bus_id])
-       end
-       collectionA = closeInitBuses.collect{|t| t.attributes}
-       puts "El conjunto A es #{collectionA}"
-       puts "El conjunto B es #{collectionB.join(',')}"
-       for reg in closeInitBuses
-         r = BusesRoute.get_closest_common_bus(reg[:busrouteid],reg[:bus_id],collectionB.join(','))
-         common_buses.push(r) if !r.empty?
-       end
-       common_buses = common_buses.flatten.uniq
-       for reg in common_buses
-         rutas << reg[:bus_A]
-         rutas << reg[:bus_B]
-       end
+       unless closeEndBuses.compact.empty?
+         for reg in closeEndBuses
+           collectionB.push(reg[:bus_id])
+         end        
+         puts "CLOSEINITBUSES #{closeInitBuses}"
+         puts "CLOSEENDBUSES #{closeEndBuses.empty?}"
+        
+         collectionA = closeInitBuses.collect{|t| t.attributes}
+         puts "El conjunto A es #{collectionA}"
+         puts "El conjunto B es #{collectionB.join(',')}"
+         for reg in closeInitBuses
+           r = BusesRoute.get_closest_common_bus(reg[:busrouteid],reg[:bus_id],collectionB.join(','))
+           common_buses.push(r) unless r.empty?
+         end
+         common_buses = common_buses.flatten.uniq
+         for reg in common_buses
+           rutas << reg[:bus_A]
+           rutas << reg[:bus_B]
+         end              
+       end  
      end
     return rutas.uniq
   end
