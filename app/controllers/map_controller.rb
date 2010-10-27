@@ -8,7 +8,7 @@ class MapController < ApplicationController
     lat_start,long_start = params_initial_point.split(/,/)
     lat_end,long_end = params_end_point.split(/,/)
 
-    @closest_init_point = (Roadmap.get_closest_init_point(lat_start,long_start)).first
+    @closest_init_point = (Roadmap.get_closest_points(lat_start,long_start,1.to_s)).first
     if @closest_init_point.eql?nil
       res={:success=>false, :content=>"Debe de elegir un punto inicial más cercano"}
       render :text=>res.to_json
@@ -66,6 +66,7 @@ class MapController < ApplicationController
     end
   end
 
+protected
   def findUniqueBusNoWalk
     nodoI = @closest_init_point.id
     nodoD = @closest_end_point.id

@@ -1,21 +1,14 @@
 class Roadmap < ActiveRecord::Base
   
   DIST = 0.310685596 #Equivalent to 500 meters
-  TO_RAD = (Math::PI/180)
-  
+  TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
   
   def initialize
     @init_point
     @end_point
   end
-
-
-  def self.get_closest_init_point(lat_start,long_start)
-    nodo = self.get_closest_points(lat_start,long_start,1)
-    nodo
-  end
   
-  
+  #Set variables used in all queries
   def self.set_coordinates(lat_start,long_start)
     lon1 = long_start.to_f - DIST/(Math.cos(TO_RAD*lat_start.to_f)*69).abs
     lon2 = long_start.to_f + DIST/(Math.cos(TO_RAD*lat_start.to_f)*69).abs
@@ -24,29 +17,41 @@ class Roadmap < ActiveRecord::Base
     return [lon1,lon2,lat1,lat2]  
   end
   
-
-  def self.get_closest_points(lat_start,long_start,numNodos)
+  #Get the closest points given lat_start, long_start, num_nodes
+  def self.get_closest_points(lat_start,long_start,num_nodes)
+    lon1,lon2,lat1,lat2 = self.set_coordinates(lat_start,long_start)                          
+    @init_point = self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2,num_nodes)
+  end
+ 
+  #Query when you need to lat_start , long_start given the roadmap_id 
+  def self.get_closest_point_by_id(roadmapId)
+    r = Roadmap.find(roadmapId.to_i,:select=>"lat_start,long_start");
+    lat_start = r.lat_start
+    long_start = r.long_start
     lon1,lon2,lat1,lat2 = self.set_coordinates(lat_start,long_start)
-    #POSTGRESQL        
-    sql  ="SELECT * FROM 
-          (select id, dest.lat_start,dest.long_start,
-          3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start+" - dest.lat_start) * pi()/180 / 2), 2) +
-          COS("+lat_start+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
-          POWER(SIN(("+long_start+ "- dest.long_start) * pi()/180 / 2), 2) )) AS  distance
-          FROM roadmaps dest  
-          where stretch_type = '1' and has_relation='S'         
-          and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
-          " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s + 
-          ") AS dest
-          WHERE distance < "+DIST.to_s+
-          "order by distance limit "+numNodos.to_s        
-          
-          
-    @init_point = find_by_sql(sql)
-    @init_point
+    result = self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2,20)
+  end
+  
+  #Standar query to get the closest points
+  def self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2,num_nodes)
+    #POSTGRESQL  
+    sql  = "SELECT * FROM 
+      (select id, dest.lat_start,dest.long_start,
+      3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start.to_s+" - dest.lat_start) * pi()/180 / 2), 2) +
+      COS("+lat_start.to_s+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
+      POWER(SIN(("+long_start.to_s+ "- dest.long_start) * pi()/180 / 2), 2) )) as  distance
+      FROM roadmaps dest
+      where stretch_type = '1' and has_relation='S'
+      and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
+      " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
+      ") AS dest
+       WHERE distance < "+DIST.to_s+
+      "order by distance 
+       limit " + num_nodes.to_s
+    query = find_by_sql(sql)      
   end
 
-
+  #Get the closest node given the end point and not including the node closest to the initial point
   def self.get_closest_end_point(lat_end,long_end)
     lon1,lon2,lat1,lat2 = self.set_coordinates(lat_end,long_end)
     #POSTGRESQL        
@@ -66,30 +71,6 @@ class Roadmap < ActiveRecord::Base
         
     @end_point = find_by_sql(sql)
     @end_point
-  end
-
-
-  def self.get_closest_point_by_id(roadmapId)
-    r = Roadmap.find(roadmapId.to_i,:select=>"lat_start,long_start");
-    lat_start = r.lat_start
-    long_start = r.long_start
-    lon1,lon2,lat1,lat2 = self.set_coordinates(lat_start,long_start)
-    
-    #POSTGRESQL
-    sql  = "SELECT * FROM 
-        (select id, dest.lat_start,dest.long_start,
-        3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_start.to_s+" - dest.lat_start) * pi()/180 / 2), 2) +
-        COS("+lat_start.to_s+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
-        POWER(SIN(("+long_start.to_s+ "- dest.long_start) * pi()/180 / 2), 2) )) as  distance
-        FROM roadmaps dest
-        where stretch_type = '1' and has_relation='S'
-        and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
-        " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s +
-        ") AS dest
-         WHERE distance < "+DIST.to_s+
-        "order by distance limit 20"
-                    
-    find_by_sql(sql)
   end
 
   #Get all the data from Dijkstra algorithm result
@@ -133,7 +114,5 @@ class Roadmap < ActiveRecord::Base
     end
     infoNodes
   end
-  
-  
-end
 
+end
