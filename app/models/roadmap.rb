@@ -8,8 +8,8 @@ class Roadmap < ActiveRecord::Base
     @end_point
   end
   
-  #Set variables used in all queries
-  def self.set_coordinates(lat_start,long_start)
+  #Get variables used in all queries
+  def self.get_coordinates(lat_start,long_start)
     lon1 = long_start.to_f - DIST/(Math.cos(TO_RAD*lat_start.to_f)*69).abs
     lon2 = long_start.to_f + DIST/(Math.cos(TO_RAD*lat_start.to_f)*69).abs
     lat1 = lat_start.to_f - (DIST/69)
@@ -19,7 +19,7 @@ class Roadmap < ActiveRecord::Base
   
   #Get the closest points given lat_start, long_start, num_nodes
   def self.get_closest_points(lat_start,long_start,num_nodes)
-    lon1,lon2,lat1,lat2 = self.set_coordinates(lat_start,long_start)                          
+    lon1,lon2,lat1,lat2 = self.get_coordinates(lat_start,long_start)                          
     @init_point = self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2,num_nodes)
   end
  
@@ -28,7 +28,7 @@ class Roadmap < ActiveRecord::Base
     r = Roadmap.find(roadmapId.to_i,:select=>"lat_start,long_start");
     lat_start = r.lat_start
     long_start = r.long_start
-    lon1,lon2,lat1,lat2 = self.set_coordinates(lat_start,long_start)
+    lon1,lon2,lat1,lat2 = self.get_coordinates(lat_start,long_start)
     result = self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2,20)
   end
   
@@ -53,7 +53,7 @@ class Roadmap < ActiveRecord::Base
 
   #Get the closest node given the end point and not including the node closest to the initial point
   def self.get_closest_end_point(lat_end,long_end)
-    lon1,lon2,lat1,lat2 = self.set_coordinates(lat_end,long_end)
+    lon1,lon2,lat1,lat2 = self.get_coordinates(lat_end,long_end)
     #POSTGRESQL        
     sql  ="SELECT * FROM 
         (select id, dest.lat_start,dest.long_start,
