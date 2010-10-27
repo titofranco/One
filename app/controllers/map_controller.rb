@@ -1,6 +1,8 @@
 class MapController < ApplicationController
 
-  def calcular
+  layout "standar"
+
+  def find_route
     params_initial_point = params[:initial_point]
     params_end_point = params[:end_point]
     lat_start,long_start = params_initial_point.split(/,/)
@@ -170,5 +172,9 @@ class MapController < ApplicationController
     end
     render :text=>res.to_json
   end
+  
+  def driving_directions
+  end
+  
 end
 
