@@ -40,7 +40,7 @@ Rails::Initializer.run do |config|
   # config.i18n.default_locale = :de
 end
 require 'dijkstra/dijkstra'
-require 'dijkstra/calle'
+require 'dijkstra/street'
 require 'dijkstra/haversine'
 require 'dijkstra/parser'
 
