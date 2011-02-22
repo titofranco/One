@@ -22,7 +22,7 @@ class MapController < ApplicationController
     else
       
       #dijkstra
-      streets = Parser.getGrafo
+      streets = Parser.get_graph
       pathDijkstra = Dijkstra.find_path streets,@closest_initial.id,@closest_final.id
       #end dijkstra
       

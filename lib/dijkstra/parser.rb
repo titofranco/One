@@ -1,31 +1,29 @@
-#require 'calle'
-
 class Parser
-  def self.getGrafo rutaArchivo
-    grafo = Array.new
-    f = File.new(rutaArchivo,"r")
-    f.each do |line|
-      cll = Calle.new
+  def self.get_graph
+    graph = Array.new
+    file = File.new(STREETS_FILE,"r")
+    file.each do |line|
+      st = Street.new
       temp = line.split ":"
-      cll.idNodo = temp.first.to_i
+      st.node_id = temp.first.to_i
       temp = temp.last
       temp = temp.split "&"
-      coordenadas = temp.last.split ","
+      coordinate = temp.last.split ","
       temp = temp.first
-      cll.lati = coordenadas.first.to_f
-      cll.longi = coordenadas.last.to_f
+      st.lati = coordinate.first.to_f
+      st.longi = coordinate.last.to_f
       temp = temp.split ";"
-      enlaces = Array.new
+      connections = Array.new
       temp.each { |e|
         e = e.split ","
-        cll.tipo = e[3].to_i
-        enlaces.push [e[0].to_i,e[1].to_f]
+        st.type = e[3].to_i
+        connections.push [e[0].to_i,e[1].to_f]
 
       }
-      cll.enlaces = enlaces
-      grafo[cll.idNodo] = cll
+      st.connections = connections
+      graph[st.node_id] = st
     end
-    grafo
+    graph
   end
 end
 
