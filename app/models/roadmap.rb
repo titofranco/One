@@ -18,9 +18,11 @@ class Roadmap < ActiveRecord::Base
   end
   
   #Get the closest points given lat_start, long_start, num_nodes
-  def self.get_closest_points(lat_start,long_start,num_nodes)
+  def self.get_closest_points(lat_start,long_start)
     lon1,lon2,lat1,lat2 = self.get_coordinates(lat_start,long_start)                          
-    @init_point = self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2,num_nodes)
+    init_point =
+      self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2)
+    init_point.first
   end
  
   #Query when you need to lat_start , long_start given the roadmap_id 
@@ -33,7 +35,7 @@ class Roadmap < ActiveRecord::Base
   end
   
   #Standar query to get the closest points
-  def self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2,num_nodes)
+  def self.query_closest_points(lat_start,long_start,lon1,lat1,lon2,lat2)
     #POSTGRESQL  
     sql  = "SELECT * FROM 
       (select id, dest.lat_start,dest.long_start,
@@ -47,7 +49,7 @@ class Roadmap < ActiveRecord::Base
       ") AS dest
        WHERE distance < "+DIST.to_s+
       "order by distance 
-       limit " + num_nodes.to_s
+       limit 1"
     query = find_by_sql(sql)      
   end
 
