@@ -1,36 +1,3 @@
-//Obtiene los grados que hay entre 2 pares lat-long
-function getBearing(lat_start,long_start,lat_end,long_end){
-  var toRad=Math.PI/180;
-  var lat1 = lat_start*toRad;
-  var long1 = long_start*toRad;
-  var lat2 = lat_end*toRad;
-  var long2 = long_end*toRad;
-
-  var y = (Math.cos(lat1)*Math.sin(lat2))-( Math.sin(lat1)*Math.cos(lat2)*Math.cos(long2-long1))
-  var x = Math.sin(long2-long1)*Math.cos(lat2);
-  var brng = Math.atan2(x,y)%(2*Math.PI);
-  brng  = brng*(180/Math.PI);
-  if(brng < 0 ){brng = brng + 360;} //Convertir grados positivos a negativos
-  return brng;
-}
-
-//Obtiene la cardinalidad dado los grados
-function getDirection(bearing){
-  var direction;
-
-  if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
-  {direction="Norte"}
-  else if (bearing > 22.5 && bearing <= 67.5 ){direction="Nororiente"}
-  else if (bearing > 67.5 && bearing <= 112.5 ){direction="Oriente"}
-  else if (bearing > 112.5 && bearing <= 157.5 ){direction="Suroriente"}
-  else if (bearing > 157.5 && bearing <= 202.5 ){direction="Sur"}
-  else if (bearing > 202.5 && bearing <= 247.5 ){direction="Suroccidente"}
-  else if (bearing > 247.5 && bearing <= 292.5 ){direction="Occidente"}
-  else if (bearing > 292.5 && bearing <=337.5  ){direction="Noroccidente"}
-
-  return direction;
-}
-
 //Funcion que compara con los grados que hay entre un registro y otro.
 //Se hace esto porque por ejemplo si el registro i tiene 22.5 grados y el registro
 //(i-1) tiene 22 grados entonces a la hora de explicar va a decir que hay que voltear

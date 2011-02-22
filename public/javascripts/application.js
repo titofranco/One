@@ -372,16 +372,17 @@ function parseContent(content){
     var street_name_a = content[i].street_name_a;
     var prefix_a      = content[i].prefix_a;
     var common_name_a = content[i].common_name_a;
-    var distance      = Math.round(content[i].distance*100)/100;
+    var distance      = parseFloat(content[i].distance);
     var label_a       = content[i].label_a;
     var way_type_b    = content[i].way_type_b;
     var street_name_b = content[i].street_name_b;
     var prefix_b      = content[i].prefix_b;
     var label_b       = content[i].label_b;
     var common_name_b = content[i].common_name_b;
-    var bearing       = getBearing(lat_start,long_start,lat_end,long_end);
-    var direction     = getDirection(bearing);
-
+    var bearing       = parseFloat(content[i].bearing);
+    var direction     = content[i].direction;
+    
+    //getBearing(lat_start,long_start,lat_end,long_end);
     infoRouteHash[i]={
       id            : id,
       lat_start     : lat_start,
@@ -406,11 +407,13 @@ function parseContent(content){
       new_direction : direction,
       has_relation  : false
     };
-
+    
+    //type 3: start of a metro station
     if(stretch_type=='3'){
       id_metro_related=id;
       infoRouteHash[i].related_id=id_metro_related;
     }
+    //type 2: metro station's path
     if(stretch_type=='2'){
       infoRouteHash[i].related_id=id_metro_related;
     }

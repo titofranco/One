@@ -92,27 +92,78 @@ class Roadmap < ActiveRecord::Base
 
       route = route[0]
       if(route.distance_meters >0  || (route.distance_meters == 0 && route.stretch_type != 1))
-        infoNodes.push({:id=>route.id,
-                        :lat_start=>route.lat_start,
-                        :long_start=>route.long_start,
-                        :lat_end=>route.lat_end,
-                        :long_end=>route.long_end,
-                        :stretch_type=>route.stretch_type,
-                        :way_type_a=>route.way_type_a,
-                        :street_name_a=>route.street_name_a,
-                        :prefix_a=>route.prefix_a,
-                        :label_a=>route.label_a,
-                        :common_name_a=>route.common_name_a,
-                        :distance=>route.distance_meters,
-                        :way_type_b=>route.way_type_b,
-                        :street_name_b=>route.street_name_b,
-                        :prefix_b=>route.prefix_b,
-                        :label_b=>route.label_b,
-                        :common_name_b=>route.common_name_b
+      
+        bearing = self.getBearing(route.lat_start,route.long_start,route.lat_end,route.long_end)
+        direction = self.getDirection(bearing)
+        
+        infoNodes.push({:id            => route.id,
+                        :lat_start     => route.lat_start,
+                        :long_start    => route.long_start,
+                        :lat_end       => route.lat_end,
+                        :long_end      => route.long_end,
+                        :stretch_type  => route.stretch_type,
+                        :way_type_a    => route.way_type_a,
+                        :street_name_a => route.street_name_a,
+                        :prefix_a      => route.prefix_a,
+                        :label_a       => route.label_a,
+                        :common_name_a => route.common_name_a,
+                        :distance      => sprintf('%.2f',route.distance_meters),
+                        :way_type_b    => route.way_type_b,
+                        :street_name_b => route.street_name_b,
+                        :prefix_b      => route.prefix_b,
+                        :label_b       => route.label_b,
+                        :common_name_b => route.common_name_b,
+                        :bearing       => bearing,
+                        :direction     => direction
                         })
       end
     end
     infoNodes
+  end
+  
+  #Computes how many degrees are between 2 pairs lat-long
+  def self.getBearing(lat_start,long_start,lat_end,long_end)
+    
+    lat1  = lat_start*TO_RAD
+    long1 = long_start*TO_RAD
+    lat2  = lat_end*TO_RAD
+    long2 = long_end*TO_RAD
+    
+    y = (Math.cos(lat1)*Math.sin(lat2))-( Math.sin(lat1)*Math.cos(lat2)*Math.cos(long2-long1))
+    x = Math.sin(long2-long1)*Math.cos(lat2)
+    brng = Math.atan2(x,y)%(2*Math::PI)
+    brng = brng*(180/Math::PI)
+    #bearing must be positive
+    if(brng < 0 ) 
+      brng = brng + 360
+    end
+    brng
+  end
+    
+  
+  #It gets the direction given the bearing in degrees
+  def self.getDirection(bearing)
+    direction = nil
+    
+    if( (bearing >= 0 && bearing <= 22.5) || (bearing>337.5 && bearing<360))
+      direction = "Norte"
+    elsif (bearing > 22.5  && bearing <= 67.5  ) 
+      direction = "Nororiente"
+    elsif (bearing > 67.5  && bearing <= 112.5 ) 
+      direction = "Oriente"
+    elsif (bearing > 112.5 && bearing <= 157.5 ) 
+      direction = "Suroriente"
+    elsif (bearing > 157.5 && bearing <= 202.5 ) 
+      direction = "Sur"
+    elsif (bearing > 202.5 && bearing <= 247.5 ) 
+      direction = "Suroccidente"
+    elsif (bearing > 247.5 && bearing <= 292.5 ) 
+      direction = "Occidente"
+    elsif (bearing > 292.5 && bearing <= 337.5 ) 
+      direction = "Noroccidente"
+    end
+    
+    direction   
   end
 
 end
