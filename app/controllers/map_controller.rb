@@ -22,8 +22,8 @@ class MapController < ApplicationController
     else
       
       #dijkstra
-      streets = Parser.getGrafo "#{RAILS_ROOT}/lib/dijkstra/listas.txt"
-      pathDijkstra = Dijkstra.encontrarCamino streets,@closest_initial.id,@closest_final.id
+      streets = Parser.getGrafo
+      pathDijkstra = Dijkstra.find_path streets,@closest_initial.id,@closest_final.id
       #end dijkstra
       
       if pathDijkstra.size == 0
@@ -182,4 +182,3 @@ class MapController < ApplicationController
   end
   
 end
-
