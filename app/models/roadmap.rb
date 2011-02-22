@@ -8,7 +8,7 @@ class Roadmap < ActiveRecord::Base
   #using a hash table while we find a better way to do the response
   def self.get_path(init_lat,init_long,final_lat,final_long)
     
-    response = {:msg_error => nil, :info_path => []}
+    response = {:msg_error => "", :info_path => []}
     closest_initial = get_closest_points(init_lat,init_long)
     closest_final = get_closest_points(final_lat,final_long)
     
@@ -28,9 +28,8 @@ class Roadmap < ActiveRecord::Base
       return response
     end
 
-#    response[:info_path] = get_route path_dijkstra
-#    return response
-    get_route path_dijkstra
+    response[:info_path] = get_route path_dijkstra
+    return response
   end
   
   #Get variables used in all queries

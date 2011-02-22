@@ -6,35 +6,17 @@ class MapController < ApplicationController
     lat_start,long_start = params[:initial_point].split(/,/)
     lat_end,long_end = params[:end_point].split(/,/)
 
-    info_path = Roadmap.get_path(lat_start,long_start,lat_end,long_end)
+    path = Roadmap.get_path(lat_start,long_start,lat_end,long_end)
     
-    @closest_initial = Roadmap.get_closest_points(lat_start,long_start)
-    @closest_final = Roadmap.get_closest_points(lat_end,long_end)
-    
-    # if ( @closest_initial.nil? || @closest_final.nil? )
-    #   str_error = ""
-    #   str_error = "Debe elegir un punto inicial mas cercano" unless !@closest_initial.nil?
-    #   str_error = str_error + "\n" unless str_error.empty?
-    #   str_error = str_error + "Debe elegir un punto final mas cercano" unless !@closest_final.nil?
-
-    #   res={:success=>false, :content=>str_error}
-    #   render :text=>res.to_json
-    # else
+    if !path[:msg_error].blank?
+      res={:success=>false, :content=>path[:msg_error]}
+      render :text=>res.to_json
+    else
       
-    #   #dijkstra
-    #   streets = Parser.get_graph
-    #   pathDijkstra = Dijkstra.find_path streets,@closest_initial.id,@closest_final.id
-    #   #end dijkstra
+      @closest_initial = Roadmap.get_closest_points(lat_start,long_start)
+      @closest_final = Roadmap.get_closest_points(lat_end,long_end)
       
-    #   if pathDijkstra.size == 0
-    #     res={:success=>false, :content=>"Ruta no encontrada"}
-    #     render :text=>res.to_json
-    #     return nil
-    #   end
       
-    #   infoPath = Roadmap.get_route pathDijkstra
-
-
       infoBus = nil
       busRoute = findUniqueBusNoWalk
       hi = nil
@@ -53,7 +35,7 @@ class MapController < ApplicationController
       end
       #infoBus = BusesRoute.getOneBus
       #BusesRoute.get_closest_bus_id(44197)
-      res={:success=>true, :content=>info_path, :bus=>infoBus, :hi=>hi}
+      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :hi=>hi}
       render :text=>res.to_json
       # infoBus = nil
       # if !busRoute.nil?
@@ -66,9 +48,8 @@ class MapController < ApplicationController
       # end
       
     end
-  #end
-  
-  
+  end
+
   protected
   def findUniqueBusNoWalk
     nodoI = @closest_initial.id
