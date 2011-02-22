@@ -8,21 +8,29 @@ class Roadmap < ActiveRecord::Base
   #using a hash table while we find a better way to do the response
   def self.get_path(init_lat,init_long,final_lat,final_long)
     
-    response = {"error" => true, "msg_error" => "", path => []}
+    response = {:msg_error => nil, :info_path => []}
     closest_initial = get_closest_points(init_lat,init_long)
     closest_final = get_closest_points(final_lat,final_long)
     
     if closest_initial.nil? || closest_final.nil?
-      response["msg_error"] = "Debe elegir un punto inicial mas cercano" unless !closest_initial.nil?
-      response["msg_error"] = response["msg_error"] + "\n" unless str_error.empty?
-      response["msg_error"] = response["msg_error"] + 
+      response[:msg_error] = "Debe elegir un punto inicial mas cercano" unless !closest_initial.nil?
+      response[:msg_error] = response[:msg_error] + "\n" if !response[:msg_error].blank?
+      response[:msg_error] = response[:msg_error] + 
         "Debe elegir un punto final mas cercano" unless !closest_final.nil?
       return response
     end
 
-    streets = Parser.getGrafo
-    path_dijkstra = Dijkstra.find_path streets,closest_initial.id,closest_final.id
+    streets = Parser.get_graph
+    path_dijkstra = Dijkstra.find_path(streets,closest_initial.id,closest_final.id)
     
+    if path_dijkstra.empty?
+      response[:msg_error] = "Ruta no encontrada"
+      return response
+    end
+
+#    response[:info_path] = get_route path_dijkstra
+#    return response
+    get_route path_dijkstra
   end
   
   #Get variables used in all queries
@@ -94,7 +102,7 @@ class Roadmap < ActiveRecord::Base
   
 
   #Get all the data from Dijkstra algorithm result
-  def self.getRoute(nodes,lat_start,long_start,lat_end,long_end)
+  def self.get_route nodes
     infoNodes = Array.new
 
     for i in 0 ...nodes.length-1

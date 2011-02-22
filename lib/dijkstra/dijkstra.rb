@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'algorithms'
 
 class Dijkstra
