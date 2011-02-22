@@ -620,26 +620,6 @@ function getTimeAprox(total_distance){
   return Math.round(time_aprox);
 }
 
-//Crea el form donde va a estar el Origen y Destino
-function createInputForm(){
-  var divheader=document.getElementById("inputBoxes");
-  var inputForm = document.createElement("form");
-  inputForm.setAttribute("action","");
-  inputForm.id='input_points';
-  inputForm.onsubmit = function(){validar(this);return false;};
-  inputForm.innerHTML=
-    '<div id=inputArea>'
-    +'<img src="http://www.google.com/mapfiles/dd-start.png" class="icon"/>'
-    + '<label for="initial_point">Origen</label>'
-    + '<input type="text" id="initial_point" value="" name="initial_point" style="width:120px;" readonly="readonly"/>'
-    + '<p> <img src="http://www.google.com/mapfiles/dd-end.png" class="icon"/>'
-    + '<label for="end_point">Destino</label>'
-    + '<input type="text" id="end_point" value="" name="end_point" style="width:120px;" readonly="readonly"/>'
-    + '<label>&nbsp;</label><input type="submit" class="button" value="Mostrar ruta!"/>'
-    + '</div>';
-  divheader.appendChild(inputForm);
-}
-
 //Crea el menú desplegable cuando se hace click derecho sobre el mapa
 function createContextMenu(){
   var contextmenu=document.createElement("div");

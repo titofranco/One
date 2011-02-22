@@ -105,8 +105,6 @@ $(document).ready(function(){
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
 
-  createInputForm();
-
   //Se crea el menu desplegable que se crea cuando se hace click derecho sobre el mapa
   var contextmenu = createContextMenu();
   map.getContainer().appendChild(contextmenu);
