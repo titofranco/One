@@ -76,7 +76,6 @@ class Roadmap < ActiveRecord::Base
   #Get all the data from Dijkstra algorithm result
   def self.getRoute(nodes,lat_start,long_start,lat_end,long_end)
     infoNodes = Array.new
-
     for i in 0 ...nodes.length-1
       route = StreetRelation.find_by_sql ["Select s.id,s.lat_start,s.long_start,s.lat_end,s.long_end,s.stretch_type, "+
                                          "a.way_type as way_type_a,a.street_name as street_name_a, "+
@@ -114,10 +113,13 @@ class Roadmap < ActiveRecord::Base
                         :label_b       => route.label_b,
                         :common_name_b => route.common_name_b,
                         :bearing       => bearing,
-                        :direction     => direction
+                        :direction     => direction,
+                        :new_direction => direction
                         })
       end
     end
+  
+    infoNodes = reAssingDirection(infoNodes)
     infoNodes
   end
   
@@ -164,6 +166,41 @@ class Roadmap < ActiveRecord::Base
     end
     
     direction   
+  end
+
+  #It compares the degrees that are between a record and another.
+  #I do this because if the (i-1) index has 22.5 degrees and the (i) has 22 degrees
+  #then when the app explains to the user where to turn it tells: 'turn in (that direction)'
+  #when actually it has to tell 'go straight'. I take a base value of +- 15 degrees 
+  def self.getNewDirection(prev_dir, curr_dir, prev_bearing, curr_bearing)
+    bearing_dif, new_direction = nil
+    
+    bearing_dif = curr_bearing - prev_bearing;
+    #Case when the current is greater than the previous
+    if (bearing_dif>0 && bearing_dif<=15) && (curr_dir != prev_dir)
+      new_direction = prev_dir
+    #Case when the current is less than the previous  
+    elsif (bearing_dif<0 && bearing_dif>=-15) && (curr_dir != prev_dir)
+      new_direction = prev_dir       
+    else
+      new_direction = curr_dir
+    end
+    return new_direction   
+  end
+  
+  def self.reAssingDirection(infoNodes)
+    prev_bearing, curr_bearing, prev_dir, curr_dir = nil
+    
+    for i in 1 ... infoNodes.length-1 
+       prev_dir = infoNodes[i-1][:new_direction]
+       prev_bearing = infoNodes[i-1][:bearing]
+       curr_bearing = infoNodes[i][:bearing]
+       curr_dir = self.getNewDirection(prev_dir, infoNodes[i][:direction], prev_bearing, curr_bearing)
+       infoNodes[i][:new_direction] = curr_dir
+    end
+   
+   return infoNodes 
+      
   end
 
 end

@@ -381,6 +381,7 @@ function parseContent(content){
     var common_name_b = content[i].common_name_b;
     var bearing       = parseFloat(content[i].bearing);
     var direction     = content[i].direction;
+    var new_direction = content[i].new_direction;
     
     //getBearing(lat_start,long_start,lat_end,long_end);
     infoRouteHash[i]={
@@ -404,7 +405,7 @@ function parseContent(content){
       bearing       : bearing,
       direction     : direction,
       related_id    : id,
-      new_direction : direction,
+      new_direction : new_direction,
       has_relation  : false
     };
     
@@ -428,7 +429,6 @@ function parseContent(content){
   }
   //Se adiciona el ulitmo trayecto
   latlng_street.push(new GLatLng(lat_end,long_end));
-  reAssingDirection(infoRouteHash,size);
   assignRelated(infoRouteHash,size);
 
   document.getElementById("initial_point").value=infoRouteHash[0].way_type_a +' '+infoRouteHash[0].street_name_a;
