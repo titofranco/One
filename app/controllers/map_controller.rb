@@ -8,20 +8,14 @@ class MapController < ApplicationController
     lat_start,long_start = params_initial_point.split(/,/)
     lat_end,long_end = params_end_point.split(/,/)
     
-    @initial_point = Roadmap.get_closest_points(lat_start,long_start)
-    @final_point = Roadmap.get_closest_points(lat_end,long_end)
+    @closest_initial = Roadmap.get_closest_points(lat_start,long_start)
+    @closest_final = Roadmap.get_closest_points(lat_end,long_end)
     
-    if ( @initial_point.nil? || @final_point.nil? )
+    if ( @closest_initial.nil? || @closest_final.nil? )
       str_error = ""
-      if @initial_point.nil?
-        str_error = "Debe elegir un punto inicial mas cercano"
-      end
-      if @final_point.nil?
-        if !str_error.empty?
-          str_error = str_error + "\n"
-        end
-        str_error = str_error + "Debe elegir un punto final mas cercano"
-      end
+      str_error = "Debe elegir un punto inicial mas cercano" unless !@closest_initial.nil?
+      str_error = str_error + "\n" unless str_error.empty?
+      str_error = str_error + "Debe elegir un punto final mas cercano" unless !@closest_final.nil?
 
       res={:success=>false, :content=>str_error}
       render :text=>res.to_json
@@ -29,7 +23,7 @@ class MapController < ApplicationController
       
       #dijkstra
       streets = Parser.getGrafo "#{RAILS_ROOT}/lib/dijkstra/listas.txt"
-      pathDijkstra = Dijkstra.encontrarCamino streets,@initial_point.id,@final_point.id
+      pathDijkstra = Dijkstra.encontrarCamino streets,@closest_initial.id,@closest_final.id
       #end dijkstra
       
       if pathDijkstra.size == 0
@@ -76,8 +70,8 @@ class MapController < ApplicationController
   
   protected
   def findUniqueBusNoWalk
-    nodoI = @initial_point.id
-    nodoD = @final_point.id
+    nodoI = @closest_initial.id
+    nodoD = @closest_final.id
     
     rutasI = BusesRoute.find(:all,:select=>"bus_id",
                              :conditions=>["roadmap_id = ?",nodoI])
@@ -122,9 +116,9 @@ class MapController < ApplicationController
 
     # #se encuentra los nodos cercanos al inicio y al final. Se guardan en
     # #closeInitBuses y closeEndBuses respectivamente
-     closeInitBuses = BusesRoute.get_closest_bus_id(@initial_point.id)
+     closeInitBuses = BusesRoute.get_closest_bus_id(@closest_initial.id)
      if closeInitBuses
-       closeEndBuses  = BusesRoute.get_closest_bus_id(@final_point.id)
+       closeEndBuses  = BusesRoute.get_closest_bus_id(@closest_final.id)
        unless closeEndBuses.compact.empty?
          for reg in closeEndBuses
            collectionB.push(reg[:bus_id])
