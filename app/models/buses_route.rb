@@ -3,6 +3,23 @@ class BusesRoute < ActiveRecord::Base
   DIST = 0.310685596 #Equivalent to 500 meters
   TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
 
+  def self.get_bus_route init,final
+    bus_init = get_closest_bus_id init
+    bus_final = get_closest_bus_id final
+    common_bus = bus_init & bus_final
+
+    if !common_bus.empty?
+      response = Array.new
+      common_bus.each{ |bus| 
+        puts bus.attributes
+        response.push(bus[:bus_id]) 
+      }
+      return response    
+    end
+      
+    
+  end
+
 
   #Get variables used in all queries
   def self.get_coordinates(lat_start,long_start)
@@ -12,21 +29,27 @@ class BusesRoute < ActiveRecord::Base
     lat2 = lat_start.to_f + (DIST/69)
     return [lon1,lon2,lat1,lat2]  
   end
-  
-  
- def self.getOneBus
-    resultado=Array.new
-    sql = "Select br.id,br.bus_id,br.lat_start,br.long_start from buses_routes br"
-    @buses = find_by_sql(sql)
 
-    for bus in @buses
-      resultado.push(:id=>bus.id,
-                     :bus_id=>bus.bus_id,
-                     :lat_start=>bus.lat_start,
-                     :long_start=>bus.long_start)
-    end
-    resultado
- end
+  def self.find_bus init,final
+    init_buses = get_closest_bus_id init
+    final_buses = get_closest_bus_id final
+    
+  end
+  
+  
+ # def self.getOneBus
+ #    resultado=Array.new
+ #    sql = "Select br.id,br.bus_id,br.lat_start,br.long_start from buses_routes br"
+ #    @buses = find_by_sql(sql)
+
+ #    for bus in @buses
+ #      resultado.push(:id=>bus.id,
+ #                     :bus_id=>bus.bus_id,
+ #                     :lat_start=>bus.lat_start,
+ #                     :long_start=>bus.long_start)
+ #    end
+ #    resultado
+ # end
 
 
   #Dado un conjunto de buses, examina si estos tienen una conexion directa por un roadmap_id
@@ -51,7 +74,7 @@ class BusesRoute < ActiveRecord::Base
     for record in busRoute
       lat_start = record.lat_start
       long_start = record.long_start
-      lon1,lon2,lat1,lat2 = self.get_coordinates(lat_start,long_start)
+      lon1,lon2,lat1,lat2 = get_coordinates(lat_start,long_start)
 
       #POSTGRESQL
       sql  = "Select distinct "+bus_id_A.to_s+" as bus_a, temp.bus_id as bus_b

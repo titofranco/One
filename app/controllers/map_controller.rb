@@ -5,7 +5,7 @@ class MapController < ApplicationController
   def find_route
     lat_start,long_start = params[:initial_point].split(/,/)
     lat_end,long_end = params[:end_point].split(/,/)
-
+        
     path = Roadmap.get_path(lat_start,long_start,lat_end,long_end)
     if !path[:msg_error].blank?
       res={:success=>false, :content=>path[:msg_error]}
@@ -20,7 +20,7 @@ class MapController < ApplicationController
       # puts path[:info_path].first.inspect
       #  next
       infoBus = nil
-      bus_route = findUniqueBusWalking(closest_init,closest_final)
+      bus_route = BusesRoute.get_bus_route(closest_init,closest_final)
       
       
       if !bus_route.empty?
