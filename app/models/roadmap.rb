@@ -75,36 +75,13 @@ class Roadmap < ActiveRecord::Base
       "order by distance 
        limit 1"
     query = find_by_sql(sql)      
-  end
-
-  # #Get the closest node given the end point and not including the node closest to the initial point
-  # def self.get_closest_end_point(lat_end,long_end)
-  #   lon1,lon2,lat1,lat2 = self.get_coordinates(lat_end,long_end)
-  #   #POSTGRESQL        
-  #   sql  ="SELECT * FROM 
-  #       (select id, dest.lat_start,dest.long_start,
-  #       3956 * 2 * ASIN(SQRT(POWER(SIN((" +lat_end+" - dest.lat_start) * pi()/180 / 2), 2) +
-  #       COS("+lat_end+"* pi()/180 ) * COS (dest.lat_start * pi()/180) *
-  #       POWER(SIN(("+long_end+ "- dest.long_start) * pi()/180 / 2), 2) )) as  distance
-  #       FROM roadmaps dest
-  #       where stretch_type = '1' and has_relation='S'
-  #       and dest.lat_start not in("+@init_point[0].lat_start.to_s+") and dest.long_start not in ("+@init_point[0].long_start.to_s+")
-  #       and dest.long_start between " + lon1.to_s + " and " + lon2.to_s +
-  #       " and dest.lat_start between " + lat1.to_s + " and " + lat2.to_s + 
-  #       ") AS dest
-  #       WHERE distance < "+DIST.to_s+
-  #       " order by distance limit 1"        
-        
-  #   @end_point = find_by_sql(sql)
-  #   @end_point
-  # end
-  
+  end  
 
   #Get all the data from Dijkstra algorithm result
   def self.get_route nodes
     infoNodes = Array.new
     for i in 0 ...nodes.length-1
-      route = StreetRelation.find_by_sql ["Select s.id,s.lat_start,s.long_start,s.lat_end,s.long_end,s.stretch_type, "+
+      route = StreetRelation.find_by_sql ["Select s.id,s.roadmap_id,s.lat_start,s.long_start,s.lat_end,s.long_end,s.stretch_type, "+
                                          "a.way_type as way_type_a,a.street_name as street_name_a, "+
                                          "a.prefix as prefix_a,a.label as label_a,a.common_name as common_name_a,s.distance_meters, "+
                                          "b.way_type as way_type_b,b.street_name as street_name_b, "+
@@ -141,7 +118,8 @@ class Roadmap < ActiveRecord::Base
                         :common_name_b => route.common_name_b,
                         :bearing       => bearing,
                         :direction     => direction,
-                        :new_direction => direction
+                        :new_direction => direction,
+                        :roadmap_id    => route.roadmap_id
                         })
       end
     end
