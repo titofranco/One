@@ -1,7 +1,7 @@
 class BusesRoute < ActiveRecord::Base
   
-  DIST = 0.310685596 #Equivalent to 500 meters
-  TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
+  #DIST = 0.310685596 #Equivalent to 500 meters
+  #TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
 
   def self.get_bus_route init,final
     bus_init = get_closest_bus_id init
