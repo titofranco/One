@@ -141,14 +141,18 @@ class Roadmap < ActiveRecord::Base
                         :common_name_b => route.common_name_b,
                         :bearing       => bearing,
                         :direction     => direction,
-                        :new_direction => direction
+                        :new_direction => direction,
+                        :related_id    => route.id,
+                        :has_relation  => false
                         })
       end
     end
   
     infoNodes = reAssingDirection(infoNodes)
+    infoNodes = assignRelated(infoNodes)
     infoNodes
   end
+
   
   #Computes how many degrees are between 2 pairs lat-long
   def self.getBearing(lat_start,long_start,lat_end,long_end)
@@ -168,8 +172,20 @@ class Roadmap < ActiveRecord::Base
     end
     brng
   end
-    
-  
+
+
+  #Based on the cardinality of the current and the next trajectory, what it does is to relate them , therefore when I render the polyline I will know which trajects have the same cardinality 
+  def self.assignRelated(infoRoute)   
+    for i in 0 ... infoRoute.length-2
+      if infoRoute[i][:new_direction] == infoRoute[i+1][:new_direction]
+        infoRoute[i+1][:related_id] = infoRoute[i][:related_id]
+              infoRoute[i][:has_relation] = true
+              infoRoute[i+1][:has_relation] = true
+      end 
+    end
+    return infoRoute
+  end
+
   #It gets the direction given the bearing in degrees
   def self.getDirection(bearing)
     direction = nil
@@ -214,6 +230,7 @@ class Roadmap < ActiveRecord::Base
     end
     return new_direction   
   end
+  
   
   def self.reAssingDirection(infoNodes)
     prev_bearing, curr_bearing, prev_dir, curr_dir = nil
