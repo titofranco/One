@@ -7,10 +7,10 @@ class BusesRoute < ActiveRecord::Base
     bus_init = get_closest_bus_id init
     bus_final = get_closest_bus_id final
     
-    init_bus_id = bus_init.collect{ |b| b.bus_id}
-    final_bus_id = bus_final.collect{ |b| b.bus_id}
+    init_bus_id = bus_init.collect{ |b| b.bus_id.to_s}
+    final_bus_id = bus_final.collect{ |b| b.bus_id.to_s}
     bus_suggest = init_bus_id & final_bus_id
-    return bus_suggest unless bus_suggest.empty?
+    # return bus_suggest unless bus_suggest.empty?
     
     connection = get_common_bus(init_bus_id.join(","),final_bus_id.join(","))
     if !connection.empty?
@@ -21,9 +21,23 @@ class BusesRoute < ActiveRecord::Base
       end
       bus_suggest.push con.bus_id_A
       bus_suggest.push con.bus_id_B
-      return bus_suggest.uniq
+      # return bus_suggest.uniq
     end
 
+    result = Array.new
+    for bus in bus_init
+      temp = Array.new
+      r = get_closest_common_bus(bus[:busrouteid],
+                                 bus[:bus_id],
+                                 final_bus_id.join(','))
+      temp = temp | r
+      temp.each{ |h|
+        result = result | h.values
+      }
+    end
+    bus_suggest = bus_suggest | result
+
+    return bus_suggest.uniq
     
 
     

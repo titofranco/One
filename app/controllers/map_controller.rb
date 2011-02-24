@@ -7,6 +7,7 @@ class MapController < ApplicationController
     lat_end,long_end = params[:end_point].split(/,/)
         
     path = Roadmap.get_path(lat_start,long_start,lat_end,long_end)
+
     if !path[:msg_error].blank?
       res={:success=>false, :content=>path[:msg_error]}
       render :text=>res.to_json
@@ -21,24 +22,24 @@ class MapController < ApplicationController
       #  next
       infoBus = nil
       bus_route = BusesRoute.get_bus_route(closest_init,closest_final)
+      infoBus = parserRouteBus bus_route
       
-      
-      if !bus_route.empty?
-        infoBus = parserRouteBus bus_route
-        # res={:success=>true, :content=>infoPath, :bus=>infoBus}
-        # render :text=>res.to_json
-      else
-        bus_route = findUniqueBusWalking
-        if !bus_route.empty?
-          infoBus = parserRouteBus bus_route
-          hi = bus_route.join('-')
-          # res={:success=>true, :content=>infoPath, :bus=>infoBus}
-          # render :text=>res.to_json
-        end
-      end
-      #infoBus = BusesRoute.getOneBus
-      #BusesRoute.get_closest_bus_id(44197)
-      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :hi=>hi}
+      # if !bus_route.empty?
+      #   infoBus = parserRouteBus bus_route
+      #   # res={:success=>true, :content=>infoPath, :bus=>infoBus}
+      #   # render :text=>res.to_json
+      # else
+      #   bus_route = findUniqueBusWalking
+      #   if !bus_route.empty?
+      #     infoBus = parserRouteBus bus_route
+      #     hi = bus_route.join('-')
+      #     # res={:success=>true, :content=>infoPath, :bus=>infoBus}
+      #     # render :text=>res.to_json
+      #   end
+      # end
+      # #infoBus = BusesRoute.getOneBus
+      # #BusesRoute.get_closest_bus_id(44197)
+      res={:success=>true, :content=>path[:info_path], :bus=>infoBus}
       render :text=>res.to_json
       # infoBus = nil
       # if !bus_route.nil?
