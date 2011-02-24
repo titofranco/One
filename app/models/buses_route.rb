@@ -6,17 +6,26 @@ class BusesRoute < ActiveRecord::Base
   def self.get_bus_route init,final
     bus_init = get_closest_bus_id init
     bus_final = get_closest_bus_id final
-    common_bus = bus_init & bus_final
-
-    if !common_bus.empty?
-      response = Array.new
-      common_bus.each{ |bus| 
-        puts bus.attributes
-        response.push(bus[:bus_id]) 
-      }
-      return response    
+    
+    init_bus_id = bus_init.collect{ |b| b.bus_id}
+    final_bus_id = bus_final.collect{ |b| b.bus_id}
+    bus_suggest = init_bus_id & final_bus_id
+    return bus_suggest unless bus_suggest.empty?
+    
+    connection = get_common_bus(init_bus_id.join(","),final_bus_id.join(","))
+    if !connection.empty?
+      for con in connection
+        connection.delete_if{ |con_id|
+          con_id.bus_id_A.eql? con_id.bus_id_B          
+        }        
+      end
+      bus_suggest.push con.bus_id_A
+      bus_suggest.push con.bus_id_B
+      return bus_suggest.uniq
     end
-      
+
+    
+
     
   end
 
