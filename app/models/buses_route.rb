@@ -38,9 +38,21 @@ class BusesRoute < ActiveRecord::Base
     bus_suggest = bus_suggest | result
 
     return bus_suggest.uniq
-    
+  end
 
-    
+  def self.parser_route_bus bus_route
+    resultado = Array.new
+    for idBus in bus_route
+      buses = find(:all,:select=>"id,bus_id,lat_start,long_start",
+                   :conditions=>["bus_id = ?",idBus])
+      for bus in buses
+        resultado.push(:id=>bus.id,
+                       :bus_id=>bus.bus_id,
+                       :lat_start=>bus.lat_start,
+                       :long_start=>bus.long_start)
+      end
+    end
+    return resultado
   end
 
 
