@@ -286,6 +286,7 @@ function findRoute() {
                 content = res.content;
                 success = res.success;
                 bus = res.bus;
+                explain = res.explain;
             } catch (e) {
                 success = false;
             }
@@ -438,7 +439,7 @@ function parseContent(content) {
     setLatLngMarkers(infoRouteHash[0].lat_start, infoRouteHash[0].long_start, infoRouteHash[size - 1].lat_end, infoRouteHash[size - 1].long_end);
     drawPolyline(latlng_street, latlng_metro);
     size_infoHash = Object.size(infoRouteHash);
-    explainRoute(infoRouteHash);
+    createSideBarPannel(explain);
 }
 
 //Obtenido de http://stackoverflow.com/questions/5223/length-of-javascript-associative-array

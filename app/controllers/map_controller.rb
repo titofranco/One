@@ -1,3 +1,5 @@
+require 'route_helper'
+
 class MapController < ApplicationController
 
   layout "standar"
@@ -19,7 +21,7 @@ class MapController < ApplicationController
       
       infoBus = nil
       busRoute = findUniqueBusNoWalk
-      hi = nil
+   
       if !busRoute.empty?
         infoBus = parserRouteBus busRoute
         # res={:success=>true, :content=>infoPath, :bus=>infoBus}
@@ -28,14 +30,16 @@ class MapController < ApplicationController
         busRoute = findUniqueBusWalking
         if !busRoute.empty?
           infoBus = parserRouteBus busRoute
-          hi = busRoute.join('-')
           # res={:success=>true, :content=>infoPath, :bus=>infoBus}
           # render :text=>res.to_json
         end
       end
+     
       #infoBus = BusesRoute.getOneBus
       #BusesRoute.get_closest_bus_id(44197)
-      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :hi=>hi}
+      route_helper = RouteHelper.new
+      explain = route_helper.explainRoute(path[:info_path])
+      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :explain => explain}
       render :text=>res.to_json
       # infoBus = nil
       # if !busRoute.nil?
@@ -69,12 +73,12 @@ class MapController < ApplicationController
       sRutasI =rutasI.flatten.uniq.join(",")
       sRutasD =rutasD.flatten.uniq.join(",")
 
-      puts "rutas Inicio #{sRutasI}"
-      puts "rutas Dstino #{sRutasD}"
+      #puts "rutas Inicio #{sRutasI}"
+      #puts "rutas Dstino #{sRutasD}"
 
       conexiones = BusesRoute.get_common_bus(sRutasI,sRutasD)
 
-      puts "test #{conexiones.first.inspect}"
+      #puts "test #{conexiones.first.inspect}"
       if !conexiones.empty?
         for c in conexiones
           conexiones.delete_if{
@@ -105,12 +109,12 @@ class MapController < ApplicationController
          for reg in closeEndBuses
            collectionB.push(reg[:bus_id])
          end        
-         puts "CLOSEINITBUSES #{closeInitBuses}"
-         puts "CLOSEENDBUSES #{closeEndBuses.empty?}"
+         #puts "CLOSEINITBUSES #{closeInitBuses}"
+         #puts "CLOSEENDBUSES #{closeEndBuses.empty?}"
         
          collectionA = closeInitBuses.collect{|t| t.attributes}
-         puts "El conjunto A es #{collectionA}"
-         puts "El conjunto B es #{collectionB.join(',')}"
+         #puts "El conjunto A es #{collectionA}"
+         #puts "El conjunto B es #{collectionB.join(',')}"
          for reg in closeInitBuses
            r = BusesRoute.get_closest_common_bus(reg[:busrouteid],reg[:bus_id],collectionB.join(','))
            common_buses.push(r) unless r.empty?
@@ -149,8 +153,5 @@ class MapController < ApplicationController
     end
     render :text=>res.to_json
   end
-  
-  def driving_directions
-  end
-  
+    
 end

@@ -1,5 +1,5 @@
 /*FUNCIONES PARA SABER QUE DIRECCION DEBO TOMAR DADO 2 PUNTOS CARDINALES*/
-function eval_direction(comes_from, goes_to){
+/*function eval_direction(comes_from, goes_to){
   var tell;
 
   if(comes_from == "Norte"){
@@ -202,5 +202,4 @@ function where_to_turn_ne(goes_to){
     turn = "en giro en U";
   }
   return turn;
-}
-
+}*/

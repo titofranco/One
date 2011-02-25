@@ -337,7 +337,33 @@ function addBusesSidebar(buses_hash){
   div_sidebar_bus_list.innerHTML=explain;
 }
 
-//Explica la ruta a tomar y la pone en el panel derecho (sidebar)
+function createSideBarPannel(explain){
+  var div_sidebar_list = document.getElementById("sidebar-list");
+  div_sidebar_list.innerHTML=explain;
+
+}
+
+//Crea el menú desplegable cuando se hace click derecho sobre el mapa
+function createContextMenu(){
+  var contextmenu=document.createElement("div");
+
+  contextmenu.style.visibility="hidden";
+  contextmenu.style.background="#ffffff";
+  contextmenu.style.border="1px solid #8888FF";
+  contextmenu.innerHTML =
+    '<a href="javascript:void(0)"  id="initial_point_func"><div class="context">Ruta desde aquí</div></a>'
+    +'<a href="javascript:void(0)" id="end_point_func"><div class="context">Ruta hasta aquí</div></a>'
+    +'<hr>'
+    +'<a href="javascript:void(0)" id="zoomin_func"><div class="context">Zoom In</div></a>'
+    +'<a href="javascript:void(0)" id="zoomout_func"><div class="context">Zoom Out</div></a>'
+    +'<a href="javascript:void(0)" id="centerMap_func"><div class="context">Centrar mapa</div></a>'
+    +'<hr>'
+    +'<a href="javascript:void(0)" id="clearMarkers_func"><div class="context">Reiniciar origen/destino </div></a>';
+  return contextmenu;
+}
+
+
+//Explica la ruta a tomar y la pone en el panel derecho (sidebar), lo hace paso por paso
 /*function explainRoute(infoRouteHash){
   var continueStraight=false;
   var size = Object.size(infoRouteHash);
@@ -472,6 +498,9 @@ function addBusesSidebar(buses_hash){
 
 }*/
 
+
+//Esta funcion está diseñada para que explique la ruta en forma más reducida
+/*
 function explainRoute(infoRouteHash){
   var continueStraight=false;
   var explain;
@@ -581,16 +610,15 @@ function explainRoute(infoRouteHash){
                 infoRouteHash[i].street_name_b + "</b> hasta llegar a tu lugar de destino (metros: "
                 + getDistance(i) + ")</b></a></li>";
   }
-
   //Se adiciona el HTML al panel derecho
   var div_sidebar_list = document.getElementById("sidebar-list");
   div_sidebar_list.innerHTML=explain;
 
-}
+}*/
 
 
 //Obtiene la distancia para un conjunto de trayectos que tengan un mismo related_id
-function getDistance(id){
+/*function getDistance(id){
   var total_distance=0;
   var id_related;
   for (var i=0;i<size_infoHash;i++){
@@ -601,41 +629,21 @@ function getDistance(id){
   }
   //console.debug("Para el id " + id + " el related " + id_related + " la distancia " + total_distance);
   return Math.round(total_distance*100)/100;
-}
+}*/
 
 //Obtiene la distancia total de la ruta
-function getTotalDistanceRoute(infoRouteHash,size){
+/*function getTotalDistanceRoute(infoRouteHash,size){
   var total_distance=0;
   for (var i=0;i<size;i++){
     total_distance+=infoRouteHash[i].distance
   }
   return Math.round(total_distance*100)/100;
-}
+}*/
 
 //Obtiene el tiempo aproximado en minutos que se demora una persona en recorrer
 //la ruta
-function getTimeAprox(total_distance){
+/*function getTimeAprox(total_distance){
   var time_aprox;
   time_aprox=(total_distance*60)/3000;
   return Math.round(time_aprox);
-}
-
-//Crea el menú desplegable cuando se hace click derecho sobre el mapa
-function createContextMenu(){
-  var contextmenu=document.createElement("div");
-
-  contextmenu.style.visibility="hidden";
-  contextmenu.style.background="#ffffff";
-  contextmenu.style.border="1px solid #8888FF";
-  contextmenu.innerHTML =
-    '<a href="javascript:void(0)"  id="initial_point_func"><div class="context">Ruta desde aquí</div></a>'
-    +'<a href="javascript:void(0)" id="end_point_func"><div class="context">Ruta hasta aquí</div></a>'
-    +'<hr>'
-    +'<a href="javascript:void(0)" id="zoomin_func"><div class="context">Zoom In</div></a>'
-    +'<a href="javascript:void(0)" id="zoomout_func"><div class="context">Zoom Out</div></a>'
-    +'<a href="javascript:void(0)" id="centerMap_func"><div class="context">Centrar mapa</div></a>'
-    +'<hr>'
-    +'<a href="javascript:void(0)" id="clearMarkers_func"><div class="context">Reiniciar origen/destino </div></a>';
-  return contextmenu;
-}
-
+}*/
