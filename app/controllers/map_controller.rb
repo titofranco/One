@@ -1,7 +1,5 @@
-require 'route_helper'
-
 class MapController < ApplicationController
-
+  include SidePannel
   layout "standar"
 
   def find_route
@@ -37,8 +35,8 @@ class MapController < ApplicationController
      
       #infoBus = BusesRoute.getOneBus
       #BusesRoute.get_closest_bus_id(44197)
-      route_helper = RouteHelper.new
-      explain = route_helper.explainRoute(path[:info_path])
+
+      explain = SidePannel.explainRoute(path[:info_path])
       res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :explain => explain}
       render :text=>res.to_json
       # infoBus = nil

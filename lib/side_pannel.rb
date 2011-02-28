@@ -1,7 +1,7 @@
-class RouteHelper
+module SidePannel
 
 #With this I'll know where to turn given 2 cardinal points
-  def eval_direction(comes_from, goes_to)
+  def SidePannel.eval_direction(comes_from, goes_to)
     tell=nil
     case comes_from
     when "Norte"
@@ -26,7 +26,7 @@ class RouteHelper
   end
 
   #NORTE - NORTH
-  def where_to_turn_n(goes_to)
+  def SidePannel.where_to_turn_n(goes_to)
     
     case goes_to  
     when "Oriente"
@@ -44,7 +44,7 @@ class RouteHelper
   end
 
   #OCCIDENTE - WEST
-  def where_to_turn_w(goes_to)
+  def SidePannel.where_to_turn_w(goes_to)
 
     case goes_to  
     when "Norte"
@@ -62,7 +62,7 @@ class RouteHelper
   end
 
   #ORIENTE - EAST
-  def where_to_turn_e(goes_to)
+  def SidePannel.where_to_turn_e(goes_to)
 
     case goes_to   
     when "Norte"
@@ -80,7 +80,7 @@ class RouteHelper
   end
 
   #SUR - SOUTH
-  def where_to_turn_s(goes_to)
+  def SidePannel.where_to_turn_s(goes_to)
     
     case goes_to 
      
@@ -99,7 +99,7 @@ class RouteHelper
   end 
 
   #SUROCCIDENTE - SOUTHWEST
-  def where_to_turn_sw(goes_to)
+  def SidePannel.where_to_turn_sw(goes_to)
 
     case goes_to   
     when "Norte"
@@ -120,7 +120,7 @@ class RouteHelper
   end
 
   #SURORIENTE - SOUTHEAST
-  def where_to_turn_se(goes_to) 
+  def SidePannel.where_to_turn_se(goes_to) 
     
     case goes_to    
     when"Norte"
@@ -138,7 +138,7 @@ class RouteHelper
   end
 
   #NOROCCIDENTE - NORTHWEST
-  def where_to_turn_nw(goes_to)
+  def SidePannel.where_to_turn_nw(goes_to)
     
     case goes_to   
     when"Oriente"
@@ -156,7 +156,7 @@ class RouteHelper
   end 
 
   #NORORIENTE - NORTHEAST
-  def where_to_turn_ne(goes_to)
+  def SidePannel.where_to_turn_ne(goes_to)
 
     case goes_to    
     when"Sur"
@@ -174,7 +174,7 @@ class RouteHelper
   end
 
 
-  def explainRoute(infoRoute)
+  def SidePannel.explainRoute(infoRoute)
 
     continueStraight, estacion_metro = false
     first_node = true
@@ -256,7 +256,7 @@ class RouteHelper
   end
 
   #It gets the distance of a group of trajectories that have the same related_id
-  def getDistance(index,infoRoute)
+  def SidePannel.getDistance(index,infoRoute)
     total_distance = 0
     for i in 0 ... infoRoute.length
       id_related = infoRoute[index][:related_id]
@@ -267,7 +267,7 @@ class RouteHelper
     return sprintf('%.2f', total_distance).to_s
   end
 
-  def getTotalDistanceRoute(infoRoute)
+  def SidePannel.getTotalDistanceRoute(infoRoute)
     total_distance=0
     infoRoute.each{ |ir|
       total_distance += ir[:distance].to_f
@@ -275,7 +275,7 @@ class RouteHelper
     return sprintf('%2.f',total_distance).to_s 
   end
 
-  def getTimeAprox(total_distance)
+  def SidePannel.getTimeAprox(total_distance)
     time_aprox= (total_distance.to_f*60)/3000
     return sprintf('%2.f', time_aprox)  
   end 
