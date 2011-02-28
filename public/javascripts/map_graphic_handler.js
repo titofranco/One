@@ -319,7 +319,7 @@ function setLatLngMarkers(lat_start,long_start,lat_end,long_end){
 
 
 //Adiciona el li correspondiente a cada ruta de bus al panel derecho (sidebar)
-function addBusesSidebar(buses_hash){
+/*function addBusesSidebar(buses_hash){
   var explain ='';
   var size = Object.size(buses_hash);
   explain = '<hr><li class="route-explain">'+
@@ -335,6 +335,11 @@ function addBusesSidebar(buses_hash){
   }
   var div_sidebar_bus_list = document.getElementById("sidebar-bus-list");
   div_sidebar_bus_list.innerHTML=explain;
+}*/
+
+function createBusesSidebar(bus_explain){
+  var div_sidebar_bus_list = document.getElementById("sidebar-bus-list");
+  div_sidebar_bus_list.innerHTML=bus_explain;
 }
 
 function createSideBarPannel(explain){

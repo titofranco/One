@@ -286,7 +286,8 @@ function findRoute() {
                 content = res.content;
                 success = res.success;
                 bus = res.bus;
-                explain = res.explain;
+                route_explain = res.route_explain;
+                bus_explain = res.bus_explain;
             } catch (e) {
                 success = false;
             }
@@ -300,11 +301,13 @@ function findRoute() {
                 //Esconde la explicación de la aplicación
                 $('#explain').hide();
                 parseContent(content);
+                createSideBarPannel(route_explain);
                 if (bus == null || bus.length == 0) {
                     $('#sidebar-bus-list').hide();
                 } else {
                     $('#sidebar-bus-list').show();
                     parseContentBuses(bus);
+                    createBusesSidebar(bus_explain);
                 }
             }
         }
@@ -314,16 +317,15 @@ function findRoute() {
 }
 
 
-function parseContentBuses(content) {
+function parseContentBuses(content,bus_explain) {
     buses_hash = {};
-    var color;
-    var size = content.length;
-    for (var i = 0; i < size; i++) {
+    var size = content.length-1;
+    for (var i = 0; i <= size; i++) {
         var id = content[i].id;
         var bus_id = content[i].bus_id;
         var lat_start = content[i].lat_start;
         var long_start = content[i].long_start;
-        var status = "inactive";
+        var status = content[i].status;
 
         buses_hash[i] = {
             id: id,
@@ -334,16 +336,16 @@ function parseContentBuses(content) {
         };
     }
     //Agrego este ultimo registro falso, ya que debo recorrer el arreglo y comparar el siguiente id del bus
-    buses_hash[size] = {
+ /*   buses_hash[size] = {
         id: -1,
         bus_id: 99999,
         lat_start: content[size - 1].lat_start,
         long_start: content[size - 1].long_start,
         status: "inactive"
-    };
-    //AssignRandomColor(size);
+    };*/
+    //AssignRandomColor(size);  
+    //addBusesSidebar(buses_hash);
     createBusesOverlays(size);
-    addBusesSidebar(buses_hash);
     //drawPolyline_bus(buses_hash);
 }
 
@@ -439,7 +441,6 @@ function parseContent(content) {
     setLatLngMarkers(infoRouteHash[0].lat_start, infoRouteHash[0].long_start, infoRouteHash[size - 1].lat_end, infoRouteHash[size - 1].long_end);
     drawPolyline(latlng_street, latlng_metro);
     size_infoHash = Object.size(infoRouteHash);
-    createSideBarPannel(explain);
 }
 
 //Obtenido de http://stackoverflow.com/questions/5223/length-of-javascript-associative-array

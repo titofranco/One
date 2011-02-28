@@ -36,8 +36,9 @@ class MapController < ApplicationController
       #infoBus = BusesRoute.getOneBus
       #BusesRoute.get_closest_bus_id(44197)
 
-      explain = SidePannel.explainRoute(path[:info_path])
-      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :explain => explain}
+      route_explain = SidePannel.explainRoute(path[:info_path])
+      bus_explain = SidePannel.explainBusRoute(infoBus)
+      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :route_explain => route_explain, :bus_explain => bus_explain}
       render :text=>res.to_json
       # infoBus = nil
       # if !busRoute.nil?
@@ -137,9 +138,22 @@ class MapController < ApplicationController
         resultado.push(:id=>bus.id,
                        :bus_id=>bus.bus_id,
                        :lat_start=>bus.lat_start,
-                       :long_start=>bus.long_start)
+                       :long_start=>bus.long_start,
+                       :status => 'inactive'
+                       )
       end
     end
+    size = resultado.length
+    
+    #This fake record is to make comparisons and for getting the lat-lng from the last record   
+    resultado.push( :id => -1,
+                    :bus_id => 99999,
+                    :lat_start => resultado[size-1][:lat_start],
+                    :long_start => resultado[size-1][:long_start],
+                    :status => 'inactive'
+                  )  
+
+    
     resultado
   end
 
@@ -151,5 +165,5 @@ class MapController < ApplicationController
     end
     render :text=>res.to_json
   end
-    
+ 
 end
