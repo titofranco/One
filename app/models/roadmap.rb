@@ -118,9 +118,9 @@ class Roadmap < ActiveRecord::Base
                         :common_name_b => route.common_name_b,
                         :bearing       => bearing,
                         :direction     => direction,
-                        :new_direction => direction,
-                        :roadmap_id    => route.roadmap_id
-
+                         :new_direction => direction,
+                         :roadmap_id    => route.roadmap_id,
+                         
                         :related_id    => route.id,
                         :has_relation  => false
                         })
