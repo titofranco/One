@@ -1,7 +1,59 @@
 class BusesRoute < ActiveRecord::Base
   
-  DIST = 0.310685596 #Equivalent to 500 meters
-  TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
+  #DIST = 0.310685596 #Equivalent to 500 meters
+  #TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
+
+  def self.get_bus_route init,final
+    bus_init = get_closest_bus_id init
+    bus_final = get_closest_bus_id final
+    
+    init_bus_id = bus_init.collect{ |b| b.bus_id.to_s}
+    final_bus_id = bus_final.collect{ |b| b.bus_id.to_s}
+    bus_suggest = init_bus_id & final_bus_id
+    # return bus_suggest unless bus_suggest.empty?
+    
+    connection = get_common_bus(init_bus_id.join(","),final_bus_id.join(","))
+    if !connection.empty?
+      for con in connection
+        connection.delete_if{ |con_id|
+          con_id.bus_id_A.eql? con_id.bus_id_B          
+        }        
+      end
+      bus_suggest.push con.bus_id_A
+      bus_suggest.push con.bus_id_B
+      # return bus_suggest.uniq
+    end
+
+    result = Array.new
+    for bus in bus_init
+      temp = Array.new
+      r = get_closest_common_bus(bus[:busrouteid],
+                                 bus[:bus_id],
+                                 final_bus_id.join(','))
+      temp = temp | r
+      temp.each{ |h|
+        result = result | h.values
+      }
+    end
+    bus_suggest = bus_suggest | result
+
+    return bus_suggest.uniq
+  end
+
+  def self.parser_route_bus bus_route
+    resultado = Array.new
+    for idBus in bus_route
+      buses = find(:all,:select=>"id,bus_id,lat_start,long_start",
+                   :conditions=>["bus_id = ?",idBus])
+      for bus in buses
+        resultado.push(:id=>bus.id,
+                       :bus_id=>bus.bus_id,
+                       :lat_start=>bus.lat_start,
+                       :long_start=>bus.long_start)
+      end
+    end
+    return resultado
+  end
 
 
   #Get variables used in all queries
@@ -12,21 +64,27 @@ class BusesRoute < ActiveRecord::Base
     lat2 = lat_start.to_f + (DIST/69)
     return [lon1,lon2,lat1,lat2]  
   end
-  
-  
- def self.getOneBus
-    resultado=Array.new
-    sql = "Select br.id,br.bus_id,br.lat_start,br.long_start from buses_routes br"
-    @buses = find_by_sql(sql)
 
-    for bus in @buses
-      resultado.push(:id=>bus.id,
-                     :bus_id=>bus.bus_id,
-                     :lat_start=>bus.lat_start,
-                     :long_start=>bus.long_start)
-    end
-    resultado
- end
+  def self.find_bus init,final
+    init_buses = get_closest_bus_id init
+    final_buses = get_closest_bus_id final
+    
+  end
+  
+  
+ # def self.getOneBus
+ #    resultado=Array.new
+ #    sql = "Select br.id,br.bus_id,br.lat_start,br.long_start from buses_routes br"
+ #    @buses = find_by_sql(sql)
+
+ #    for bus in @buses
+ #      resultado.push(:id=>bus.id,
+ #                     :bus_id=>bus.bus_id,
+ #                     :lat_start=>bus.lat_start,
+ #                     :long_start=>bus.long_start)
+ #    end
+ #    resultado
+ # end
 
 
   #Dado un conjunto de buses, examina si estos tienen una conexion directa por un roadmap_id
@@ -51,7 +109,7 @@ class BusesRoute < ActiveRecord::Base
     for record in busRoute
       lat_start = record.lat_start
       long_start = record.long_start
-      lon1,lon2,lat1,lat2 = self.get_coordinates(lat_start,long_start)
+      lon1,lon2,lat1,lat2 = get_coordinates(lat_start,long_start)
 
       #POSTGRESQL
       sql  = "Select distinct "+bus_id_A.to_s+" as bus_a, temp.bus_id as bus_b

@@ -1,7 +1,7 @@
 class Roadmap < ActiveRecord::Base
   
-  DIST = 0.310685596 #Equivalent to 500 meters
-  TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
+  #DIST = 0.310685596 #Equivalent to 500 meters
+  #TO_RAD = (Math::PI/180) #Queries need coordinates given in radians
 
   #Method to get the path between two coordenates or the error message
   #if there's any
