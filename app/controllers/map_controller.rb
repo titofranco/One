@@ -1,5 +1,5 @@
 class MapController < ApplicationController
-
+  include SidePannel
   layout "standar"
 
   def find_route
@@ -23,6 +23,7 @@ class MapController < ApplicationController
       bus_route = findUniqueBusWalking(closest_init,closest_final)
       
       
+
       if !bus_route.empty?
         infoBus = parserRouteBus bus_route
         # res={:success=>true, :content=>infoPath, :bus=>infoBus}
@@ -32,13 +33,30 @@ class MapController < ApplicationController
         if !bus_route.empty?
           infoBus = parserRouteBus bus_route
           hi = bus_route.join('-')
+
+      infoBus = nil
+      busRoute = findUniqueBusNoWalk
+   
+      if !busRoute.empty?
+        infoBus = parserRouteBus busRoute
+        # res={:success=>true, :content=>infoPath, :bus=>infoBus}
+        # render :text=>res.to_json
+      else
+        busRoute = findUniqueBusWalking
+        if !busRoute.empty?
+          infoBus = parserRouteBus busRoute
+
           # res={:success=>true, :content=>infoPath, :bus=>infoBus}
           # render :text=>res.to_json
         end
       end
+     
       #infoBus = BusesRoute.getOneBus
       #BusesRoute.get_closest_bus_id(44197)
-      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :hi=>hi}
+
+      route_explain = SidePannel.explainRoute(path[:info_path])
+      bus_explain = SidePannel.explainBusRoute(infoBus)
+      res={:success=>true, :content=>path[:info_path], :bus=>infoBus, :route_explain => route_explain, :bus_explain => bus_explain}
       render :text=>res.to_json
       # infoBus = nil
       # if !bus_route.nil?
@@ -72,12 +90,12 @@ class MapController < ApplicationController
       sRutasI =rutasI.flatten.uniq.join(",")
       sRutasD =rutasD.flatten.uniq.join(",")
 
-      puts "rutas Inicio #{sRutasI}"
-      puts "rutas Dstino #{sRutasD}"
+      #puts "rutas Inicio #{sRutasI}"
+      #puts "rutas Dstino #{sRutasD}"
 
       conexiones = BusesRoute.get_common_bus(sRutasI,sRutasD)
 
-      puts "test #{conexiones.first.inspect}"
+      #puts "test #{conexiones.first.inspect}"
       if !conexiones.empty?
         for c in conexiones
           conexiones.delete_if{
@@ -107,14 +125,20 @@ class MapController < ApplicationController
        unless closeEndBuses.compact.empty?
          for reg in closeEndBuses
            collectionB.push(reg[:bus_id])
+
          end
          
          puts "CLOSEINITBUSES #{closeInitBuses}"
          puts "CLOSEENDBUSES #{closeEndBuses.empty?}"
+
+         end        
+         #puts "CLOSEINITBUSES #{closeInitBuses}"
+         #puts "CLOSEENDBUSES #{closeEndBuses.empty?}"
+
         
          collectionA = closeInitBuses.collect{|t| t.attributes}
-         puts "El conjunto A es #{collectionA}"
-         puts "El conjunto B es #{collectionB.join(',')}"
+         #puts "El conjunto A es #{collectionA}"
+         #puts "El conjunto B es #{collectionB.join(',')}"
          for reg in closeInitBuses
            r = BusesRoute.get_closest_common_bus(reg[:busrouteid],
                                                  reg[:bus_id],collectionB.join(','))
@@ -140,9 +164,22 @@ class MapController < ApplicationController
         resultado.push(:id=>bus.id,
                        :bus_id=>bus.bus_id,
                        :lat_start=>bus.lat_start,
-                       :long_start=>bus.long_start)
+                       :long_start=>bus.long_start,
+                       :status => 'inactive'
+                       )
       end
     end
+    size = resultado.length
+    
+    #This fake record is to make comparisons and for getting the lat-lng from the last record   
+    resultado.push( :id => -1,
+                    :bus_id => 99999,
+                    :lat_start => resultado[size-1][:lat_start],
+                    :long_start => resultado[size-1][:long_start],
+                    :status => 'inactive'
+                  )  
+
+    
     resultado
   end
 
@@ -154,8 +191,5 @@ class MapController < ApplicationController
     end
     render :text=>res.to_json
   end
-  
-  def driving_directions
-  end
-  
+ 
 end
