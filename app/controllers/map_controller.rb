@@ -12,16 +12,21 @@ class MapController < ApplicationController
       res={:success=>false, :content=>path[:msg_error]}
       render :text=>res.to_json
     else
+      route_explain = SidePannel.explainRoute(path[:info_path])
       
       closest_init = (path[:info_path].first)[:roadmap_id]
       closest_final = (path[:info_path].last)[:roadmap_id]
-
+      
+      info_bus = nil
+      route_bus = nil
+      bus_explain = nil
+      
       #new controller
       bus_route = BusesRoute.get_bus_route(closest_init,closest_final)
       info_bus = BusesRoute.parser_route_bus bus_route
-
-      route_explain = SidePannel.explainRoute(path[:info_path])
-      bus_explain = SidePannel.explainBusRoute(info_bus)
+      bus_explain = SidePannel.explainBusRoute(info_bus)  
+      
+     
       res={:success=>true,
         :content=>path[:info_path],
         :bus=>info_bus,

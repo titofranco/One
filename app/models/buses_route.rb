@@ -6,6 +6,9 @@ class BusesRoute < ActiveRecord::Base
   def self.get_bus_route init,final
     bus_init = get_closest_bus_id init
     bus_final = get_closest_bus_id final
+    bus_suggest = Array.new
+    
+    return bus_suggest if (bus_init.empty? || bus_final.empty?)
     
     init_bus_id = bus_init.collect{ |b| b.bus_id.to_s}
     final_bus_id = bus_final.collect{ |b| b.bus_id.to_s}
@@ -22,7 +25,8 @@ class BusesRoute < ActiveRecord::Base
       bus_suggest.push con.bus_id_A
       bus_suggest.push con.bus_id_B
       # return bus_suggest.uniq
-    end
+
+   end
 
     result = Array.new
     for bus in bus_init
@@ -52,6 +56,17 @@ class BusesRoute < ActiveRecord::Base
                        :long_start=>bus.long_start)
       end
     end
+    #This fake record is to make comparisons and for getting the lat-lng from
+    #the last record   
+    if !resultado.empty?
+      resultado.push( :id => -1,
+                      :bus_id => 99999,
+                      :lat_start => resultado.last[:lat_start],
+                      :long_start => resultado.last[:long_start],
+                      :status => 'inactive'
+                      )  
+    end
+    
     return resultado
   end
 
