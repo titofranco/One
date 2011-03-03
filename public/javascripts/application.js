@@ -77,7 +77,7 @@ function checkform(form) {
 }
 
 
-$(document).ready(function () {
+function init(){
     handleResize();
     if (GBrowserIsCompatible) {
         //6.2201673770;-75.6076627160; casa de joan
@@ -262,7 +262,7 @@ $(document).ready(function () {
     } else {
         alert("Your Browser Is Not Compatible")
     }
-});
+}
 
 //Metodo que hace la llamada asincrona al controlador, pasando los parametros
 //correspondientes y evaluando la respuesta dada por este
@@ -454,10 +454,11 @@ Object.size = function (obj) {
 };
 
 
-//}window.onload=init;
+//}
 //Si el usuario redimensiona la página, el mapa y otros elementos se deben redimensionar
 window.onresize = handleResize;
 window.onload = handleResize;
+window.onload = init;
 //Pagina 9 capitulo 3 para retornar la latitud longitud del marker
 //overlay y latlng son variables ya definidas por google
 //allow the user to click the map to create a marker
