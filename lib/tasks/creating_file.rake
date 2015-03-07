@@ -10,21 +10,21 @@ task :creating_file => :environment  do
   column = 6
   #puts "max row #{row}"
   #puts "max column #{column}"
-  matrix_size = row*column
-  matrix_bytes = matrix_size*4
+  matrix_size = row * column
+  matrix_bytes = matrix_size * 4
   #puts "A matrix of #{row}x#{column} uses #{number_to_human_size(matrix_bytes)} "
   iniTime = Time.now
   puts "The initial Time: #{iniTime} "
-  mda = Mda.new(row+1,column)
+  mda = Mda.new(row + 1, column)
   puts  "#{Time.now - iniTime} seconds for creating the matrix"
 
   begin
-    csv = CSV.open("#{RAILS_ROOT}/lib/Text_Files/initial_matrix.csv","r")
-    csv.each_with_index do |row,i|
-      row,column,distance_meters,stretch_type,lat,lon = row
-      mda.fill_array(i,row,column,distance_meters,stretch_type,lat,lon)
+    csv = CSV.open("#{RAILS_ROOT}/lib/text_files/initial_matrix.csv", "r")
+    csv.each_with_index do |row, i|
+      row, column, distance_meters, stretch_type, lat, lon = row
+      mda.fill_array(i, row, column, distance_meters, stretch_type, lat, lon)
       #puts "#{i} records in matrix " if i % 10000 == 0
-   end
+    end
   ensure
     csv.close unless csv.nil?
   end
@@ -33,4 +33,3 @@ task :creating_file => :environment  do
   mda.create_file
   puts  "#{Time.now - iniTime} total seconds for the task "
 end
-

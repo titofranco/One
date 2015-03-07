@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Driving Directions</title>
+    <%= stylesheet_link_tag    "application", :media => "all" %>
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=AIzaSyBf8kYYs4fliOKMDi8ESqpDMIPOQFN3ack" type="text/javascript"></script>
+
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 class Parser
   def self.get_graph
     graph = Array.new
-    file = File.new(STREETS_FILE,"r")
+    file = File.new(STREETS_FILE, "r")
     file.each do |line|
       st = Street.new
       temp = line.split ":"
@@ -17,8 +17,7 @@ class Parser
       temp.each { |e|
         e = e.split ","
         st.type = e[3].to_i
-        connections.push [e[0].to_i,e[1].to_f]
-
+        connections.push([e[0].to_i, e[1].to_f])
       }
       st.connections = connections
       graph[st.node_id] = st
@@ -26,4 +25,3 @@ class Parser
     graph
   end
 end
-
