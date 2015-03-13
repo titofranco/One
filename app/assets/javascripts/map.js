@@ -89,13 +89,14 @@ var Map = function() {
   function showContextMenu(currentLatLng) {
     var projection;
     var contextmenuDir = $('#contextMenu')[0];
-    projection = obj.getProjection() ;
+    $('#contextMenu').show();
     $(obj.getDiv()).append(contextmenuDir);
     point = currentLatLng;
 
     setMenuXY(currentLatLng);
     lat = currentLatLng.lat();
     lng = currentLatLng.lng();
+
     contextmenuDir.style.visibility = "visible";
     google.maps.event.addListener(obj, 'click', function(event) {
       contextmenuDir.style.visibility = "hidden";
