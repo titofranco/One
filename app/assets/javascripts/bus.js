@@ -24,10 +24,10 @@ var Bus = function() {
         var latLng = [];
         for(var i = 0; i < Object.size(obj) - 1; i++){
             if(obj[i].bus_id == obj[i+1].bus_id) {
-                latLng.push(new GLatLng(obj[i].lat_start, obj[i].long_start));
+                latLng.push(new google.maps.LatLng(obj[i].lat_start, obj[i].long_start));
             }
             else {
-                latLng.push(new GLatLng(obj[i].lat_start, obj[i].long_start));
+                latLng.push(new google.maps.LatLng(obj[i].lat_start, obj[i].long_start));
                 var polyline = new GPolyline(latLng, map.randomColor(), 4, 1);
                 var markers  = createMarkers(obj[i].bus_id);
                 overlay.push ({
@@ -68,13 +68,13 @@ var Bus = function() {
 
         for (var i = 0; i < Object.size(obj); i++) {
             if (bus_id == obj[i].bus_id) {
-                initLatLng = new GLatLng(obj[i].lat_start, obj[i].long_start);
-                initMarker = new GMarker(initLatLng, icon);
+                initLatLng = new google.maps.LatLng(obj[i].lat_start, obj[i].long_start);
+                initMarker = new google.maps.Marker(initLatLng, icon);
                 while (bus_id == obj[i].bus_id) {
                     i++;
                 }
-                endLatLng = new GLatLng(obj[i-1].lat_end, obj[i-1].long_end);
-                endMarker = new GMarker(endLatLng, icon);
+                endLatLng = new google.maps.LatLng(obj[i-1].lat_end, obj[i-1].long_end);
+                endMarker = new google.maps.Marker(endLatLng, icon);
                 //console.debug(" el lat_start " + lat_start + " lat end " + lat_end + " bus_id " + buses[i-1].bus_id);
             }
         }
@@ -86,14 +86,14 @@ var Bus = function() {
         var icon = new GIcon();
         icon.image = "http://www.google.com/mapfiles/ms/micons/bus.png";
         icon.shadow = "http://www.google.com/mapfiles/ms/micons/bus.shadow.png";
-        icon.iconAnchor = new GPoint(9, 34);
-        icon.shadowSize = new GSize(37, 34);
+        icon.iconAnchor = new google.maps.Point(9, 34);
+        icon.shadowSize = new google.maps.Size(37, 34);
         return icon;
     }
 
 
     //Función para pintar sólo una ruta de bus
-    $(".sidebar-item-bus input").live('click', function() {
+    $(".sidebar-item-bus input").on('click', function() {
         var bus_id = $(this).data('bus_id');
         renderPolyline(bus_id, "active");
         renderMarkers(bus_id, $(this).parent());
@@ -115,7 +115,7 @@ var Bus = function() {
                 break;
             }
         }
-        map.obj().addOverlay(polyline);
+        polyline.map = map.obj();
     }
 
     function renderMarkers(bus_id, selector) {
@@ -128,8 +128,8 @@ var Bus = function() {
             map.obj().removeOverlay(overlay[pos].endMarker);
         } else {
             selector.addClass("current");
-            map.obj().addOverlay(overlay[pos].initMarker);
-            map.obj().addOverlay(overlay[pos].endMarker);
+            overlay[pos].initMarker.map = map.obj();
+            overlay[pos].endMarker.map = map.obj();
         }
     }
 
