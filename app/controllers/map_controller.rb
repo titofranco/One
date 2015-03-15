@@ -13,7 +13,7 @@ class MapController < ApplicationController
       route_explain = SidePannel.explain_route(path[:info_path])
       res = {:success => true,  :content => path[:info_path], :route_explain => route_explain}
     end
-    render :text => res.to_json
+    render :json => res.to_json
   end
 
   def find_bus_route
@@ -25,7 +25,7 @@ class MapController < ApplicationController
     else
       res = {:success => false}
     end
-    render :text => res.to_json
+    render :json => res.to_json
   end
 
 end

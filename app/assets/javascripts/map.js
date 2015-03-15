@@ -261,7 +261,8 @@ var Map = function() {
     clearMarkers();
   });
 
-  $("#form").submit(function() {
+  $("#form").submit(function(event) {
+    event.preventDefault();
     if($(".start_point").val() == "" || $(".end_point").val() == "") {
       alert("Debe elegir punto inicial y punto final");
       return false;
@@ -276,65 +277,29 @@ var Map = function() {
 
     var startLatLng = startMarker.getPosition().lat() + "," + startMarker.getPosition().lng();
     var endLatLng = endMarker.getPosition().lat() + "," + endMarker.getPosition().lng();
-    var q = "?start_point=" + startLatLng + "&end_point=" + endLatLng;
-    var request = GXmlHttp.create();
-
-    request.open('GET', 'map/find_route' + q, true);
-    request.onreadystatechange = function () {
-      if (request.readyState == 4) {
-
-        var success = false;
-        var content = "Error contacting web service";
-        try {
-          res = eval("(" + request.responseText + ")");
-          content = res.content;
-          success = res.success;
-          var routeExplain = res.route_explain;
-          clearExistingOverlays();
-
-        } catch (e) {
-          success = false;
-        }
-        if (success) {
-          route.initialize(content, routeExplain);
-          findBusRoute();
-        } else {
-          alert(content);
-          //Si se hace de nuevo una peticion y hay error entonces esconder panel
-          $('#explain').show();
-          $('#sidebar').hide();
-        }
-      }
-    };
-    request.send(null);
-    return false;
+    $.get('map/find_route', {start_point: startLatLng, end_point: endLatLng})
+      .done(function (data) {
+        clearExistingOverlays();
+        route.initialize(data.content, data.route_explain);
+        findBusRoute();
+      })
+      .fail(function (data){
+        alert(data.content);
+        //Si se hace de nuevo una peticion y hay error entonces esconder panel
+        $('#explain').show();
+        $('#sidebar').hide();
+      });
   }
 
   function findBusRoute() {
-    var q = "?roadmap_id=" + route.obj()[0].roadmap_id + "," + route.obj()[route.objSize()-1].roadmap_id;
-    var request = GXmlHttp.create();
-    request.open('GET', 'map/find_bus_route' + q, true);
-    request.onreadystatechange = function () {
-      if (request.readyState == 4) {
-        var success = false;
-        var content = "Error contacting web service";
-        try {
-          res = eval("(" + request.responseText + ")");
-          success = res.success;
-        } catch (e) {
-          success = false;
-        }
-        if (success) {
-          var busRoute = res.bus;
-          var busExplain = res.bus_explain;
-          bus.initialize(busRoute, busExplain);
-        } else {
-          $('#sidebar-bus-list').hide();
-        }
-      }
-    };
-    request.send(null);
-    return false;
+    var roadmap_id = route.obj()[0].roadmap_id + "," + route.obj()[route.objSize()-1].roadmap_id;
+    $.get('map/find_bus_route', {roadmap_id: roadmap_id})
+      .done(function (data) {
+          bus.initialize(data.bus, data.bus_explain);
+      })
+    .fail(function (data) {
+      $('#sidebar-bus-list').hide();
+    });
   }
 
   function randomColor() {
