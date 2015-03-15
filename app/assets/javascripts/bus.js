@@ -13,6 +13,7 @@ var Bus = function() {
     obj = route;
     $('#sidebar-bus-list').show();
     $("#sidebar-bus-list").html(explanation);
+    busListener();
     createOverlays();
   }
 
@@ -70,11 +71,13 @@ var Bus = function() {
       if (bus_id == obj[i].bus_id) {
         initLatLng = new google.maps.LatLng(obj[i].lat_start, obj[i].long_start);
         initMarker = new google.maps.Marker({position: initLatLng, icon: icon, map: map.obj()});
+        initMarker.setMap(null); // hide markers at the beginning
         while (bus_id == obj[i].bus_id) {
           i++;
         }
-        endLatLng = new google.maps.LatLng(obj[i-1].lat_end, obj[i-1].long_end);
+        endLatLng = new google.maps.LatLng(obj[i-1].lat_start, obj[i-1].long_start);
         endMarker = new google.maps.Marker({position: endLatLng, icon: icon, map: map.obj()});
+        endMarker.setMap(null); // hide markers at the beginning
         //console.debug(" el lat_start " + lat_start + " lat end " + lat_end + " bus_id " + buses[i-1].bus_id);
       }
     }
@@ -93,12 +96,14 @@ var Bus = function() {
   }
 
 
-  //Función para pintar sólo una ruta de bus
-  $(".sidebar-item-bus input").on('click', function() {
-    var bus_id = $(this).data('bus_id');
-    renderPolyline(bus_id, "active");
-    renderMarkers(bus_id, $(this).parent());
-  });
+  function busListener() {
+    //Función para pintar sólo una ruta de bus
+    $(".sidebar-item-bus input").on('click', function() {
+      var bus_id = $(this).data('bus_id');
+      renderPolyline(bus_id, "active");
+      renderMarkers(bus_id, $(this).parent());
+    });
+  }
 
   //Obtiene toda la polilinea de un bus en especifico, además pone su estado en
   //activo o inactivo dependiendo si se pinta o si se elimina del mapa
@@ -129,8 +134,8 @@ var Bus = function() {
       overlay[pos].endMarker.setMap(null);
     } else {
       selector.addClass("current");
-      overlay[pos].initMarker.map = map.obj();
-      overlay[pos].endMarker.map = map.obj();
+      overlay[pos].initMarker.setMap(map.obj());
+      overlay[pos].endMarker.setMap(map.obj());
     }
   }
 
