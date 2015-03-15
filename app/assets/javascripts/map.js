@@ -164,7 +164,6 @@ var Map = function() {
 
   function createStartMarker() {
     var icon = createIcon("dd-start.png");
-    console.log("icon", icon);
     var shape = {
       coords: [1, 1, 1, 20, 18, 20, 18 , 1],
       type: 'poly'

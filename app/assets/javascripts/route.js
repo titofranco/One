@@ -23,6 +23,7 @@ var Route = function() {
     $('#explain').hide();
     $('#sidebar').show();
     $("#sidebar-list").html(explain);
+    sidebarListener();
     parse(route);
     //Posiciona el init_marker y el end_marker en base a la coordenada más cercana que se encontró
     setLatLngMarkers();
@@ -83,16 +84,18 @@ var Route = function() {
     $("#end_point").val(obj[objSize() - 1].way_type_b + ' ' + obj[objSize() - 1].street_name_b);
   }
 
-  /*Pinta el trayecto seleccionado en sidebar, crea el marker y pinta una flecha
-   dependiento hacia donde se debe girar*/
-  $('.sidebar-item a').on('click', function() {
-    var id = $(this).data('index');
-    renderSelectedPath(id);
-    renderPin(id);
-    renderArrow(id);
-    $(".sidebar-item").removeClass("current");
-    $(this).parent().addClass("current");
-  });
+  function sidebarListener() {
+    /*Pinta el trayecto seleccionado en sidebar, crea el marker y pinta una flecha
+     dependiento hacia donde se debe girar*/
+    $('.sidebar-item a').on('click', function() {
+      var id = $(this).data('index');
+      renderSelectedPath(id);
+      renderPin(id);
+      renderArrow(id);
+      $(".sidebar-item").removeClass("current");
+      $(this).parent().addClass("current");
+    });
+  };
 
   //Obtiene la polilinea conformada por un conjunto de trayectos, basada en el id_related
   function renderSelectedPath(id) {
@@ -104,10 +107,9 @@ var Route = function() {
         pLatLng.push(new google.maps.LatLng(obj[i].lat_end, obj[i].long_end));
       }
     }
-
     //Pinta de nuevo toda la ruta y el trayecto seleccionado en sidebar
     polyline.setMap(map.obj());
-    if (selectedPath) { map.obj().removeOverlay(selectedPath); }
+    if (selectedPath) { selectedPath.setMap(null); }
     selectedPath = new google.maps.Polyline({path: pLatLng, strokeColor: '#FFFFFF', strokeWeight: 3, strokeOpacity: 0.8});
     selectedPath.setMap(map.obj());
   }
@@ -115,21 +117,21 @@ var Route = function() {
   //Pinta una flecha verde, para indicar la posición elegida en sidebar
   //Url para arrow: http://maps.google.com/mapfiles/arrow.png  http://maps.google.com/mapfiles/arrowshadow.png
   function renderPin(id) {
-    var icon = new google.maps.Marker();
-    icon.image = "http://www.google.com/mapfiles/ms/micons/blue-pushpin.png";
-    icon.shadow = "http://www.google.com/mapfiles/ms/micons/pushpin_shadow.png";
-    icon.iconAnchor = new google.maps.Point(9, 34);
-    icon.shadowSize = new google.maps.Size(37, 34);
+    var icon = {};
+    icon.url = "http://www.google.com/mapfiles/ms/micons/blue-pushpin.png";
+    //    icon.shadow = "http://www.google.com/mapfiles/ms/micons/pushpin_shadow.png";
+    icon.anchor = new google.maps.Point(0, 32);
+    icon.size = new google.maps.Size(24, 24);
+
+    //    icon.shadowSize = new google.maps.Size(37, 34);
     //Si el marker existe entonces hay que quitarlo del mapa
-    if(pin) { map.obj().removeOverlay(pin); }
+    if(pin) { pin.setMap(null); }
     //Obtiene la posición lat-lng y pinta el pin marker y una flecha indicando hacia donde debe girar, l
     //Luego enfoca el mapa hacia ese punto
     var latLngPin = new google.maps.LatLng(obj[id].lat_start, obj[id].long_start);
-    pin = new google.maps.Marker(latLngPin, {
-      icon: icon
-    });
+    pin = new google.maps.Marker({position: latLngPin, icon: icon, map: map.obj()});
     map.obj().panTo(latLngPin);
-    pin.map = map.obj();
+    //pin.map = map.obj();
   }
 
   //Funcion que dibuja triangulos hacia la dirección que se va.
@@ -149,23 +151,22 @@ var Route = function() {
       while (dir >= 120) {dir -= 120;}
     }
 
-    if (arrow) {  map.obj().removeOverlay(arrow); }
+    if (arrow) {  arrow.setMap(null); }
 
     if (typeof dir !== "undefined") {
       var arrowIcon = createArrow(dir);
-      arrow = new google.maps.Marker( new google.maps.LatLng(obj[last_id].lat_end, obj[last_id].long_end), arrowIcon);
-      arrow.map = map.obj();
+      var arrowPos = new google.maps.LatLng(obj[last_id].lat_end, obj[last_id].long_end);
+      arrow = new google.maps.Marker({position: arrowPos, icon: arrowIcon, map: map.obj()});
     }
   }
 
   function createArrow(direction) {
-    var arrowIcon = new google.maps.Marker();
-    arrowIcon.iconSize = new google.maps.Size(24, 24);
-    arrowIcon.shadowSize = new google.maps.Size(1, 1);
-    arrowIcon.iconAnchor = new google.maps.Point(12, 12);
-    arrowIcon.infoWindowAnchor = new google.maps.Point(0, 0);
+    var arrowIcon = {};
+    arrowIcon.size = new google.maps.Size(24, 24);
+    arrowIcon.anchor = new google.maps.Point(12, 12);
+    // ?? arrowIcon.infoWindowAnchor = new google.maps.Point(0, 0);
     // == use the corresponding triangle marker
-    arrowIcon.image = "http://www.google.com/intl/en_ALL/mapfiles/dir_"+direction+".png";
+    arrowIcon.url = "http://www.google.com/intl/en_ALL/mapfiles/dir_"+direction+".png";
     return arrowIcon;
   }
 
@@ -186,11 +187,11 @@ var Route = function() {
   }
 
   function clearOverlays() {
-    if (metroPolyline) {map.obj().removeOverlay(metroPolyline);}
-    if (polyline) { map.obj().removeOverlay(polyline);}
-    if (selectedPath) {map.obj().removeOverlay(selectedPath);}
-    if (pin) {map.obj().removeOverlay(pin);}
-    if (arrow) {map.obj().removeOverlay(arrow);}
+    if (metroPolyline) {metroPolyline.setMap(null);}
+    if (polyline) { polyline.setMap(null);}
+    if (selectedPath) { selectedPath.setMap(null);}
+    if (pin) { pin.setMap(null);}
+    if (arrow) { arrow.setMap(null);}
   }
 
   function obj() {

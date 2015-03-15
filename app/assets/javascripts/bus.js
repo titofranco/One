@@ -69,12 +69,12 @@ var Bus = function() {
     for (var i = 0; i < Object.size(obj); i++) {
       if (bus_id == obj[i].bus_id) {
         initLatLng = new google.maps.LatLng(obj[i].lat_start, obj[i].long_start);
-        initMarker = new google.maps.Marker(initLatLng, icon);
+        initMarker = new google.maps.Marker({position: initLatLng, icon: icon, map: map.obj()});
         while (bus_id == obj[i].bus_id) {
           i++;
         }
         endLatLng = new google.maps.LatLng(obj[i-1].lat_end, obj[i-1].long_end);
-        endMarker = new google.maps.Marker(endLatLng, icon);
+        endMarker = new google.maps.Marker({position: endLatLng, icon: icon, map: map.obj()});
         //console.debug(" el lat_start " + lat_start + " lat end " + lat_end + " bus_id " + buses[i-1].bus_id);
       }
     }
@@ -83,11 +83,12 @@ var Bus = function() {
   }
 
   function createIcon() {
-    var icon = new GIcon();
-    icon.image = "http://www.google.com/mapfiles/ms/micons/bus.png";
-    icon.shadow = "http://www.google.com/mapfiles/ms/micons/bus.shadow.png";
-    icon.iconAnchor = new google.maps.Point(9, 34);
-    icon.shadowSize = new google.maps.Size(37, 34);
+    var icon = {};
+    icon.url = "http://www.google.com/mapfiles/ms/micons/bus.png";
+    //icon.shadow = "http://www.google.com/mapfiles/ms/micons/bus.shadow.png";
+    icon.origin = new google.maps.Point(0, 0);
+    icon.anchor = new google.maps.Point(0, 32);
+    icon.size = new google.maps.Size(37, 34);
     return icon;
   }
 
@@ -124,8 +125,8 @@ var Bus = function() {
     if (selector.hasClass("current")) {
       selector.removeClass("current");
       removePolyline(bus_id);
-      map.obj().removeOverlay(overlay[pos].initMarker);
-      map.obj().removeOverlay(overlay[pos].endMarker);
+      overlay[pos].initMarker.setMap(null);
+      overlay[pos].endMarker.setMap(null);
     } else {
       selector.addClass("current");
       overlay[pos].initMarker.map = map.obj();
@@ -138,8 +139,8 @@ var Bus = function() {
     //Remueve todas las polilineas y markers de rutas de buses activos
     for (var i=0; i<size; i++) {
       if (overlay[i].status == "active") {
-        map.obj().removeOverlay(overlay[i].initMarker);
-        map.obj().removeOverlay(overlay[i].endMarker);
+        overlay[i].initMarker.setMap(null);
+        overlay[i].endMarker.setMap(null);
         removePolyline(overlay[i].bus_id);
       }
     }
@@ -149,7 +150,7 @@ var Bus = function() {
   function removePolyline(bus_id) {
     var pos = overlayPosition(bus_id);
     var polyline = overlay[pos].polyline;
-    map.obj().removeOverlay(polyline);
+    polyline.setMap(null);
   }
 
   function obj() {
