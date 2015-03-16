@@ -1,0 +1,53 @@
+
+<div id="content_up">
+  <div id="tool-wrapper">
+    <div id="toolbar"></div>
+    <div id="inputBoxes">
+      <div id="explain">Haz click derecho sobre el mapa y elige el lugar de <b>origen</b> y de <b>destino</b>.
+        Luego sobre <b>"Mostrar Ruta!"</b>. <br>Los campos <b>"Origen"</b> y <b>"Destino"</b> tendrán temporalmente
+        <a class="normal_text" href="http://es.wikipedia.org/wiki/Coordenadas_geograficas">coordenadas geográficas</a>,
+        que luego serán reemplazadas por la dirección más cercana a los puntos escogidos.
+      </div>
+      <div id="inputArea">
+        <%= form_tag '', :id => "form" do %>
+        <%= image_tag("http://www.google.com/mapfiles/dd-start.png",
+        :class=>"icon") %>
+        <%= label_tag "start_point", 'Origen' %>
+        <%= text_field_tag 'start_point', nil, :class => 'start_point', :readonly => true %>
+        <%= image_tag "http://www.google.com/mapfiles/dd-end.png", :class => "icon" %>
+        <%= label_tag "end_point", 'Destino' %>
+        <%= text_field_tag 'end_point', nil, :class => 'end_point', :readonly => true %>
+        <label>&nbsp;</label>
+        <%= submit_tag "Mostrar Ruta!", :class => "button" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="content">
+  <div id="map-wrapper">
+    <div id="map"> </div>
+  </div>
+  <div id="sidebar">
+    <ul id="sidebar-list">
+    </ul>
+    <ul id="sidebar-bus-list">
+    </ul>
+  </div>
+</div>
+
+<div id="footer">Proyecto de grado: Carlos Guisao - Joan Ruiz | Copyright © 2010. Todos los derechos reservados
+  | Esta aplicación se encuentra en versión Beta
+</div>
+
+<div id="contextMenu">
+  <a href="#" id="setStartPoint"><div class="context">Ruta desde aquí</div></a>
+  <a href="#" id="setEndPoint"><div class="context">Ruta hasta aquí</div></a>
+  <hr>
+  <a href="#" id="zoomIn"><div class="context">Zoom In</div></a>
+  <a href="#" id="zoomOut"><div class="context">Zoom Out</div></a>
+  <a href="#" id="centerMap"><div class="context">Centrar mapa</div></a>
+  <hr>
+  <a href="#" id="clearMarkers"><div class="context">Reiniciar origen/destino </div></a>
+</div>

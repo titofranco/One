@@ -1,6 +1,6 @@
 class Mda
 
-  def initialize(rows,columns)
+  def initialize(rows, columns)
     @max_row = rows
     @max_column = columns
     @a = Array.new(rows)
@@ -36,13 +36,13 @@ class Mda
   #    end
   #    =end
 
-  def fill_array(i,row,column,value,stretch_type,lat,lon)
-    @a[i][0]=row
-    @a[i][1]=column
-    @a[i][2]=value
-    @a[i][3]=stretch_type
-    @a[i][4]=lat
-    @a[i][5]=lon
+  def fill_array(i, row, column, value, stretch_type, lat, lon)
+    @a[i][0] = row
+    @a[i][1] = column
+    @a[i][2] = value
+    @a[i][3] = stretch_type
+    @a[i][4] = lat
+    @a[i][5] = lon
   end
 
   # Metodo create_file
@@ -51,9 +51,9 @@ class Mda
   # nodo:nodoSiguiente,distancia,tipo;nodoSiguiente,distancia,tipo;...;&latitud,longitud\n
 
   def create_file
-    file = File.new("#{RAILS_ROOT}/lib/dijkstra/listas.txt","w+")
+    file = File.new("#{RAILS_ROOT}/lib/dijkstra/listas.txt", "w+")
     begin
-      for i in 0 ... @max_row-1
+      for i in 0 ... @max_row - 1
 
         # if @first_node
         #   file.printf @a[i][0].to_s + ":"
@@ -87,18 +87,15 @@ class Mda
   end
 
   def test_file
-
     iniTime = Time.now
     puts "#The initial Time: #{iniTime} "
-    m = Mda.new(10000,10000)
+    m = Mda.new(10000, 10000)
     puts  "#{Time.now - iniTime} seconds for creating the matrix"
-    m.fill_array(1,1,"wahahhahah",1)
-    m.fill_array(1,10,"pos 1 10",2)
+    m.fill_array(1, 1, "wahahhahah", 1)
+    m.fill_array(1, 10, "pos 1 10", 2)
     puts  "#{Time.now - iniTime} seconds for FILLING the matrix}"
     m.create_file
     puts  "#{Time.now - iniTime} seconds for creating the file}"
-
   end
 
 end
-
