@@ -110,7 +110,13 @@ var Route = function() {
     //Pinta de nuevo toda la ruta y el trayecto seleccionado en sidebar
     polyline.setMap(map.obj());
     if (selectedPath) { selectedPath.setMap(null); }
-    selectedPath = new google.maps.Polyline({path: pLatLng, strokeColor: '#FFFFFF', strokeWeight: 3, strokeOpacity: 0.8});
+    selectedPath = new google.maps.Polyline({
+      path: pLatLng,
+      geodesic: true,
+      strokeColor: "#FFFFFF",
+      strokeWeight: 3,
+      zIndex: 10,
+      strokeOpacity: 1.0});
     selectedPath.setMap(map.obj());
   }
 
