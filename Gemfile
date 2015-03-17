@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-ruby '2.1.2'
 gem 'rails', '3.2.3'
 gem "mysql2", "~> 0.3.6"
 gem 'json'
