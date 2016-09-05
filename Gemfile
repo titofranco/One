@@ -22,6 +22,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'spring'
   gem "rspec-rails"
   gem 'database_cleaner'
   gem "capybara"
